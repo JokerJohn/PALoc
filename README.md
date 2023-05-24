@@ -1,1 +1,1 @@
-# Prior-Assisted-SLAM
+# PALoc
