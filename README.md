@@ -31,7 +31,7 @@ Evaluating simultaneous localization and mapping (SLAM) algorithms necessitates 
 
 Our algorithms were tested on our [FusionPortable](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/) Dataset. Here is our sensor kit.
 
-![image-20230702135002100](./README/image-20230702135002100.png)
+
 
 ## Get Started
 
