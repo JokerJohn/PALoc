@@ -24,6 +24,8 @@ Evaluating simultaneous localization and mapping (SLAM) algorithms necessitates 
 
 ## News 
 
+- [2023/07]
+  - Journal under review. 
 - [2023/05.08]
   - Accepted by ICRA 2023 Workshop on Future of Construction.
 
@@ -34,6 +36,15 @@ Our algorithms were tested on our [FusionPortable](https://ram-lab.com/file/site
 ![image-20230702135628428](./README/image-20230702135628428.png)
 
 ## Get Started
+
+Codes will be released after journal accepted.
+
+- Bilibili
+<video width="720" height="303" controls> 
+<source src="https://www.bilibili.com/video/BV11V4y1a7Fd/" type="video/mp4">
+</video>
+
+
 
 ## Results
 
