@@ -39,12 +39,8 @@ Our algorithms were tested on our [FusionPortable](https://ram-lab.com/file/site
 
 Codes will be released after journal accepted.
 
-- Bilibili
-<video width="720" height="303" controls> 
-<source src="https://www.bilibili.com/video/BV11V4y1a7Fd/" type="video/mp4">
-</video>
-
-
+- [Bilibili](https://www.bilibili.com/video/BV11V4y1a7Fd/)
+- [Youtube](https://www.youtube.com/watch?v=_6a2gWYHeUk)
 
 ## Results
 
