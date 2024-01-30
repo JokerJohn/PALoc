@@ -19,10 +19,10 @@
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
 Experimental results demonstrate at least a 30% improvement in map accuracy and a 20% increase in direct trajectory accuracy over the ICP algorithm, across various campus environments.
 <div align="center">
-![Indoor SLAM Result](./README/image-20240131044249967.png)
-![Outdoor SLAM Result](./README/image-20240131044940524.png)
-</div>
 
+![Pipeline](./README/image-20240131044249967.png)
+![Daxtor Graph](./README/image-20240131044940524.png)
+</div>
 ## News
 
 - **2024/02/01**: Preparing codes for release.
@@ -63,8 +63,8 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 </div>
 
 ### Time Analysis
-
 <div align="center">
+
 ![Time Analysis 1](./README/image-20240131044902360.png)
 ![Time Analysis 2](./README/image-20240131044851437.png)
 </div>
