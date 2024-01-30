@@ -1,9 +1,8 @@
 <div id="top" align="center">
-  
+
 # [PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation](https://www.researchgate.net/publication/377778512_PALoc_Advancing_SLAM_Benchmarking_with_Prior-Assisted_6-DoF_Trajectory_Generation_and_Uncertainty_Estimation)
 
 ![image-20230702133158290](./README/image-20230702133158290.png)
-
 </div>
 
 ## Table of Contents
@@ -29,14 +28,14 @@ Accurately generating ground truth (GT) trajectories is essential for Simultaneo
 
 - [2024.02.01]
   - Preparing codes.
-- [202341.29]
-  - Accepted by 2024 IEEE/ASME TMECH.
+- [2024.1.29]
+  - Accepted by 2024 IEEE/ASME TRANSACTIONS ON MECHATRONICS (TMECH) .
 - [2023/12.08]
   - Resubmit.
 - [2023/08.22]
   - Reject and resubmit. 
 - [2023/05.13]
-  - Submitted to  IEEE/ASME TMECH.
+  - Submitted to  IEEE/ASME TRANSACTIONS ON MECHATRONICS (TMECH) .
 - [2023/05.08]
   - Accepted by  **[ICRA 2023 Workshop on Future of Construction](https://construction-robots.github.io/#)**.
 
