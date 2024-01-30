@@ -26,9 +26,9 @@ Accurately generating ground truth (GT) trajectories is essential for Simultaneo
 
 ## News
 
-- [2024.02.01]
+- [2024/02.01]
   - Preparing codes.
-- [2024.1.29]
+- [2024/01.29]
   - Accepted by 2024 IEEE/ASME TRANSACTIONS ON MECHATRONICS (TMECH) .
 - [2023/12.08]
   - Resubmit.
@@ -87,7 +87,6 @@ For this work,
 author = {Hu, Xiangcheng and Zheng, Linwei and Wu, Jin and Geng, Ruoyu and Wei, Hexiang and Wang, Lujia and Liu, Ming},
 year = {2024},
 month = {01},
-pages = {},
 title = {PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation},
 journal = {IEEE/ASME Transactions on Mechatronics}
 }
