@@ -41,7 +41,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 - **2024/02/01**: Preparing codes for release.
 - **2024/01/29**: Accepted by 2024 IEEE/ASME TRANSACTIONS ON MECHATRONICS (TMECH).
 - **2023/12/08**: Resubmitted.
-- **2023/08/22**: Revised and resubmitted.
+- **2023/08/22**: Reject and resubmitted.
 - **2023/05/13**: Submitted to IEEE/ASME TRANSACTIONS ON MECHATRONICS (TMECH).
 - **2023/05/08**: Accepted by [ICRA 2023 Workshop on Future of Construction](https://construction-robots.github.io/#).
 ## Dataset
