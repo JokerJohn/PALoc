@@ -1,14 +1,12 @@
 <div id="top" align="center">
-
-# [PALoc: Robust Prior-assisted Trajectory Generation for Benchmarking](https://arxiv.org/pdf/2305.13147.pdf)
-
-**[ICRA 2023 Workshop on Future of Construction](https://construction-robots.github.io/#)**
+# [PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation](https://www.researchgate.net/publication/377778512_PALoc_Advancing_SLAM_Benchmarking_with_Prior-Assisted_6-DoF_Trajectory_Generation_and_Uncertainty_Estimation)
 
 ![image-20230702133158290](./README/image-20230702133158290.png)
 
 </div>
 
 ## Table of Contents
+
 - [Introduction](#introduction)
 - [News](#news)
 - [Dataset](#data)
@@ -18,16 +16,28 @@
 - [License](#license)
 
 ## Introduction
-Evaluating simultaneous localization and mapping (SLAM) algorithms necessitates high-precision and dense ground truth (GT) trajectories. But obtaining desirable GT trajectories is sometimes challenging without GT tracking sensors. As an alternative, in this paper, we propose a novel prior-assisted SLAM system to generate a full six-degree-offreedom (6-DOF) trajectory at around 10Hz for benchmarking, under the framework of the factor graph. Our degeneracy aware map factor utilizes a prior point cloud map and LiDAR frame for point-to-plane optimization, simultaneously detecting degeneration cases to reduce drift and enhancing the consistency of pose estimation. Our system is seamlessly integrated with cutting-edge odometry via a loosely coupled scheme to generate high-rate and precise trajectories. Moreover, we propose a norm-constrained gravity factor for stationary cases, optimizing both pose and gravity to boost performance. Extensive evaluations demonstrate our algorithm’s superiority over existing SLAM or map-based methods in diverse scenarios, in terms of precision, smoothness, and robustness. Our approach substantially advances reliable and accurate SLAM evaluation methods, fostering progress in robotics research.
 
-![image-20230702134120453](./README/image-20230702134120453.png)
+Accurately generating ground truth (GT) trajectories is essential for Simultaneous Localization and Mapping (SLAM) evaluation, particularly under varying environmental conditions. This study introduces a systematic approach employing a prior map-assisted framework for generating dense six-degree-of-freedom (6-DoF) GT poses for the first time， enhancing the fidelity of both indoor and outdoor SLAM datasets. Our method excels in handling degenerate and stationary conditions frequently encountered in SLAM datasets, thereby increasing robustness and precision. A significant aspect of our approach is the detailed derivation of covariances within the factor graph, enabling an in-depth analysis of pose uncertainty propagation. This analysis crucially contributes to demonstrating specific pose uncertainties and enhancing trajectory reliability from both theoretical and empirical perspectives. Additionally, we provide an [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) for map evaluation criteria, facilitating the indirect assessment of overall trajectory precision.  Experimental results show at least a 30\% improvement in map accuracy and a 20\% increase in direct trajectory accuracy compared to the Iterative Closest Point (ICP)  algorithm across diverse campus environments, with substantially enhanced robustness. Our open-source solution, extensively applied in the FusionPortable  dataset, is geared towards SLAM benchmark dataset augmentation and represents a significant advancement in SLAM evaluations.
 
-## News 
+![image-20240131044249967](./README/image-20240131044249967.png)
 
-- [2023/07]
-  - Journal under review. 
+![image-20240131044940524](./README/image-20240131044940524.png)
+
+
+## News
+
+- [2024.02.01]
+  - Preparing codes.
+- [202341.29]
+  - Accepted by 2024 IEEE/ASME TMECH.
+- [2023/12.08]
+  - Resubmit.
+- [2023/08.22]
+  - Reject and resubmit. 
+- [2023/05.13]
+  - Submitted to  IEEE/ASME TMECH.
 - [2023/05.08]
-  - Accepted by ICRA 2023 Workshop on Future of Construction.
+  - Accepted by  **[ICRA 2023 Workshop on Future of Construction](https://construction-robots.github.io/#)**.
 
 ## Dataset
 
@@ -44,23 +54,42 @@ Codes will be released after journal accepted.
 
 ## Results
 
+- Trajectory evaluation
+
+![image-20240131044609655](./README/image-20240131044609655.png)
+
 - Map evaluation
 
-![image-20230702134519531](./README/image-20230702134519531.png)
+![image-20240131044537891](./README/image-20240131044537891.png)
 
-![image-20230702134345309](./README/image-20230702134345309.png)
+![image-20240131044423905](./README/image-20240131044423905.png)
+
+- Degeneracy Analysis
+
+| X Degenerate (Translation)                                   | Yaw Degenerate (Rotation)                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20240131044702442](./README/image-20240131044702442.png) | ![image-20240131044518033](./README/image-20240131044518033.png) |
+
+![image-20240131044808306](./README/image-20240131044808306.png)
+
+- Time analysis
+
+  ![image-20240131044902360](./README/image-20240131044902360.png)
+
+![image-20240131044851437](./README/image-20240131044851437.png)
 
 ## Citation
+
 For this work,
 
 ```
-@misc{hu2023paloc,
-      title={PALoc: Robust Prior-assisted Trajectory Generation for Benchmarking}, 
-      author={Xiangcheng Hu and Jin Wu and Jianhao Jiao and Ruoyu Geng and Ming Liu},
-      year={2023},
-      eprint={2305.13147},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO}
+@article{article,
+author = {Hu, Xiangcheng and Zheng, Linwei and Wu, Jin and Geng, Ruoyu and Wei, Hexiang and Wang, Lujia and Liu, Ming},
+year = {2024},
+month = {01},
+pages = {},
+title = {PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation},
+journal = {IEEE/ASME Transactions on Mechatronics}
 }
 ```
 The map evaluation metrics of this work follows [Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
