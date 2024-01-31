@@ -39,7 +39,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 ## News
 
 - **2024/02/01**: Preparing codes for release.
-- **2024/01/29**: Accepted by 2024 IEEE/ASME TRANSACTIONS ON MECHATRONICS (TMECH).
+- **2024/01/29**: Accepted by 2024 IEEE/ASME TMECH.
 - **2023/12/08**: Resubmitted.
 - **2023/08/22**: Reject and resubmitted.
 - **2023/05/13**: Submitted to IEEE/ASME TRANSACTIONS ON MECHATRONICS (TMECH).
@@ -94,7 +94,7 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 For referencing our work in PALoc, please use:
 ```
 @article{,
-author = {Hu, Xiangcheng and Zheng, Linwei and Wu, Jin and Geng, Ruoyu and Wei, Hexiang and Wang, Lujia，Jiao, Jianhao and Liu, Ming},
+author = {Hu, Xiangcheng and Zheng, Linwei and Wu, Jin and Geng, Ruoyu and Wei, Hexiang and Wang, Lujia， Jiao, Jianhao and Liu, Ming},
 year = {2024},
 month = {01},
 title = {PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation},
