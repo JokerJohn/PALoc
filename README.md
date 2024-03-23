@@ -32,6 +32,7 @@
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
 Experimental results demonstrate at least a 30% improvement in map accuracy and a 20% increase in direct trajectory accuracy over the ICP algorithm, across various campus environments.
 <div align="center">
+
 ![Pipeline](./README/image-20240131044249967.png)
 ![image-20240323135700128](./README/image-20240323135700128.png)
 </div>
