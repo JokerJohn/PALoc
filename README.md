@@ -48,6 +48,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 ## Dataset
 Our algorithms were rigorously tested on the [FusionPortable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). Below is our sensor kit setup.
 <div align="center">
+
 ![image-20240323135524774](./README/image-20240323135524774.png)
 </div>
 
@@ -69,6 +70,7 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 
 ### Map Evaluation
 <div align="center">
+
 ![Map Evaluation 1](./README/image-20240131044537891.png)
 ![image-20240323135817839](./README/image-20240323135817839.png)
 </div>
