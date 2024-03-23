@@ -1,8 +1,12 @@
 <div id="top" align="center">
-
 # [PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation](https://www.researchgate.net/publication/377778512_PALoc_Advancing_SLAM_Benchmarking_with_Prior-Assisted_6-DoF_Trajectory_Generation_and_Uncertainty_Estimation)
+
 ![PALoc Overview](./README/image-20230702133158290.png)
 </div>
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers)
+[![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -19,8 +23,6 @@
 
 - [License](#license)
 
-  
-
 ## Introduction
 
 **PALoc** presents a novel approach for generating high-fidelity, dense 6-DoF ground truth (GT) trajectories, enhancing the evaluation of Simultaneous Localization and Mapping (SLAM) under diverse environmental conditions. This framework leverages prior maps to improve the accuracy of indoor and outdoor SLAM datasets. Key features include:
@@ -30,9 +32,8 @@
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
 Experimental results demonstrate at least a 30% improvement in map accuracy and a 20% increase in direct trajectory accuracy over the ICP algorithm, across various campus environments.
 <div align="center">
-
 ![Pipeline](./README/image-20240131044249967.png)
-![Daxtor Graph](./README/image-20240131044940524.png)
+![image-20240323135700128](./README/image-20240323135700128.png)
 </div>
 
 
@@ -47,8 +48,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 ## Dataset
 Our algorithms were rigorously tested on the [FusionPortable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). Below is our sensor kit setup.
 <div align="center">
-
-![Sensor Kit](./README/image-20230702135628428.png)
+![image-20240323135524774](./README/image-20240323135524774.png)
 </div>
 
 
@@ -69,9 +69,8 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 
 ### Map Evaluation
 <div align="center">
-
 ![Map Evaluation 1](./README/image-20240131044537891.png)
-![Map Evaluation 2](./README/image-20240131044423905.png)
+![image-20240323135817839](./README/image-20240323135817839.png)
 </div>
 
 ### Degeneracy Analysis
@@ -79,7 +78,6 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![X Translation Degeneracy](./README/image-20240131044702442.png) | ![Yaw Rotation Degeneracy](./README/image-20240131044518033.png) |
 <div align="center">
-
 ![Degeneracy Analysis](./README/image-20240131044808306.png)
 </div>
 
