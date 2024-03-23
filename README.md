@@ -36,7 +36,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 <div align="center">
 
 ![Pipeline](./README/image-20240131044249967.png)
-![image-20240323135700128](./README/image-20240323135700128.png)
+![image-20240323140959367](./README/image-20240323140959367.png)
 </div>
 
 
@@ -52,7 +52,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 Our algorithms were rigorously tested on the [FusionPortable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). Below is our sensor kit setup.
 <div align="center">
 
-![image-20240323135524774](./README/image-20240323135524774.png)
+![image-20240323140835087](./README/image-20240323140835087.png)
 </div>
 
 
@@ -75,7 +75,7 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 <div align="center">
 
 ![Map Evaluation 1](./README/image-20240131044537891.png)
-![image-20240323135817839](./README/image-20240323135817839.png)
+![image-20240323141038974](./README/image-20240323141038974.png)
 </div>
 
 ### Degeneracy Analysis
@@ -83,6 +83,7 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![X Translation Degeneracy](./README/image-20240131044702442.png) | ![Yaw Rotation Degeneracy](./README/image-20240131044518033.png) |
 <div align="center">
+
 ![Degeneracy Analysis](./README/image-20240131044808306.png)
 </div>
 
