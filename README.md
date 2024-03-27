@@ -97,17 +97,20 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 ## Citations
 For referencing our work in PALoc, please use:
 ```
-@article{,
-author = {Hu, Xiangcheng and Zheng, Linwei and Wu, Jin and Geng, Ruoyu and Wei, Hexiang and Wang, Lujia， Jiao, Jianhao and Liu, Ming},
-year = {2024},
-month = {01},
-title = {PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation},
-journal = {IEEE/ASME Transactions on Mechatronics}
-}
+@ARTICLE{hu2024paloc,
+  author={Hu, Xiangcheng and Zheng, Linwei and Wu, Jin and Geng, Ruoyu and Yu, Yang and Wei, Hexiang and Tang, Xiaoyu and Wang, Lujia and Jiao, Jianhao and Liu, Ming},
+  journal={IEEE/ASME Transactions on Mechatronics}, 
+  title={PALoc: Advancing SLAM Benchmarking With Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation}, 
+  year={2024},
+  volume={},
+  number={},
+  pages={1-12},
+  doi={10.1109/TMECH.2024.3362902}
+  }
 ```
 The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
 ```
-@article{,
+@article{jiao2024,
   author    = {Jianhao Jiao and Hexiang Wei and Tianshuai Hu and Xiangcheng Hu and Yilong Zhu and Zhijian He and Jin Wu and Jingwen Yu and Xupeng Xie and Huaiyang Huang and Ruoyu Geng and Lujia Wang and Ming Liu},
   title     = {FusionPortable: A Multi-Sensor Campus-Scene Dataset for Evaluation of Localization and Mapping Accuracy on Diverse Platforms},
   booktitle = {2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
