@@ -1,6 +1,6 @@
 <div id="top" align="center">
 
-# [PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation](https://www.researchgate.net/publication/377778512_PALoc_Advancing_SLAM_Benchmarking_with_Prior-Assisted_6-DoF_Trajectory_Generation_and_Uncertainty_Estimation)
+# [PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation](https://ieeexplore.ieee.org/document/10480308)
 
 ![PALoc Overview](./README/image-20230702133158290.png)
 </div>
@@ -42,6 +42,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 ## News
 
+- **2024/03/26**: [Early access](https://ieeexplore.ieee.org/document/10480308) by IEEE/ASME TMECH.
 - **2024/02/01**: Preparing codes for release.
 - **2024/01/29**: Accepted by 2024 IEEE/ASME TMECH.
 - **2023/12/08**: Resubmitted.
@@ -110,7 +111,7 @@ For referencing our work in PALoc, please use:
 ```
 The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
 ```
-@article{jiao2024,
+@article{jiao2024fp,
   author    = {Jianhao Jiao and Hexiang Wei and Tianshuai Hu and Xiangcheng Hu and Yilong Zhu and Zhijian He and Jin Wu and Jingwen Yu and Xupeng Xie and Huaiyang Huang and Ruoyu Geng and Lujia Wang and Ming Liu},
   title     = {FusionPortable: A Multi-Sensor Campus-Scene Dataset for Evaluation of Localization and Mapping Accuracy on Diverse Platforms},
   booktitle = {2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
