@@ -121,4 +121,4 @@ The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://gi
 
 ## License
 
-This project's code is available under the [GNU General Public License v3.0](./LICENSE).
+This project's code is available under the [MIT LICENSE](./LICENSE).
