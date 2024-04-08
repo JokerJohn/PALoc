@@ -106,12 +106,23 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 ### Time Analysis
 
 <div align="center">
-
 ![Time Analysis 1](./README/image-20240131044902360.png)
 ![Time Analysis 2](./README/image-20240131044851437.png)
 </div>
 
 To plot the results, you can follow this [scripts](https://github.com/JokerJohn/SLAMTools/blob/main/Run_Time_analysis/time_analysis.py).
+
+## Important Issue
+
+### How do we calculate cov of odom factor in GTSAM?
+
+We follow the assumption of pose Independence as barfoot does(TRO 2014) as equation (13), there is no correlated cov between this two poses. Left-hand convention means a small increments on **world frame**.
+
+![image-20240408203918682](./README/image-20240408203918682.png)
+
+ Since GTSAM follow the right-hand convention on SE(3) , we need to use the adjoint representation as equation (14). 
+
+![image-20240408204125990](./README/image-20240408204125990.png)
 
 ## Citations
 
