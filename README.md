@@ -34,7 +34,6 @@
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
 Experimental results demonstrate at least a 30% improvement in map accuracy and a 20% increase in direct trajectory accuracy over the ICP algorithm, across various campus environments.
 <div align="center">
-
 ![Pipeline](./README/image-20240131044249967.png)
 ![image-20240323140959367](./README/image-20240323140959367.png)
 </div>
@@ -49,12 +48,27 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 - **2023/08/22**: Reject and resubmitted.
 - **2023/05/13**: Submitted to IEEE/ASME TRANSACTIONS ON MECHATRONICS (TMECH).
 - **2023/05/08**: Accepted by [ICRA 2023 Workshop on Future of Construction](https://construction-robots.github.io/#).
+
 ## Dataset
-Our algorithms were rigorously tested on the [FusionPortable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). Below is our sensor kit setup.
+
+### [Fusion Portable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
+
+Our algorithms were rigorously tested on the [FusionPortable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
+
+### Self-collected Dataset
+
+Below is our sensor kit setup.
 <div align="center">
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
+
 </div>
+
+| Dataset    | BAG                                                          | GT                                                           |
+| ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| redbird_01 | [rosbag](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EW-bKP6RkZpPhRHfk2DReeEBwN8MvP2Eq5cfoUIBYglwEQ?e=Rhetkr) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
+| redbird_02 | [rosbag](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
+
 
 
 ## Getting Started
@@ -73,8 +87,8 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 </div>
 
 ### Map Evaluation
-<div align="center">
 
+<div align="center">
 ![Map Evaluation 1](./README/image-20240131044537891.png)
 ![image-20240323141038974](./README/image-20240323141038974.png)
 </div>
