@@ -34,6 +34,7 @@
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
 Experimental results demonstrate at least a 30% improvement in map accuracy and a 20% increase in direct trajectory accuracy over the ICP algorithm, across various campus environments.
 <div align="center">
+
 ![Pipeline](./README/image-20240131044249967.png)
 ![image-20240323140959367](./README/image-20240323140959367.png)
 </div>
@@ -61,7 +62,6 @@ Below is our sensor kit setup.
 <div align="center">
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
-
 </div>
 
 | Dataset    | BAG                                                          | GT                                                           |
@@ -82,12 +82,14 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 ### Trajectory Evaluation
 
 <div align="center">
+
 ![Trajectory Evaluation](./README/image-20240131044609655.png)
 </div>
 
 ### Map Evaluation
 
 <div align="center">
+
 ![Map Evaluation 1](./README/image-20240131044537891.png)
 ![image-20240323141038974](./README/image-20240323141038974.png)
 </div>
@@ -104,6 +106,7 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 ### Time Analysis
 
 <div align="center">
+
 ![Time Analysis 1](./README/image-20240131044902360.png)
 ![Time Analysis 2](./README/image-20240131044851437.png)
 </div>
