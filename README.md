@@ -53,7 +53,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 ### [Fusion Portable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
 
-Our algorithms were rigorously tested on the [FusionPortable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
+Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
 
 ### Self-collected Dataset
 
@@ -82,7 +82,6 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 ### Trajectory Evaluation
 
 <div align="center">
-
 ![Trajectory Evaluation](./README/image-20240131044609655.png)
 </div>
 
@@ -103,13 +102,16 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 </div>
 
 ### Time Analysis
-<div align="center">
 
+<div align="center">
 ![Time Analysis 1](./README/image-20240131044902360.png)
 ![Time Analysis 2](./README/image-20240131044851437.png)
 </div>
 
+To plot the results, you can follow this [scripts](https://github.com/JokerJohn/SLAMTools/blob/main/Run_Time_analysis/time_analysis.py).
+
 ## Citations
+
 For referencing our work in PALoc, please use:
 ```
 @ARTICLE{hu2024paloc,
