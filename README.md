@@ -25,6 +25,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 ## News
 
+- **2024/08/12**: clean codes.
 - **2024/03/26**: [Early access](https://ieeexplore.ieee.org/document/10480308) by IEEE/ASME TMECH.
 - **2024/02/01**: Preparing codes for release.
 - **2024/01/29**: Accepted by 2024 IEEE/ASME TMECH.
@@ -37,7 +38,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 ### GEODE Dataset
 
-stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to narrow stairs ,  you need to tune some parameters of ICP.
+stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to narrow stairs ,  you need to tune some parameters of **ICP**.
 
 | Sensor setup           | Download link                    |
 | ---------------------- | -------------------------------- |
@@ -72,10 +73,6 @@ Below is our sensor kit setup.
 The complete code will be released post-journal acceptance. For a sneak peek:
 - [Watch on Bilibili](https://www.bilibili.com/video/BV11V4y1a7Fd/)
 - [Watch on YouTube](https://www.youtube.com/watch?v=_6a2gWYHeUk)
-
-
-
-
 
 
 
