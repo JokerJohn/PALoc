@@ -38,12 +38,12 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 ### GEODE Dataset
 
-stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to narrow stairs ,  you need to tune some parameters of **ICP**.
+Stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to narrow stairs ,  you need to tune some parameters of **ICP**.
 
 | Sensor setup           | Download link                    |
 | ---------------------- | -------------------------------- |
-| Velodyne16+ xsense IMU | http://gofile.me/4jm56/RzBzfzLev |
-| Ouster64 + xsense IMU  | http://gofile.me/4jm56/fPEAr1H0U |
+| Velodyne16+ xsense IMU | http://gofile.me/4jm56/yCBxjdEXA |
+| Ouster64 + xsense IMU  | http://gofile.me/4jm56/2EoKPDfKi |
 
 ![image-20240812181454491](./README/image-20240812181454491.png)
 
@@ -129,7 +129,7 @@ We follow the assumption of pose Independence as barfoot does(TRO 2014) as equat
 ## Citations
 
 For referencing our work in PALoc, please use:
-```
+```bibtex
 @ARTICLE{hu2024paloc,
   author={Hu, Xiangcheng and Zheng, Linwei and Wu, Jin and Geng, Ruoyu and Yu, Yang and Wei, Hexiang and Tang, Xiaoyu and Wang, Lujia and Jiao, Jianhao and Liu, Ming},
   journal={IEEE/ASME Transactions on Mechatronics}, 
@@ -142,7 +142,7 @@ For referencing our work in PALoc, please use:
   }
 ```
 The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
-```
+```bibtex
 @article{jiao2024fp,
   author    = {Jianhao Jiao and Hexiang Wei and Tianshuai Hu and Xiangcheng Hu and Yilong Zhu and Zhijian He and Jin Wu and Jingwen Yu and Xupeng Xie and Huaiyang Huang and Ruoyu Geng and Lujia Wang and Ming Liu},
   title     = {FusionPortable: A Multi-Sensor Campus-Scene Dataset for Evaluation of Localization and Mapping Accuracy on Diverse Platforms},
@@ -151,6 +151,8 @@ The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://gi
 }
 ```
 
-## License
+## Contributors
 
-This project's code is available under the [MIT LICENSE](./LICENSE).
+<a href="https://github.com/JokerJohn/PALoc/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=JokerJohn/PALoc" />
+</a>
