@@ -1,29 +1,12 @@
-<div id="top" align="center">
 
-# [PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation](https://ieeexplore.ieee.org/document/10480308)
+<div align="center">
+
+<h1>PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation</h1>
 
 ![PALoc Overview](./README/image-20230702133158290.png)
+<a href="https://ieeexplore.ieee.org/document/10480308"><img src='https://img.shields.io/badge/IEEE TMECH 2024- PALoc -red' alt='Paper PDF'></a> [![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers) [![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)<a href="https://github.com/JokerJohn/PALoc/blob/main/"><img src="https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black" /></a>
+
 </div>
-
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers)
-[![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)
-
-## Table of Contents
-
-- [Introduction](#introduction)
-
-- [News](#news)
-
-- [Dataset](#dataset)
-
-- [Getting Started](#getting-started)
-
-- [Results](#results)
-
-- [Citations](#citations)
-
-- [License](#license)
 
 ## Introduction
 
@@ -52,6 +35,19 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 ## Dataset
 
+### GEODE Dataset
+
+stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to narrow stairs ,  you need to tune some parameters of ICP.
+
+| Sensor setup           | Download link                    |
+| ---------------------- | -------------------------------- |
+| Velodyne16+ xsense IMU | http://gofile.me/4jm56/RzBzfzLev |
+| Ouster64 + xsense IMU  | http://gofile.me/4jm56/fPEAr1H0U |
+
+![image-20240812181454491](./README/image-20240812181454491.png)
+
+
+
 ### [Fusion Portable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
 
 Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
@@ -77,6 +73,12 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 - [Watch on Bilibili](https://www.bilibili.com/video/BV11V4y1a7Fd/)
 - [Watch on YouTube](https://www.youtube.com/watch?v=_6a2gWYHeUk)
 
+
+
+
+
+
+
 ## Results
 
 ### Trajectory Evaluation
@@ -87,6 +89,8 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 </div>
 
 ### Map Evaluation
+
+
 
 <div align="center">
 
