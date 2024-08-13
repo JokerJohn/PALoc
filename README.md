@@ -273,6 +273,16 @@ The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://gi
 }
 ```
 
+## Acknowledgment
+
+The code in this project is adapted from the following projects:
+
+- The odometry  method is adapted from [FAST-LIO2](https://github.com/hku-mars/FAST_LIO).
+- The basic framework for pose graph optimization (PGO) is adapted from [SC-A-LOAM](https://github.com/gisbi-kim/SC-A-LOAM).
+- The Point-to-Plane registration is adapted from [LOAM](https://github.com/laboshinl/loam_velodyne).
+
+
+
 ## Contributors
 
 <a href="https://github.com/JokerJohn/PALoc/graphs/contributors">
