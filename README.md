@@ -86,6 +86,18 @@ roslaunch paloc geode_beta_os64.launch
 
 
 
+#### Save data
+
+```bash
+rosservice call /save_map
+```
+
+![image-20240813173140476](./README/image-20240813173140476.png)
+
+
+
+
+
 ### TODO
 
 - clean codes
