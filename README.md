@@ -3,9 +3,13 @@
 
 <h1>PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation</h1>
 
-![PALoc Overview](./README/image-20230702133158290.png)
-<a href="https://ieeexplore.ieee.org/document/10480308"><img src='https://img.shields.io/badge/IEEE TMECH 2024- PALoc -red' alt='Paper PDF'></a> [![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers) [![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)<a href="https://github.com/JokerJohn/PALoc/blob/main/"><img src="https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black" /></a>
+<a href="https://ieeexplore.ieee.org/document/10480308"><img src='https://img.shields.io/badge/TMECH 2024- PALoc -red' alt='Paper PDF'></a><a href="https://www.youtube.com/watch?v=_6a2gWYHeUk">
+<img alt="Youtube" src="https://img.shields.io/badge/Video-Youtube-red"/>
+</a><a ><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-blue" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers) [![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)<a href="https://github.com/JokerJohn/PALoc/network/members">
+<img alt="FORK" src="https://img.shields.io/github/forks/JokerJohn/PALoc?color=white" />
+</a>[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+![PALoc Overview](./README/image-20230702133158290.png)
 </div>
 
 ## Introduction
