@@ -50,9 +50,9 @@ Stairs  scenes with different  types of lidar and **glass noise**. This is very 
 
 The prior map and raw map.
 
-| Prior map without glass noise    | raw prior map                    |
-| -------------------------------- | -------------------------------- |
-| http://gofile.me/4jm56/SfohLpthw | http://gofile.me/4jm56/pK0A9zTJn |
+| Prior map without glass noise    | raw prior map                    |      |
+| -------------------------------- | -------------------------------- | ---- |
+| http://gofile.me/4jm56/SfohLpthw | http://gofile.me/4jm56/pK0A9zTJn |      |
 
 
 
@@ -60,9 +60,9 @@ The prior map and raw map.
 
 Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
 
-| Sequence                                                     | GT Map                           |
-| ------------------------------------------------------------ | -------------------------------- |
-| [20220216_corridor_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | http://gofile.me/4jm56/mRT2hkB25 |
+| Sequence                                                     | GT Map                           | Scene                                                        |
+| ------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------ |
+| [20220216_corridor_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | http://gofile.me/4jm56/mRT2hkB25 | ![image-20240813213307904](./README/image-20240813213307904.png) |
 
 
 
