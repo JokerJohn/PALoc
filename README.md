@@ -178,7 +178,7 @@ common:
 
 #### Evaluation with [Cloud Map Evaluation Lib](https://github.com/JokerJohn/Cloud_Map_Evaluation)
 
-We can evaluate the map accuracy of PAloc as follows. Note that when you use the Cloud Map Evaluation library, the map of PALoc or ICP  do not need to set initial pose since they are already in the same frame. But evaluate the map from FAST-LIO2 must to set it.
+We can evaluate the map accuracy of PAloc as follows. Note that when you use the Cloud Map Evaluation library, the map of PALoc or ICP  do not need to set initial pose since they are already in the same frame. But evaluate the map from FAST-LIO2 must to set it. 
 
 
 
@@ -186,6 +186,7 @@ We can evaluate the map accuracy of PAloc as follows. Note that when you use the
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![image-20240813190359418](./README/image-20240813190359418.png) | ![image-20240813190440224](./README/image-20240813190440224.png) |
 
+Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S) here.
 
 
 
