@@ -3,12 +3,13 @@
 
 <h1>PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation</h1>
 
+![PALoc Overview](./README/image-20230702133158290.png)
+
 <a href="https://ieeexplore.ieee.org/document/10480308"><img src='https://img.shields.io/badge/TMECH 2024- PALoc -red' alt='Paper PDF'></a><a href="https://www.youtube.com/watch?v=_6a2gWYHeUk">
 <img alt="Youtube" src="https://img.shields.io/badge/Video-Youtube-red"/></a>[![video](https://img.shields.io/badge/Video-Bilibili-74b9ff?logo=bilibili&logoColor=red)](https://www.bilibili.com/video/BV11V4y1a7Fd/)<a ><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-blue" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers) [![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)<a href="https://github.com/JokerJohn/PALoc/network/members">
 <img alt="FORK" src="https://img.shields.io/github/forks/JokerJohn/PALoc?color=white" />
 </a>[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-![PALoc Overview](./README/image-20230702133158290.png)
 </div>
 
 ## Introduction
@@ -20,13 +21,14 @@
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
 Experimental results demonstrate at least a 30% improvement in map accuracy and a 20% increase in direct trajectory accuracy over the ICP algorithm, across various campus environments.
 <div align="center">
+
 ![Pipeline](./README/image-20240131044249967.png)
 </div>
 
 
 ## News
 
-- **2024/08/14**: Release codes.
+- **2024/08/14**: 🔥Release codes and data.
 - **2024/03/26**: [Early access](https://ieeexplore.ieee.org/document/10480308) by IEEE/ASME TMECH.
 - **2024/02/01**: Preparing codes for release.
 - **2024/01/29**: Accepted by 2024 IEEE/ASME TMECH.
@@ -84,10 +86,6 @@ Below is our sensor kit setup.
 
 
 ## Getting Started
-
-The complete code will be released post-journal acceptance. For a sneak peek:
-- [Watch on Bilibili](https://www.bilibili.com/video/BV11V4y1a7Fd/)
-- [Watch on YouTube](https://www.youtube.com/watch?v=_6a2gWYHeUk)
 
 ### Install
 
