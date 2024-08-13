@@ -166,7 +166,15 @@ common:
 
 ![image-20240807094808981](./README/image-20240807094808981.png)
 
+#### Evaluation with [Cloud Map Evaluation Lib](https://github.com/JokerJohn/Cloud_Map_Evaluation)
 
+We can evaluate the map accuracy of PAloc as follows. Note that when you use the Cloud Map Evaluation library, the map of PALoc or ICP  do not need to set initial pose since they are already in the same frame. But evaluate the map from FAST-LIO2 must to set it.
+
+
+
+| Raw Error Map                                                | Entropy Map                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20240813190359418](./README/image-20240813190359418.png) | ![image-20240813190440224](./README/image-20240813190440224.png) |
 
 
 
