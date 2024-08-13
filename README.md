@@ -50,13 +50,13 @@ Stairs  scenes with different  types of lidar and **glass noise**. This is very 
 
 The prior map and raw map.
 
-| Prior map without glass noise    | raw prior map                    |      |
-| -------------------------------- | -------------------------------- | ---- |
-| http://gofile.me/4jm56/SfohLpthw | http://gofile.me/4jm56/pK0A9zTJn |      |
+| Prior map without glass noise    | raw prior map                    |
+| -------------------------------- | -------------------------------- |
+| http://gofile.me/4jm56/SfohLpthw | http://gofile.me/4jm56/pK0A9zTJn |
 
 
 
-### [Fusion Portable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
+### [FusionPortable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
 
 Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
 
@@ -73,10 +73,10 @@ Below is our sensor kit setup.
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
 
-| Dataset    | BAG                                                          | GT                                                           |
-| ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| redbird_01 | [rosbag](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EW-bKP6RkZpPhRHfk2DReeEBwN8MvP2Eq5cfoUIBYglwEQ?e=Rhetkr) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
-| redbird_02 | [rosbag](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
+| Sequence                                                     | [GT Map](http://gofile.me/4jm56/C1OOhgG65) | GT Trajectory                                                |
+| ------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------ |
+| [redbird_01](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EW-bKP6RkZpPhRHfk2DReeEBwN8MvP2Eq5cfoUIBYglwEQ?e=Rhetkr) |                                            | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
+| [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) |                                            | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
 
 </div>
 
@@ -105,7 +105,7 @@ roslaunch paloc geode_beta_os64.launch
 #velodyne 16
 roslaunch paloc geode_alpha_vlp16.launch
 
-#os128 fusionportable-corridor
+#ouster128 fusionportable-corridor
 roslaunch paloc fp_corridor.launch
 ```
 
@@ -118,7 +118,7 @@ rosbag play stairs_bob.bag
 #velodyne16
 rosbag play stairs_alpha.bag
 
-#os128 fusionportable-corridor
+#ouster128 fusionportable-corridor
 rosbag play 20220216_corridor_day_ref.bag
 ```
 
