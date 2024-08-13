@@ -2,10 +2,10 @@ common:
   lid_topic: "/velodyne_points"
   imu_topic: "/imu/data"
 
-  acc_cov: 1.0481546278947311e-01  # acc noise and bias
-  b_acc_cov: 1.8451561389195461e-03
-  gyr_cov: 9.6690835928856730e-02   # gyro noise and bias
-  b_gyr_cov: 8.2887875865635737e-04
+  acc_cov: 1.0481546278947311e-02  # acc noise and bias
+  b_acc_cov: 1.8451561389195461e-04
+  gyr_cov: 9.6690835928856730e-03   # gyro noise and bias
+  b_gyr_cov: 8.2887875865635737e-05
 
   extrinsic_T: [ 0.0961, -0.1338, 0.3032 ]    # from lidar to imu
   extrinsic_R: [ 0.9999,0.0049, 0.0153,
@@ -56,7 +56,7 @@ pgo:
   useGlobalPrior: true
   icpO3dType: 2                                    # 0: icp 1:point2plane 2:gicp
   degeneracy_thres: 50
-  correspondence_dis: 2.0                          # stair_bob: 0.6;
+  correspondence_dis: 0.8                          # stair_bob: 0.6;
   map_radius: 40
   map_filter_size: 0.1                             # indoor:0.1, outdoor:0.2
 

@@ -60,6 +60,12 @@ The prior map and raw map.
 
 Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
 
+| Sequence                                                     | GT Map                           |
+| ------------------------------------------------------------ | -------------------------------- |
+| [20220216_corridor_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | http://gofile.me/4jm56/mRT2hkB25 |
+
+
+
 ### Self-collected Dataset
 
 Below is our sensor kit setup.
@@ -98,6 +104,9 @@ roslaunch paloc geode_beta_os64.launch
 
 #velodyne 16
 roslaunch paloc geode_alpha_vlp16.launch
+
+#os128 fusionportable-corridor
+roslaunch paloc fp_corridor.launch
 ```
 
 then play rosbag:
@@ -108,9 +117,12 @@ rosbag play stairs_bob.bag
 
 #velodyne16
 rosbag play stairs_alpha.bag
+
+#os128 fusionportable-corridor
+rosbag play 20220216_corridor_day_ref.bag
 ```
 
- You can save data.
+ You can save data. 
 
 ```bash
 rosservice call /save_map
