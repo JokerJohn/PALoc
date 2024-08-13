@@ -47,6 +47,12 @@ Stairs  scenes with different  types of lidar and **glass noise**. This is very 
 
 ![image-20240812181454491](./README/image-20240812181454491.png)
 
+The prior map and raw map.
+
+| Prior map without glass noise    | raw prior map                    |
+| -------------------------------- | -------------------------------- |
+| http://gofile.me/4jm56/SfohLpthw | http://gofile.me/4jm56/pK0A9zTJn |
+
 
 
 ### [Fusion Portable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
