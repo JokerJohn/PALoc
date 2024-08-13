@@ -36,16 +36,17 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 ## Dataset
 
-### GEODE Dataset
+### GEODE Dataset From SYSU
 
-Stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to narrow stairs ,  you need to tune some parameters of **ICP**.
+Stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to **narrow stairs** ,  you need to tune some parameters of **ICP**.
 
 | Sensor setup           | Download link                    |
 | ---------------------- | -------------------------------- |
 | Velodyne16+ xsense IMU | http://gofile.me/4jm56/yCBxjdEXA |
 | Ouster64 + xsense IMU  | http://gofile.me/4jm56/2EoKPDfKi |
 
-![image-20240812181454491](./README/image-20240812181454491.png)
+| ![image-20240813195354720](./README/image-20240813195354720.png) | ![image-20240812181454491](./README/image-20240812181454491.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
 
 The prior map and raw map.
 
@@ -65,12 +66,13 @@ Below is our sensor kit setup.
 <div align="center">
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
-</div>
 
 | Dataset    | BAG                                                          | GT                                                           |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | redbird_01 | [rosbag](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EW-bKP6RkZpPhRHfk2DReeEBwN8MvP2Eq5cfoUIBYglwEQ?e=Rhetkr) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
 | redbird_02 | [rosbag](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
+
+</div>
 
 
 
@@ -91,13 +93,21 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 download the demo rosbag and prior map, set the file path in `geode_beta_os64.launch`.
 
 ```bash
+#ouster64
 roslaunch paloc geode_beta_os64.launch
+
+#velodyne 16
+roslaunch paloc geode_alpha_vlp16.launch
 ```
 
 then play rosbag:
 
 ```bash
+# ouster64
 rosbag play stairs_bob.bag
+
+#velodyne16
+rosbag play stairs_alpha.bag
 ```
 
  You can save data.
@@ -199,8 +209,6 @@ We can evaluate the map accuracy of PAloc as follows. Note that when you use the
 </div>
 
 ### Map Evaluation
-
-
 
 <div align="center">
 
