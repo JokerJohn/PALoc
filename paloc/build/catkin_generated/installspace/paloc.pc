@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: paloc
-Description: Description of paloc
-Version: 1.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

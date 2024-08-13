@@ -117,6 +117,8 @@ Set your file path in `geode_beta_os64.launch`. Put your prior map file in `prio
 
 ![image-20240813184225320](./README/image-20240813184225320.png)
 
+#### Adapt for FAST-LIO2
+
 Set parameters in `geode_beta_os64.yaml`.  Adapt for the FAST-LIO2 first. 
 
 ```yaml
@@ -142,7 +144,9 @@ lio:
 
 ```
 
-then set the initial pose. 
+#### Initial pose
+
+then set the initial pose.  When you run the launch command, the first point cloud will be saved in `save_directory`,  you can align it with the prior map using [CloudCompare](https://www.danielgm.net/cc/) to get the initial pose.
 
 ```yaml
 common:
@@ -152,9 +156,9 @@ common:
                   0.000000, 0.000000, 0.000000, 1.000000 ]
 ```
 
+![image-20240813185337470](./README/image-20240813185337470.png)
 
-
-
+![image-20240807094808981](./README/image-20240807094808981.png)
 
 
 
@@ -165,6 +169,7 @@ common:
 
 - clean codes
 - tutorial and parameters tuning
+- support for LIO-SAM
 - gravity factor
 - adapt for more dataset and lidar 
 
