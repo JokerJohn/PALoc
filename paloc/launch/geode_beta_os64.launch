@@ -5,9 +5,6 @@
     <param name="save_directory" type="string" value="/home/xchu/data/paloc_result/"/>
     <param name="prior_map_directory" type="string" value="/home/xchu/data/prior_map/paloc_map_file/"/>
 
-    <!--set your data bag path-->
-    <arg name="bag_path"
-         default="/media/xchu/新加卷/GEODE/Stairs/stairs_bob.bag"/>
     <arg name="sequence" default="stairs_bob"/>
 
     <!-- set your mapping params-->
@@ -23,5 +20,8 @@
     <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_pgo"
           args="-d $(find paloc)/config/rviz/ouster_indoors.rviz"/>
 
+         <!--set your data bag path-->
+    <arg name="bag_path"
+         default="/media/xchu/新加卷/GEODE/Stairs/stairs_bob.bag"/>
 
 </launch>

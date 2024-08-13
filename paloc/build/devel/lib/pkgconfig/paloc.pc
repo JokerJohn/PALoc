@@ -1,0 +1,8 @@
+prefix=/home/xchu/my_git/PALoc/paloc/build/devel
+
+Name: paloc
+Description: Description of paloc
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

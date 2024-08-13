@@ -76,23 +76,86 @@ The complete code will be released post-journal acceptance. For a sneak peek:
 
 ### Install
 
-- Open3D
+- *[Open3d ( >= 0.11)](https://github.com/isl-org/Open3D)*
 - PCL
 - GTSAM
+
+### Quickly Run
+
+download the demo rosbag and prior map, set the file path in `geode_beta_os64.launch`.
 
 ```bash
 roslaunch paloc geode_beta_os64.launch
 ```
 
+then play rosbag:
 
+```bash
+rosbag play stairs_bob.bag
+```
 
-#### Save data
+ You can save data.
 
 ```bash
 rosservice call /save_map
 ```
 
 ![image-20240813173140476](./README/image-20240813173140476.png)
+
+### For your own dataset
+
+#### Set Parameters
+
+Set your file path in `geode_beta_os64.launch`. Put your prior map file in `prior_map_directory`, the map name must be set as the `sequence`.  The map file size is recommend to down-sampled less than 2Gb.  
+
+```bash
+<param name="save_directory" type="string" value="/home/xchu/data/paloc_result/"/>
+<param name="prior_map_directory" type="string" value="/home/xchu/data/prior_map/paloc_map_file/"/>
+
+<arg name="sequence" default="stairs_bob"/>
+```
+
+![image-20240813184225320](./README/image-20240813184225320.png)
+
+Set parameters in `geode_beta_os64.yaml`.  Adapt for the FAST-LIO2 first. 
+
+```yaml
+common:
+  lid_topic: "/ouster/points"
+  imu_topic: "/imu/data"
+
+  acc_cov: 1.1118983704388789e-01                     # acc noise and bias
+  b_acc_cov: 1.5961182793700285e-03
+  gyr_cov: 9.6134865171113148e-02                     # gyro noise and bias
+  b_gyr_cov: 7.9993782046705285e-04
+
+  extrinsic_T: [ -0.027172, -0.034873, 0.062643 ]     # from lidar to imu
+  extrinsic_R: [ 0.998638, 0.052001, -0.004278,
+                 -0.051937, 0.998554, 0.013900,
+                 0.004994, -0.013659, 0.999894 ]
+lio:
+  lidar_type: 8      # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR,
+  scan_line: 64
+  scan_rate: 10      # only need to be set for velodyne, unit: Hz,
+  timestamp_unit: 3  # 0-second, 1-milisecond, 2-microsecond, 3-nanosecond.
+  blind: 0.5         # remove the nearest point cloud
+
+```
+
+then set the initial pose. 
+
+```yaml
+common:
+    initial_pose: [ -0.519301, 0.850557, 0.082936 ,-11.347226,
+                  -0.852164, -0.522691, 0.024698, 3.002144,
+                  0.064357, -0.057849, 0.996249, -0.715776,
+                  0.000000, 0.000000, 0.000000, 1.000000 ]
+```
+
+
+
+
+
 
 
 
