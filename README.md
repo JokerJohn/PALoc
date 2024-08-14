@@ -39,9 +39,15 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 ## Dataset
 
-### GEODE Dataset From SYSU
+### GEODE Dataset
 
-Stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to **narrow stairs** ,  you need to tune some parameters of **ICP**.
+This data was provided by Zhiqiang Chen and [Prof.Yuhua Qi](https://ssse.sysu.edu.cn/teacher/1016) from SYSU.
+
+Stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to **narrow stairs** ,  you need to tune some parameters of **ICP**. The prior map and raw map can be downloaded.
+
+| [Prior map without glass noise](http://gofile.me/4jm56/SfohLpthw) | [Raw prior map](http://gofile.me/4jm56/pK0A9zTJn) |
+| ------------------------------------------------------------ | ------------------------------------------------- |
+
 
 | Sensor setup           | Download link                    |
 | ---------------------- | -------------------------------- |
@@ -51,11 +57,6 @@ Stairs  scenes with different  types of lidar and **glass noise**. This is very 
 | ![image-20240813195354720](./README/image-20240813195354720.png) | ![image-20240812181454491](./README/image-20240812181454491.png) |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 
-The prior map and raw map.
-
-| Prior map without glass noise    | raw prior map                    |
-| -------------------------------- | -------------------------------- |
-| http://gofile.me/4jm56/SfohLpthw | http://gofile.me/4jm56/pK0A9zTJn |
 
 
 
@@ -81,10 +82,10 @@ Below is our sensor kit setup.
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
 
-| Sequence                                                     | [GT Map](http://gofile.me/4jm56/C1OOhgG65) | GT Trajectory                                                |
-| ------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------ |
-| [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            |                                            | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
-| [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) |                                            | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
+| Sequence                                                     | Scenes                                   | [GT](http://gofile.me/4jm56/C1OOhgG65)                       |
+| ------------------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------ |
+| [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            | ![image (17)](./README/image%20(17).png) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
+| [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) |                                          | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
 
 </div>
 
@@ -96,9 +97,9 @@ Below is our sensor kit setup.
 
 - *[Open3d ( >= 0.11)](https://github.com/isl-org/Open3D)*
 - PCL
-- GTSAM 4.0.2
+- [GTSAM 4.0.2](https://github.com/borglab/gtsam/tree/4.0.2)
 
-The GTSAM version should be compatible with running LIO-SAM smoothly. Additionally, there is no need to install the Livox driver required by FASTLIO2, as we have directly integrated the necessary message headers into the code.
+The GTSAM version should be compatible with running LIO-SAM smoothly. Additionally, there is no need to install the **[livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver)** required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.
 
 ### Quickly Run
 
@@ -255,6 +256,7 @@ Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S)
 To plot the results, you can follow this [scripts](https://github.com/JokerJohn/SLAMTools/blob/main/Run_Time_analysis/time_analysis.py).
 
 <div align="center">
+
 ![Time Analysis 1](./README/image-20240131044902360.png)
 ![Time Analysis 2](./README/image-20240131044851437.png)
 </div>
