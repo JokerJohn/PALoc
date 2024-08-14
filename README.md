@@ -59,7 +59,6 @@ Stairs  scenes with different  types of lidar and **glass noise**. This is very 
 
 
 
-
 ### [FusionPortable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
 
 Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
