@@ -98,6 +98,8 @@ Below is our sensor kit setup.
 - PCL
 - GTSAM 4.0.2
 
+The GTSAM version should be compatible with running LIO-SAM smoothly. Additionally, there is no need to install the Livox driver required by FASTLIO2, as we have directly integrated the necessary message headers into the code.
+
 ### Quickly Run
 
 download the demo rosbag and prior map, set the file path in `geode_beta_os64.launch`.
