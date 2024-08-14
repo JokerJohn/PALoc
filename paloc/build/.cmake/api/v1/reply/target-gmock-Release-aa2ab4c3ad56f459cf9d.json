@@ -1,0 +1,194 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "gtest/lib/libgmock.so"
+		}
+	],
+	"backtrace" : 3,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"cxx_library_with_type",
+			"cxx_library",
+			"target_link_libraries",
+			"set_target_properties",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"/usr/src/googletest/googletest/cmake/internal_utils.cmake",
+			"/usr/src/googletest/googlemock/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 101,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 208,
+				"parent" : 1
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 156,
+				"parent" : 2
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 102,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 181,
+				"parent" : 2
+			},
+			{
+				"command" : 5,
+				"file" : 1,
+				"line" : 79,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-std=c++14  -fopenmp -O3 -DNDEBUG -std=c++11 -fPIC"
+				},
+				{
+					"fragment" : "-Wall -Wshadow -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "-DGTEST_HAS_PTHREAD=1"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 5,
+					"define" : "GTEST_CREATE_SHARED_LIBRARY=1"
+				},
+				{
+					"define" : "MP_EN"
+				},
+				{
+					"define" : "MP_PROC_NUM=3"
+				},
+				{
+					"define" : "ROOT_DIR=\"/home/xchu/my_git/PALoc/paloc/\""
+				},
+				{
+					"define" : "gmock_EXPORTS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 6,
+					"path" : "/usr/src/googletest/googlemock/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "/usr/src/googletest/googlemock"
+				},
+				{
+					"backtrace" : 6,
+					"isSystem" : true,
+					"path" : "/usr/src/googletest/googletest/include"
+				},
+				{
+					"backtrace" : 6,
+					"isSystem" : true,
+					"path" : "/usr/src/googletest/googletest"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					3
+				],
+				"standard" : "11"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "gtest::@b738d542747fbb7ea6e3"
+		}
+	],
+	"id" : "gmock::@e3f94eedc5dc07131386",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/xchu/my_git/PALoc/paloc/build/gtest/lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "gtest/lib/libgtest.so",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "gmock",
+	"nameOnDisk" : "libgmock.so",
+	"paths" : 
+	{
+		"build" : "gtest/googlemock",
+		"source" : "/usr/src/googletest/googlemock"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 3,
+			"compileGroupIndex" : 0,
+			"path" : "/usr/src/googletest/googlemock/src/gmock-all.cc",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "SHARED_LIBRARY"
+}

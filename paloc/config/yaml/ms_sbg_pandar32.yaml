@@ -56,7 +56,7 @@ pgo:
   degeneracy_thres: 30
   correspondence_dis: 2.0                          # stair_bob: 0.6;
   map_radius: 100
-  map_filter_size: 0.1                             # indoor:0.1, outdoor:0.2
+  map_filter_size: 0.1                             # indoor:0.1, outdoor:0.2, if you want to be faster, you can set it larger
 
   loopZOffset: 5.0                                # for escaltor
   historyKeyframeSearchRadius: 20.0

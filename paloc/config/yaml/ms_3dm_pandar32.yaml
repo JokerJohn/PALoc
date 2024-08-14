@@ -22,7 +22,7 @@ common:
 
   saveResultBag: false
   saveResultBodyFrame: true
-  saveKeyFrame: true                     # include color point cloud frame and raw distorted point cloud
+  saveKeyFrame: false                     # include color point cloud frame and raw distorted point cloud
 
   initial_pose: [ 0.035562649, -0.811009228, 0.583952556,-224.005685591,
                   -0.009641614,0.584016382, 0.811685146,-533.820191808,
