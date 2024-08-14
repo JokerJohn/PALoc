@@ -3,12 +3,13 @@
 
 <h1>PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation</h1>
 
+
 ![PALoc Overview](./README/image-20230702133158290.png)
 
 <a href="https://ieeexplore.ieee.org/document/10480308"><img src='https://img.shields.io/badge/TMECH 2024- PALoc -red' alt='Paper PDF'></a><a href="https://www.youtube.com/watch?v=_6a2gWYHeUk">
-<img alt="Youtube" src="https://img.shields.io/badge/Video-Youtube-red"/></a>[![video](https://img.shields.io/badge/Video-Bilibili-74b9ff?logo=bilibili&logoColor=red)](https://www.bilibili.com/video/BV11V4y1a7Fd/)<a ><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-white" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers) [![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)<a href="https://github.com/JokerJohn/PALoc/network/members">
+<img alt="Youtube" src="https://img.shields.io/badge/Video-Youtube-red"/></a>[![video](https://img.shields.io/badge/Video-Bilibili-74b9ff?logo=bilibili&logoColor=red)](https://www.bilibili.com/video/BV11V4y1a7Fd/)<a ><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-white" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers)<a href="https://github.com/JokerJohn/PALoc/network/members">
 <img alt="FORK" src="https://img.shields.io/github/forks/JokerJohn/PALoc?color=white" />
-</a>[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+</a> [![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
@@ -19,7 +20,6 @@
 - **Robustness in Degenerate  Conditions**: Exceptionally handles scenarios frequently encountered in SLAM datasets.
 - **Advanced Uncertainty Analysis**: Detailed covariance derivation within factor graphs, enabling precise uncertainty propagation and pose analysis.
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
-Experimental results demonstrate at least a 30% improvement in map accuracy and a 20% increase in direct trajectory accuracy over the ICP algorithm, across various campus environments.
 <div align="center">
 
 ![Pipeline](./README/image-20240131044249967.png)
@@ -256,7 +256,6 @@ Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S)
 To plot the results, you can follow this [scripts](https://github.com/JokerJohn/SLAMTools/blob/main/Run_Time_analysis/time_analysis.py).
 
 <div align="center">
-
 ![Time Analysis 1](./README/image-20240131044902360.png)
 ![Time Analysis 2](./README/image-20240131044851437.png)
 </div>
