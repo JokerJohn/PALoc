@@ -63,9 +63,12 @@ The prior map and raw map.
 
 Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
 
-| Sequence                                                     | GT Map                           | Scene                                                        |
-| ------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------ |
-| [20220216_corridor_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | http://gofile.me/4jm56/mRT2hkB25 | ![image-20240813213307904](./README/image-20240813213307904.png) |
+| Sequence                                                     | GT Map                                                       | Scene                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------- |
+| [20220216_corridor_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [corridor](http://gofile.me/4jm56/mRT2hkB25) with x degeneracy. | ![corridor_day_gif](./README/corridor_day_gif.gif) |
+| [20220216_canteen_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [The prior map only covers a portion of the scene.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![canteen_day_gif](./README/canteen_day_gif.gif)   |
+| [20220219_MCR_normal_01](https://drive.google.com/drive/folders/1SvAanjEgiHufMXybupCKZjbIXhMptoj4) | [Performance on a quadruped robot platform.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![normal-01-gif](./README/normal-01-gif.gif)       |
+| [20220216_escalator_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [Performance in an open stairwell scenario.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![escaltor_day_gif](./README/escaltor_day_gif.gif) |
 
 
 
