@@ -101,11 +101,14 @@ download the demo rosbag and prior map, set the file path in `geode_beta_os64.la
 #ouster64
 roslaunch paloc geode_beta_os64.launch
 
-#velodyne 16
+#velodyne16
 roslaunch paloc geode_alpha_vlp16.launch
 
 #ouster128 fusionportable-corridor
-roslaunch paloc fp_corridor.launch
+roslaunch paloc fp_os128_corridor.launch
+
+#pandar xt32
+roslaunch paloc ms_sbg_pandar32.launch
 ```
 
 then play rosbag:
@@ -119,6 +122,9 @@ rosbag play stairs_alpha.bag
 
 #ouster128 fusionportable-corridor
 rosbag play 20220216_corridor_day_ref.bag
+
+#pandar xt32
+rosbag play Parkinglot-2023-10-28-18-59-01.bag 
 ```
 
  You can save data. 
@@ -199,7 +205,7 @@ We can evaluate the map accuracy of PAloc as follows. Note that when you use the
 
 Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S) here.
 
-
+ 
 
 ### TODO
 
