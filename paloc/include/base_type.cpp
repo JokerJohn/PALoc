@@ -1,7 +1,32 @@
-//
-// Created by xchu on 27/5/2022.
-//
-
+/*
+* PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation
+* Copyright (c) 2024 Hu Xiangcheng
+*
+* This project is licensed under the MIT License.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*
+* Author: Hu Xiangcheng
+* Contact: xhubd@connect.ust.hk
+* Affiliation: The Cheng Kar Shun Robotics Institute (CKSRI), Hong Kong University of Science and Technology (HKUST)
+*
+*/
 #include "base_type.hpp"
 
 std::string toString(Pose6D &pose) {
@@ -277,8 +302,6 @@ Eigen::Matrix4d T_body_lidar;
 
 
 void LoadRosParams(ros::NodeHandle &nh) {
-
-
     nh.param<std::string>("config_directory", configDirectory, "~/Download/paloc");
     nh.param<std::string>("save_directory", saveDirectory, "~/Download/paloc");
     nh.param<std::string>("prior_map_directory", priorMapDirectory, "~/Download/paloc");
@@ -288,6 +311,7 @@ void LoadRosParams(ros::NodeHandle &nh) {
     nh.param<bool>("common/useLoopClosure", useLoopClosure, false);
 
     // get extrinsics between  lidar to imu
+    nh.param<string>("common/imu_topic", imu_topic, "/livox/imu");
     nh.param<double>("common/gyr_cov", gyr_cov, 0.01);
     nh.param<double>("common/acc_cov", acc_cov, 0.001);
     nh.param<double>("common/b_gyr_cov", b_gyr_cov, 0.0001);
@@ -320,7 +344,6 @@ void LoadRosParams(ros::NodeHandle &nh) {
     nh.param<double>("common/map_viewer_size", map_viewer_size, 0.5);
     nh.param<double>("common/map_saved_size", map_saved_size, 0.2);
 
-    // if we need to save key frame
     // for loop closure detection
     nh.param<int>("pgo/SKIP_FRAMES", SKIP_FRAMES, 5);
     nh.param<bool>("pgo/useRawCloud", useRawCloud, false);
@@ -331,10 +354,8 @@ void LoadRosParams(ros::NodeHandle &nh) {
     nh.param<double>("pgo/correspondence_dis", correspondenceDis, 2.0);
     nh.param<double>("pgo/map_radius", mapRadius, 80.0);
     nh.param<double>("pgo/map_filter_size", map_filter_size, 0.1);
-
     // for stairs
     nh.param<double>("pgo/loopZOffset", LOOP_Z_OFFSET, 10.0);
-
     nh.param<double>("pgo/filterDis", filterDis, 20.0);
     nh.param<int>("pgo/filterNodeNum", filterNodeNum, 10);
 

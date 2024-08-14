@@ -117,7 +117,7 @@ Visualization Manager:
           Use rainbow: true
           Value: true
         - Alpha: 1
-          Autocompute Intensity Bounds: false
+          Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
             Max Value: -9999
             Min Value: 9999
@@ -129,11 +129,9 @@ Visualization Manager:
           Color Transformer: Intensity
           Decay Time: 0
           Enabled: true
-          Invert Rainbow: true
+          Invert Rainbow: false
           Max Color: 239; 41; 41
-          Max Intensity: -999999
           Min Color: 0; 0; 0
-          Min Intensity: 999999
           Name: currentPC
           Position Transformer: XYZ
           Queue Size: 0
@@ -144,7 +142,7 @@ Visualization Manager:
           Topic: /current_cloud
           Unreliable: false
           Use Fixed Frame: true
-          Use rainbow: false
+          Use rainbow: true
           Value: true
       Enabled: true
       Name: mapping
@@ -279,7 +277,7 @@ Visualization Manager:
           Marker Topic: /zupt_constraint
           Name: ZUPT
           Namespaces:
-            {}
+            gravity: true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -295,12 +293,12 @@ Visualization Manager:
               Color Style: RGB
               Frame: Local
               Offset: 1
-              Scale: 1
-              Value: false
+              Scale: 250
+              Value: true
             Position:
               Alpha: 0.699999988079071
               Color: 239; 41; 41
-              Scale: 1
+              Scale: 100
               Value: true
             Value: true
           Enabled: true
@@ -385,34 +383,6 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: false
-      Value: true
-    - Alpha: 0.10000000149011612
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 9.999760627746582
-        Min Value: -4.420710563659668
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 7; 238; 219
-      Color Transformer: FlatColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Min Color: 0; 0; 0
-      Name: cropCloud
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 2
-      Size (m): 0.009999999776482582
-      Style: Flat Squares
-      Topic: /crop_cloud
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: false
@@ -616,7 +586,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 28.31512451171875
+      Distance: 161.61236572265625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -624,17 +594,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.9751569628715515
-        Y: -3.6185836791992188
-        Z: -2.6609725952148438
+        X: -29.714509963989258
+        Y: -12.599807739257812
+        Z: -7.73887825012207
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5497990846633911
+      Pitch: 1.5597963333129883
       Target Frame: aft_pgo
-      Yaw: 2.3753974437713623
+      Yaw: 4.526292324066162
     Saved: ~
 Window Geometry:
   Displays:

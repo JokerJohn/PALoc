@@ -22,7 +22,7 @@ common:
 
   saveResultBag: false
   saveResultBodyFrame: true
-  saveKeyFrame: false                     # include color point cloud frame and raw distorted point cloud
+  saveKeyFrame: false                       # include color point cloud frame and raw distorted point cloud
 
   # corridor_day
   initial_pose: [ 0.96644286559409200649, -0.25685421425740788204, 0.003751062431636435972, 5.2711577417659201819,

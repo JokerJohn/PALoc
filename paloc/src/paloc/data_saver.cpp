@@ -1,7 +1,32 @@
-//
-// Created by xchu on 2022/5/19.
-//
-
+/*
+* PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation
+* Copyright (c) 2024 Hu Xiangcheng
+*
+* This project is licensed under the MIT License.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*
+* Author: Hu Xiangcheng
+* Contact: xhubd@connect.ust.hk
+* Affiliation: The Cheng Kar Shun Robotics Institute (CKSRI), Hong Kong University of Science and Technology (HKUST)
+*
+*/
 #include "data_saver.h"
 
 DataSaver::DataSaver() {}
@@ -866,169 +891,4 @@ void DataSaver::saveColorCloudMap(pcl::PointCloud<pcl::PointXYZRGB> cloud_ptr) {
         return;
     }
     pcl::io::savePCDFileASCII(save_directory + "globalmap_color.pcd", cloud_ptr);
-}
-
-/*read parameter from kml_config.xml*/
-int DataSaver::ReadParameter() {
-    xmlDocPtr pDoc = xmlReadFile((config_directory + "kml_config.xml").c_str(),
-                                 "UTF-8", XML_PARSE_RECOVER);
-    if (NULL == pDoc) {
-        std::cout << "open config.xml error\n" << std::endl;
-        return 1;
-    }
-
-    xmlNodePtr pRoot = xmlDocGetRootElement(pDoc);
-    if (NULL == pRoot) {
-        std::cout << "get config.xml root error\n" << std::endl;
-        return 1;
-    }
-
-    xmlNodePtr pFirst = pRoot->children;
-
-    while (NULL != pFirst) {
-        xmlChar *value = NULL;
-        if (!xmlStrcmp(pFirst->name, (const xmlChar *) ("style"))) {
-            xmlNodePtr pStyle = pFirst->children;
-            while (NULL != pStyle) {
-                value = xmlNodeGetContent(pStyle);
-                if (xmlStrcmp(pStyle->name, (const xmlChar *) ("text"))) {
-                    configParameter.push_back((char *) value);
-                }
-                pStyle = pStyle->next;
-            }
-        } else if (!xmlStrcmp(pFirst->name, (const xmlChar *) ("Placemark"))) {
-            xmlNodePtr pPlacemark = pFirst->children;
-            while (NULL != pPlacemark) {
-                value = xmlNodeGetContent(pPlacemark);
-                if (xmlStrcmp(pPlacemark->name, (const xmlChar *) ("text"))) {
-                    configParameter.push_back((char *) value);
-                }
-                pPlacemark = pPlacemark->next;
-            }
-        } else {
-            value = xmlNodeGetContent(pFirst);
-            if (xmlStrcmp(pFirst->name, (const xmlChar *) ("text"))) {
-                configParameter.push_back((char *) value);
-            }
-        }
-        pFirst = pFirst->next;
-    }
-    return 0;
-}
-
-int DataSaver::SaveKMLTrajectory(const std::vector<Eigen::Vector3d> lla_vec) {
-    if (1 == ReadParameter()) {
-        return 1;
-    }
-
-    // longitude, latitude, height
-    std::fstream ofile(save_directory + "optimized_gps_trajectry.kml",
-                       std::fstream::out);
-    ofile.precision(15);
-
-    int index = 0;
-    ofile << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
-    ofile << "<kml xmlns=\"http://www.opengis.net/kml/2.2\">" << endl;
-    ofile << "<Document>" << endl;
-    ofile << "<name>"
-          << "GPS Trajectory"
-          << "</name>" << endl;
-    ofile << "<description>"
-          << "GPS Trajectory"
-          << "</description>" << endl;
-
-    ofile << "<Style id=\"" << configParameter[index++] << "\">" << endl;
-    ofile << "<LineStyle>" << endl;
-    ofile << "<color>"
-          << "7fFF00FF"
-          << "</color>" << endl;
-    ofile << "<width>" << configParameter[index++] << "</width>" << endl;
-    ofile << "</LineStyle>" << endl;
-    ofile << "<PolyStyle>" << endl;
-    ofile << "<color>"
-          << "7fFF00FF"
-          << "</color>" << endl;
-    ofile << "</PolyStyle>" << endl;
-    ofile << "</Style>" << endl;
-    ofile << "<Placemark>" << endl;
-    ofile << "<styleUrl>" << configParameter[index++] << "</styleUrl>" << endl;
-    ofile << "<LineString>" << endl;
-    ofile << "<extrude>" << configParameter[index++] << "</extrude>" << endl;
-    ofile << "<tessellate>" << configParameter[index++] << "</tessellate>"
-          << endl;
-    ofile << "<altitudeMode>" << configParameter[index++] << "</altitudeMode>"
-          << endl;
-    ofile << "<coordinates>" << endl;
-
-    for (int i = 0; i < lla_vec.size(); i++) {
-        ofile << lla_vec.at(i)[1] << ',' << lla_vec.at(i)[0] << ','
-              << lla_vec.at(i)[2] << endl;
-    }
-
-    ofile << "</coordinates>" << endl;
-    ofile << "</LineString></Placemark>" << endl;
-    ofile << "</Document></kml>" << endl;
-    return 0;
-}
-
-int DataSaver::SaveKMLTrajectory(vector<pair<double, double>> WGSBL,
-                                 vector<double> altitude,
-                                 vector<pair<int, string>> segmentColor) {
-    int index = 0;
-
-    if (1 == ReadParameter()) {
-        std::cout << "pls set kml config params first" << std::endl;
-        return 1;
-    }
-
-    /*open kml file*/
-    std::fstream ofile(save_directory + "optimized_path_gps.kml",
-                       std::fstream::out);
-    ofile.precision(15);
-
-    ofile << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
-    ofile << "<kml xmlns=\"http://www.opengis.net/kml/2.2\">" << endl;
-    ofile << "<Document>" << endl;
-    ofile << "<name>"
-          << "trajectory"
-          << "</name>" << endl;
-    ofile << "<description>"
-          << "Optimized trajectory in GPS cordinate system"
-          << "</description>" << endl;
-
-    int indexCoor = 0;
-
-    for (int i = 0; i < segmentColor.size(); i++) {
-        index = 0;
-        ofile << "<Style id=\"" << configParameter[index++] << "\">" << endl;
-        ofile << "<LineStyle>" << endl;
-        ofile << "<color>" << segmentColor[i].second << "</color>" << endl;
-        ofile << "<width>" << configParameter[index++] << "</width>" << endl;
-        ofile << "</LineStyle>" << endl;
-        ofile << "<PolyStyle>" << endl;
-        ofile << "<color>" << segmentColor[i].second << "</color>" << endl;
-        ofile << "</PolyStyle>" << endl;
-        ofile << "</Style>" << endl;
-        ofile << "<Placemark>" << endl;
-        ofile << "<styleUrl>" << configParameter[index++] << "</styleUrl>" << endl;
-        ofile << "<LineString>" << endl;
-        ofile << "<extrude>" << configParameter[index++] << "</extrude>" << endl;
-        ofile << "<tessellate>" << configParameter[index++] << "</tessellate>"
-              << endl;
-        ofile << "<altitudeMode>" << configParameter[index++] << "</altitudeMode>"
-              << endl;
-        ofile << "<coordinates>" << endl;
-
-        for (; indexCoor < segmentColor[i].first && index < altitude.size();
-               indexCoor++) {
-            ofile << WGSBL[indexCoor].second << ',' << WGSBL[indexCoor].first << ','
-                  << altitude[indexCoor] << endl;
-        }
-        ofile << "</coordinates>" << endl;
-        ofile << "</LineString></Placemark>" << endl;
-    }
-    ofile << "</Document></kml>" << endl;
-
-    ofile.close();
-    return 0;
 }

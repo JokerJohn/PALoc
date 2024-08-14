@@ -2,7 +2,6 @@
 #ifndef IMAGING_LIDAR_PLACE_RECOGNITION_PGO_INCLUDE_BASE_TYPE_H_
 #define IMAGING_LIDAR_PLACE_RECOGNITION_PGO_INCLUDE_BASE_TYPE_H_
 
-
 //pcl
 #include <pcl/common/common.h>
 #include <pcl/common/transforms.h>
@@ -20,10 +19,8 @@
 
 //ros
 #include <rosbag/bag.h>
-//#include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
-//#include <image_transport/image_transport.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <sensor_msgs/Imu.h>
@@ -33,8 +30,6 @@
 #include <tf/transform_datatypes.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
-
-#include <yaml-cpp/yaml.h>
 
 #include <condition_variable>
 #include <eigen3/Eigen/Dense>

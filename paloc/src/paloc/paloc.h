@@ -1,17 +1,3 @@
-/*******************************************************
- * Copyright (C) 2022, RAM-LAB, Hong Kong University of Science and Technology
- *
- * This file is part of FL2SAM (https://github.com/JokerJohn/FL2SAM-GPS).
- * If you use this code, please cite the respective publications as
- * listed on the above websites.
- *
- * Licensed under the GNU General Public License v3.0;
- * you may not use this file except in compliance with the License.
- *
- * Author: Xiangcheng Hu (xhubd@connect.ust.hk.com)
- * Date: ${Date}
- * Description:
- *******************************************************/
 #ifndef SRC_PALOC_SRC_PALOC_H_
 #define SRC_PALOC_SRC_PALOC_H_
 
@@ -41,7 +27,6 @@
 #include "pcl/features/normal_3d.h"
 #include "pcl/filters/radius_outlier_removal.h"
 #include "pcl/io/pcd_io.h"
-
 
 //ros
 #include "std_msgs/Float64MultiArray.h"
@@ -88,6 +73,7 @@ struct State {
     };
 
 };
+
 class PALoc {
 public:
     PALoc(ros::NodeHandle &nh) {
@@ -115,23 +101,25 @@ public:
 
         subImu = nh.subscribe<sensor_msgs::Imu>(imu_topic, 2000, &PALoc::ImuCallback, this,
                                                 ros::TransportHints().tcpNoDelay());
-        subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>("/cloud_registered_body", 10000,
-                                                                      &PALoc::LidarCallback, this);
-
-        // if you want to use liosam
-        //                "/cloud_deskewed", 10000, &PALoc::LidarCallback, this);
-
-        //        subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>(
-        //                "/cloud_effected", 10000, &PALoc::LidarCallback, this);
-
-        subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/lidar_odometry", 10000, &PALoc::OdometryCallback, this);
-        //                "/lio_sam_6axis/mapping/odometry", 10000, &PALoc::OdometryCallback, this);
-
-
+        // TODO: adapt for LIO-SAM
+        bool OdomMethod = 0;
+        if (OdomMethod == 0) {
+            subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>("/cloud_registered_body", 10000,
+                                                                          &PALoc::LidarCallback, this);
+            //        subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>(
+            //                "/cloud_effected", 10000, &PALoc::LidarCallback, this);
+            subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/lidar_odometry", 10000, &PALoc::OdometryCallback,
+                                                                this);
+        } else if (OdomMethod == 1) {
+            // if you want to use liosam
+            subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>("/cloud_deskewed", 10000,
+                                                                          &PALoc::LidarCallback, this);
+            subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/lio_sam_6axis/mapping/odometry", 10000,
+                                                                &PALoc::OdometryCallback, this);
+        }
         subInitialPose = nh.subscribe("/initialpose", 10000, &PALoc::InitialCallback, this);
-
-        // load prior pose
         nh.param<vector<double>>("common/initial_pose", initial_pose_vector, vector<double>());
+
         InitParmeters();
     }
 
@@ -142,7 +130,6 @@ public:
     void LoopDection();
 
     void VisaulizationThread();
-
 
 private:
     void InitParmeters();
@@ -189,8 +176,7 @@ private:
 
     void ImuCallback(const sensor_msgs::Imu::ConstPtr &imuMsg);
 
-    void InitialCallback(
-            const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &pose_msg_ptr);
+    void InitialCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &pose_msg_ptr);
 
     void PubPath(void);
 
@@ -245,6 +231,7 @@ private:
                                std::min(v1.z(), v2.z()));
     }
 
+    // from fastlio
     inline void pointBodyToGlobal(PointT const pi, PointT &po, Eigen::Matrix4d pose) {
         Eigen::Vector3d p_body(pi.x, pi.y, pi.z);
         Eigen::Vector3d p_global(pose.block<3, 3>(0, 0) * p_body +
@@ -263,14 +250,12 @@ private:
     ros::Subscriber subInitialPose;
 
     ros::Publisher pubMapAftPGO, pubOdomAftPGO, pubOdomAftGlobal;
-    ros::Publisher pubPathLIO, pubPathAftPGO, pubLocalizationPath,
-            pubPathBeforPGO, pubPathIMU;
+    ros::Publisher pubPathLIO, pubPathAftPGO, pubLocalizationPath, pubPathBeforPGO, pubPathIMU;
     ros::Publisher pubLaserCloudSurround, pubLoopScanLocal, pubLoopSubmapLocal;
     ros::Publisher pubLocalizationmap, pubInitialCloud;
     ros::Publisher pubPoseOdomToMap, pubPoseBToMap, pubLaserCloudCrop;
 
-    ros::Publisher pubLoopConstraintEdge,
-            pubGlobalMapConstraintEdge, pubZUPTConstraintEdge;
+    ros::Publisher pubLoopConstraintEdge, pubGlobalMapConstraintEdge, pubZUPTConstraintEdge;
     ros::Publisher pubLoopScanLocalRegisted, pubPathGnssCoords;
 
     ros::ServiceServer srvSaveMap;
@@ -318,7 +303,7 @@ private:
     vector<noiseModel::Gaussian::shared_ptr> loopGaussianNoiseQueue;
 
     int prev_node_idx = 0, curr_node_idx = 0;
-    const int node_rate = 1;  // 10s jifenyici
+    const int node_rate = 1;
 
     std::vector<Pose6D> keyframePoses2D;
     std::vector<Pose6D> keyframePoses3D;

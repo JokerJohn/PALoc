@@ -6,7 +6,7 @@
 ![PALoc Overview](./README/image-20230702133158290.png)
 
 <a href="https://ieeexplore.ieee.org/document/10480308"><img src='https://img.shields.io/badge/TMECH 2024- PALoc -red' alt='Paper PDF'></a><a href="https://www.youtube.com/watch?v=_6a2gWYHeUk">
-<img alt="Youtube" src="https://img.shields.io/badge/Video-Youtube-red"/></a>[![video](https://img.shields.io/badge/Video-Bilibili-74b9ff?logo=bilibili&logoColor=red)](https://www.bilibili.com/video/BV11V4y1a7Fd/)<a ><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-blue" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers) [![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)<a href="https://github.com/JokerJohn/PALoc/network/members">
+<img alt="Youtube" src="https://img.shields.io/badge/Video-Youtube-red"/></a>[![video](https://img.shields.io/badge/Video-Bilibili-74b9ff?logo=bilibili&logoColor=red)](https://www.bilibili.com/video/BV11V4y1a7Fd/)<a ><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-white" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/stargazers) [![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/PALoc.svg)](https://github.com/JokerJohn/PALoc/issues)<a href="https://github.com/JokerJohn/PALoc/network/members">
 <img alt="FORK" src="https://img.shields.io/github/forks/JokerJohn/PALoc?color=white" />
 </a>[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
@@ -27,7 +27,7 @@ Experimental results demonstrate at least a 30% improvement in map accuracy and 
 
 
 ## News
-
+- **2024/08/15**:  Support FusionPortable dataset and MS-dataset
 - **2024/08/14**: 🔥Release codes and data.
 - **2024/03/26**: [Early access](https://ieeexplore.ieee.org/document/10480308) by IEEE/ASME TMECH.
 - **2024/02/01**: Preparing codes for release.
@@ -291,8 +291,6 @@ The code in this project is adapted from the following projects:
 - The odometry  method is adapted from [FAST-LIO2](https://github.com/hku-mars/FAST_LIO).
 - The basic framework for pose graph optimization (PGO) is adapted from [SC-A-LOAM](https://github.com/gisbi-kim/SC-A-LOAM).
 - The Point-to-Plane registration is adapted from [LOAM](https://github.com/laboshinl/loam_velodyne).
-
-
 
 ## Contributors
 

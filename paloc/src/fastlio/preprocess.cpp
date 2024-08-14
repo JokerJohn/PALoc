@@ -37,6 +37,33 @@ void Preprocess::set(bool feat_en, int lid_type, double bld, int pfilt_num) {
     lidar_type = lid_type;
     blind = bld;
     point_filter_num = pfilt_num;
+
+    switch (lidar_type) {
+        case MID70:
+            ROS_WARN("USING %d MID70 LIDAR!", lidar_type);
+            break;
+        case OUST64:
+            ROS_WARN("USING %d FP OUSTER LIDAR!", lidar_type);
+            break;
+        case VELO16:
+            ROS_WARN("USING %d VELODYNE LIDAR!", lidar_type);
+            break;
+        case HESAI:
+            ROS_WARN("USING  %d PANDAR LIDAR!", lidar_type);
+            break;
+        case MULTI_VELO:
+            ROS_WARN("USING  %d MULTI-VELODYNE LIDAR!", lidar_type);
+            break;
+        case ROBOSENSE:
+            ROS_WARN("USING  %d ROBOSENSE LIDAR!", lidar_type);
+            break;
+        case OUS128:
+            ROS_WARN("USING %d GENERAL OUSTER128 LIDAR!", lidar_type);
+            break;
+        default:
+            printf("Error  %d LiDAR Type", lidar_type);
+            break;
+    }
 }
 
 // void Preprocess::process(const livox_ros_driver::CustomMsg::ConstPtr &msg,
@@ -95,8 +122,6 @@ void Preprocess::process(const sensor_msgs::PointCloud2::ConstPtr &msg,
         case OUS128:
             oust128_handler(msg);
             break;
-
-
         default:
             printf("Error LiDAR Type");
             break;

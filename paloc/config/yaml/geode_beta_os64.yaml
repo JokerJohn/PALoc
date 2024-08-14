@@ -12,7 +12,6 @@ common:
                  -0.051937, 0.998554, 0.013900,
                  0.004994, -0.013659, 0.999894 ]
 
-
   odom_link: "camera_init"
   scan_filter_size: 0.1
   map_viewer_size: 0.2

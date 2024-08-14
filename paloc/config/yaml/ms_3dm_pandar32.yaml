@@ -1,0 +1,72 @@
+common:
+  lid_topic: "/hesai/pandar"
+  imu_topic: "/3dm_ins/imu/data_raw"
+
+  acc_cov: 0.10269046228306485
+  b_acc_cov: 2.9758309918576434e-03
+  gyr_cov: 0.010545950957206893
+  b_gyr_cov: 1.9873406098287974e-04
+
+  extrinsic_T: [ 0.111295833698732, -0.034688482930289, -0.087005256137232 ]    # from lidar to imu
+  extrinsic_R: [ 0.010147525371018, -0.007018396145658, -0.99992388695695,
+                 0.007094265575029, 0.999950688609296, -0.006946595941935,
+                 0.999923417104674, -0.007023262213128, 0.010196773555814 ]
+
+  odom_link: "camera_init"
+  scan_filter_size: 0.1
+  map_viewer_size: 0.2
+  map_saved_size: 0.1
+
+  useImuFrame: false                        # when we use imu frame, we will get dense color cloud
+  useLoopClosure: true                      # if we enable loop clouser
+
+  saveResultBag: false
+  saveResultBodyFrame: true
+  saveKeyFrame: true                     # include color point cloud frame and raw distorted point cloud
+
+  initial_pose: [ 0.035562649, -0.811009228, 0.583952556,-224.005685591,
+                  -0.009641614,0.584016382, 0.811685146,-533.820191808,
+                  -0.999320746,-0.034495976, 0.012949374, -1.889065611,
+                  0.000000000, 0.000000000, 0.000000000,1.000000000 ]
+
+lio:
+  lidar_type: 4                         # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR,
+  scan_line: 32
+  scan_rate: 10                         # only need to be set for velodyne, unit: Hz,
+  timestamp_unit: 0                     # the unit of time/t field in the PointCloud2 rostopic: 0-second, 1-milisecond, 2-microsecond, 3-nanosecond.
+  blind: 0.5                            # remove the nearest point cloud
+
+  fov_degree: 180
+  det_range: 150.0
+
+  point_filter_num: 3
+  max_iteration: 3
+  filter_size_corner: 0.2
+  filter_size_surf: 0.5
+  filter_size_map: 0.5
+  cube_side_length: 1000
+
+pgo:
+  SKIP_FRAMES: 5                                    # map visualization, every x frame we add it in the globalmap and publish it
+  useRawCloud: true
+  showDegenercy: false
+
+  useGlobalPrior: true
+  icpO3dType: 2                                    # 0: icp 1:point2plane 2:gicp
+  degeneracy_thres: 30
+  correspondence_dis: 2.0                          # stair_bob: 0.6;
+  map_radius: 100
+  map_filter_size: 0.1                             # indoor:0.1, outdoor:0.2
+
+  loopZOffset: 5.0                                # for stairs
+  historyKeyframeSearchRadius: 20.0
+  historyKeyframeSearchTimeDiff: 30.0
+  historyKeyframeSearchNum: 25
+  loopFitnessScoreThreshold: 0.4
+  loopClosureFrequency: 1                         # if you want to detect more loop, you can set it larger
+
+  filterDis: 3.0       # we did not add loop if the distance of consecutive node less than 10m
+  filterNodeNum: 10   # we did noot detect loop every 10 nodes for ecah loop detetcion method
+
+
+

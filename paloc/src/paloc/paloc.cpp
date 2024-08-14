@@ -1,3 +1,32 @@
+/*
+* PALoc: Advancing SLAM Benchmarking with Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation
+* Copyright (c) 2024 Hu Xiangcheng
+*
+* This project is licensed under the MIT License.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*
+* Author: Hu Xiangcheng
+* Contact: xhubd@connect.ust.hk
+* Affiliation: The Cheng Kar Shun Robotics Institute (CKSRI), Hong Kong University of Science and Technology (HKUST)
+*
+*/
 #include "paloc.h"
 
 int main(int argc, char **argv) {
@@ -8,7 +37,7 @@ int main(int argc, char **argv) {
               << std::endl;
 
     auto paloc = std::make_shared<PALoc>(nh);
-    std::thread posegraph_slam{&PALoc::pose_slam, paloc};
+    std::thread pose_slam{&PALoc::pose_slam, paloc};
     std::thread viz_map{&PALoc::VisaulizationThread, paloc};
     std::thread lc_detection;
     if (useLoopClosure) {
@@ -19,7 +48,7 @@ int main(int argc, char **argv) {
     spinner.spin();
 
     //阻塞主线程，等待posegraph_slam线程执行完毕
-    posegraph_slam.join();
+    pose_slam.join();
     viz_map.join();
 
     if (useLoopClosure)
@@ -69,6 +98,13 @@ void PALoc::pose_slam() {
         lioState2 = GetStateFromLIO2(curr_node_idx);
         keyLIOState2.push_back(lioState2);
 
+        /*
+         * We do not recommend using the IMU factor provided by GTSAM, for the following reasons:
+         * 1. The graph size will significantly increase (by 3x), greatly reducing the optimization speed.
+         * Although methods similar to LIO-SAM can be used to speed up the process, it may result in discontinuities.
+         * 2.The introduction of IMU pre-integration does not directly improve PGO accuracy.
+         * In most cases with LIDAR, integration alone is sufficient.
+         * */
         {
             TicToc tic;
             AddOdomFactor();
@@ -77,6 +113,13 @@ void PALoc::pose_slam() {
         }
 
         if (useGlobalPrior) {
+            /*
+             * It is important to note that when LIO fails, PALoc may struggle to continue.
+             * In method 1, if a failure occurs, parameter tuning are required, particularly
+             * max_correspondences_distance and the map sampling size.
+             * Often, localization failures result from incorrect correspondence points,
+             * so it's essential to check for map noise (e.g., glass)
+             * */
             TicToc tic;
             // 0: use icp by open3d icp
             // 1: use point-to-plane icp, recommended;
@@ -90,6 +133,11 @@ void PALoc::pose_slam() {
         }
 
         {
+            /*
+             * The gravity factor code is not yet ready, as it is closely tied to the IMU.
+             * Different IMU configurations demand high code usability,
+             * and I'm still fine-tuning it to achieve the most convenient setup.
+             * */
             Vector3 lio_gravity = lioState.block(0, 15, 1, 3).transpose();
             newValues.insert(G(curr_node_idx), gtsam::Point3(lio_gravity * -1));
 
@@ -98,7 +146,6 @@ void PALoc::pose_slam() {
             if (zupt_flag) {
                 AddNoMotionFactor();
                 // TODO: need to fix this bug
-                //  AddGravityFactor();
                 ZUPTIndexContainer[curr_node_idx] = curr_node_idx;
             }
             t3 = tic.toc();
@@ -261,6 +308,11 @@ void PALoc::InitSystem(Measurement &measurement) {
     }
     std::cout << "Init gravity ! " << init_gravity.transpose() << std::endl;
 
+    // save the first point cloud
+    std::string init_pcd_path = saveDirectory + sequence + "/" + sequence + "_init_cloud.pcd";
+    pcl::io::savePCDFileASCII(init_pcd_path, *measurement_curr.lidar);
+    std::cout << "Saver init cloud: " << init_pcd_path << std::endl;
+
     // if we do not use global map, then return directly
     if (!useGlobalPrior) {
         initialPose = Eigen::Matrix4d::Identity();
@@ -270,10 +322,7 @@ void PALoc::InitSystem(Measurement &measurement) {
     }
     publishCloud(pubLocalizationmap, globalmap_ptr, ros::Time::now(), odom_link);
 
-    // save the first point cloud
-    std::string init_pcd_path = saveDirectory + sequence + "/" + sequence + "_init_cloud.pcd";
-    pcl::io::savePCDFileASCII(init_pcd_path, *measurement_curr.lidar);
-    std::cout << "Saver init cloud: " << init_pcd_path << std::endl;
+
 
     pcl::PointCloud<PointT>::Ptr unused_result(new pcl::PointCloud<PointT>());
     std::shared_ptr<geometry::PointCloud> source_o3d =
@@ -456,10 +505,14 @@ void PALoc::GraphOpt() {
     newValues.clear();
 
     currentEstimate = isam->calculateEstimate();
-    Marginals::Factorization factorizationMethod = Marginals::CHOLESKY;
-    Marginals marginals = Marginals(isam->getFactorsUnsafe(), currentEstimate, factorizationMethod);
+    prevPose = currentEstimate.at<Pose3>(X(curr_node_idx));
+    prevVel = currentEstimate.at<Vector3>(V(curr_node_idx));
+    prevBias = currentEstimate.at<imuBias::ConstantBias>(B(curr_node_idx));
+    auto prevGravity = currentEstimate.at<gtsam::Point3>(G(curr_node_idx));
+    prevState = NavState(prevPose, prevVel);
 
-    // 如果需要使用 jointMarginalCovariance 函数，设置为 true
+    // caculate pose cov in world frame
+    Marginals marginals = Marginals(isam->getFactorsUnsafe(), currentEstimate, Marginals::CHOLESKY);
     bool useJointMarginal = true;
     if (useJointMarginal) {
         try {
@@ -473,13 +526,6 @@ void PALoc::GraphOpt() {
             std::cerr << "Error computing joint marginal covariance: " << e.what() << std::endl;
         }
     }
-
-    prevPose = currentEstimate.at<Pose3>(X(curr_node_idx));
-    prevVel = currentEstimate.at<Vector3>(V(curr_node_idx));
-    prevBias = currentEstimate.at<imuBias::ConstantBias>(B(curr_node_idx));
-    auto prevGravity = currentEstimate.at<gtsam::Point3>(G(curr_node_idx));
-    prevState = NavState(prevPose, prevVel);
-
     if (1) {
         std::cout << "Graph Optimizing Time: " << toc.toc() << " ms" << std::endl;
     }
@@ -497,10 +543,8 @@ void PALoc::GraphOpt() {
         p.roll = pose.rotation().roll();
         p.pitch = pose.rotation().pitch();
         p.yaw = pose.rotation().yaw();
-
         p.setBias(bias.vector()[0], bias.vector()[1], bias.vector()[2],
                   bias.vector()[3], bias.vector()[4], bias.vector()[5]);
-
         p.vx = vel.x();
         p.vy = vel.y();
         p.vz = vel.z();
@@ -534,7 +578,7 @@ void PALoc::AddOdomFactor() {
             newValues.insert(X(0), global_pose);
             std::cout << BOLDRED << "ADD Initial pose factor: " << icp_cov.diagonal().transpose() << std::endl;
         } else {
-            // only lio
+            // only lio, we must fix the first node
             noiseModel::Gaussian::shared_ptr noise_model = noiseModel::Gaussian::Covariance(pose_cov);
             newValues.insert(X(0), curr_lio_pose);
             newFactors.emplace_shared<PriorFactor<Pose3 >>(X(0), curr_lio_pose, noise_model);
@@ -547,11 +591,11 @@ void PALoc::AddOdomFactor() {
         rel_pose = prev_lio_pose.between(curr_lio_pose);
         predict_pose = prevPose.compose(rel_pose);
 
-        // 估计位姿的协方差, Adjoint map at relative pose
+        // Adjoint map at relative pose (inverse)
         Matrix6 Adj = rel_pose.inverse().AdjointMap();
         Matrix6 cov1 = keyLIOState2.at(prev_node_idx).cov;
         Matrix6 cov2 = pose_cov;
-        // cov propagate
+        // cov propagate, equation 14, but error exits in the paper, we have not fix yet.
         Matrix6 relative_cov = Adj * cov1 * Adj.transpose() + cov2;
         noiseModel::Gaussian::shared_ptr gau_noise_model = noiseModel::Gaussian::Covariance(relative_cov);
         std::unique_lock<std::mutex> graph_guard(mtxPosegraph);
@@ -892,17 +936,16 @@ void PALoc::AddLoopFactor() {
 bool PALoc::ZUPTDetector() {
     if (curr_node_idx < 1) return false;
 
+    // motion state from lio
     Pose6D df = diffTransformation(odom_pose_prev, odom_pose_curr);
     double aver_translation = sqrt(df.x * df.x + df.y * df.y + df.z * df.z) / 3;
     double aver_rotation = sqrt(df.roll + df.pitch + df.yaw) / 3;
-
     if (0) {
         std::cout << "average lio translation and angle: " << aver_translation
                   << ", " << aver_rotation << std::endl;
     }
 
     auto imu_queue = keyMeasures.at(curr_node_idx).imu_deque;
-
     if (imu_queue.empty()) return false;
 
     Eigen::Vector3d gyro_delta_average, acc_deltea_average;
@@ -951,34 +994,19 @@ bool PALoc::ZUPTDetector() {
     gyro_delta_average = gyro_delta_average / (imu_queue.size() - 1);
     acc_deltea_average = acc_deltea_average / (imu_queue.size() - 1);
 
+    // motion state from raw imu data
     acc_average /= (imu_queue.size() - 1);
     gyro_average /= (imu_queue.size() - 1);
-
-
     double accel_norm = std::sqrt(
             std::pow(acc_average.x(), 2) +
             std::pow(acc_average.y(), 2) +
             std::pow(acc_average.z(), 2)
     );
-
     double ang_vel_norm = std::sqrt(
             std::pow(gyro_average.x(), 2) +
             std::pow(gyro_average.y(), 2) +
             std::pow(gyro_average.z(), 2)
     );
-
-//    Pose6D dtf = diffTransformation(odom_pose_prev, odom_pose_curr);
-//    double lidar_trans = std::sqrt(
-//            std::pow(dtf.x, 2) +
-//            std::pow(dtf.y, 2) +
-//            std::pow(dtf.z, 2)
-//    );
-//    double lidar_rotate = std::sqrt(
-//            std::pow(dtf.roll, 2) +
-//            std::pow(dtf.pitch, 2) +
-//            std::pow(dtf.yaw, 2)
-//    );
-
 
     if (0) {
         std::cout << "average acc gyro: " << accel_norm << ", "
@@ -991,14 +1019,6 @@ bool PALoc::ZUPTDetector() {
                   << gyro_delta_average.transpose() << std::endl;
     }
 
-
-//    if (ang_vel_norm > imu_ang_vel_threshold) {
-//        return false;
-//    }
-//    if (accel_norm > imu_accel_threshold) {
-//        return false;
-//    }
-
     if ((acc_diff_max.x() > 0.01) || (acc_diff_max.y() > 0.01) ||
         (acc_diff_max.z() > 0.01) || (gyro_diff_max.x() > 0.025) ||
         (gyro_diff_max.y() > 0.025) || (gyro_diff_max.z() > 0.025)) {
@@ -1006,7 +1026,6 @@ bool PALoc::ZUPTDetector() {
     } else {
         // return STATIONARY;
     }
-//    }
 
     //    0.001122458 0.001350456 0.001252326, 0.000002450 0.000026449
     //    0.000050444 0.001134773 0.001257556 0.001234070, 0.000000701
@@ -1026,9 +1045,7 @@ bool PALoc::ZUPTDetector() {
     //      (acc_avr[0] < acc_thro && acc_avr[1] < acc_thro && acc_avr[2] <
     //      acc_thro);
     // }
-
     bool zupt_flag = (aver_translation < 0.01 && aver_rotation < 0.015);
-
     return zupt_flag;
 }
 
@@ -1228,7 +1245,7 @@ void PALoc::PubPath() {
         odomAftPGO.pose.covariance.at(14) = eigen_values_ratio_xyz[2];
         odomAftPGO.pose.covariance.at(21) = eigen_values_ratio_rpy[0];
         odomAftPGO.pose.covariance.at(28) = eigen_values_ratio_rpy[1];
-        odomAftPGO.pose.covariance.at(35) = eigen_values_ratio_xyz[2];
+        odomAftPGO.pose.covariance.at(35) = eigen_values_ratio_rpy[2];
     } else {
         // show pose uncertainty
         // 调整poseCovariance的列顺序
@@ -2241,27 +2258,23 @@ State PALoc::GetStateFromLIO2(const int node_id) {
     // Get the orientation quaternion from the message
     const auto &orientation = latest_measurement.pose.pose.orientation;
     gtsam::Rot3 rotation = gtsam::Rot3::Quaternion(orientation.w, orientation.x, orientation.y, orientation.z);
-
-    // Get the position from the message
     const auto &position = latest_measurement.pose.pose.position;
     gtsam::Point3 translation(position.x, position.y, position.z);
 
-    // Assign pose
     Pose3 pose_tmp = gtsam::Pose3(rotation, translation);;
     state.pose = pose_tmp;
-    // Get the linear velocity from the message
     const auto &linear_velocity = latest_measurement.twist.twist.linear;
     state.vel = gtsam::Vector3(linear_velocity.x, linear_velocity.y, linear_velocity.z);
 
-    // Reorder the covariance matrix to match the State format
     const auto &odom_covariance = latest_measurement.pose.covariance;
     gtsam::Matrix6 pose_cov = Matrix6::Zero();
-
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             pose_cov(i, j) = odom_covariance[i * 6 + j];
         }
     }
+    // IMPORTANT: the pose cov from FASTLIO is described using R3 * SO3, not SE3
+    // transform the rotation cov to the SE3 using adjoint
     state.cov = pose_tmp.AdjointMap() * pose_cov * pose_tmp.AdjointMap().transpose();
     return state;
 }

@@ -52,7 +52,6 @@ find_package(catkin REQUIRED COMPONENTS
         message_generation
         )
 
-find_package(yaml-cpp REQUIRED)
 find_package(Open3D REQUIRED)
 find_package(Boost REQUIRED COMPONENTS timer)  # for some error
 find_package(Eigen3 REQUIRED)
@@ -75,18 +74,13 @@ catkin_package()
 
 include_directories(
         include
-        /usr/include/libxml2
-        /usr/local/include/yaml-cpp
         ${catkin_INCLUDE_DIRS}
         ${PCL_INCLUDE_DIRS}
-        ${OpenCV_INCLUDE_DIRS}
         ${GTSAM_INCLUDE_DIR}
         ${Y_INCLUDE_DIRS}
-        ${YAML_CPP_INCLUDE_DIR}
         ${PYTHON_INCLUDE_DIRS}
         ${Open3D_INCLUDE_DIRS}
 )
-link_libraries(-lxml2 yaml-cpp)
 
 
 add_executable(fastlio include/fast_lio/ikd-Tree/ikd_Tree.cpp src/fastlio/laserMapping.cpp src/fastlio/preprocess.cpp)
@@ -101,5 +95,5 @@ add_executable(pgo_localization
         include/factors/gravity_kalman_filter.h
         include/base_type.cpp 
         )
-target_link_libraries(pgo_localization ${catkin_LIBRARIES} ${Open3D_LIBRARIES} ${PCL_LIBRARIES} ${OpenMP_CXX_FLAGS} ${OpenCV_LIBS}
+target_link_libraries(pgo_localization ${catkin_LIBRARIES} ${Open3D_LIBRARIES} ${PCL_LIBRARIES} ${OpenMP_CXX_FLAGS}
         gtsam)

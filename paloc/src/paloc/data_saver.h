@@ -2,7 +2,6 @@
 #ifndef FAST_LIO_SRC_PGO_SRC_DATASAVER_H_
 #define FAST_LIO_SRC_PGO_SRC_DATASAVER_H_
 
-#include <nav_msgs/Odometry.h>
 #include <pcl/common/common.h>
 #include <pcl/common/transforms.h>
 #include <pcl/filters/crop_box.h>
@@ -15,8 +14,10 @@
 #include <pcl/range_image/range_image.h>
 #include <pcl/registration/icp.h>
 #include <pcl_conversions/pcl_conversions.h>
+
 #include <rosbag/bag.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <nav_msgs/Odometry.h>
 
 #include <fstream>
 #include <iostream>
@@ -27,11 +28,6 @@
 #include <gtsam/nonlinear/ISAM2.h>
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/slam/dataset.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <libxml/xmlmemory.h>
-#include <libxml/xmlstring.h>
-#include <libxml/xpath.h>
 
 using namespace std;
 using namespace gtsam;
@@ -120,14 +116,6 @@ public:
             std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> allResVec);
 
     void saveColorCloudMap(pcl::PointCloud<pcl::PointXYZRGB> cloud_ptr);
-
-    int ReadParameter();
-
-    int SaveKMLTrajectory(const std::vector<Eigen::Vector3d> lla_vec);
-
-    int SaveKMLTrajectory(vector<pair<double, double>> WGSBL,
-                          vector<double> altitude,
-                          vector<pair<int, string>> segmentColor);
 
 public:
     string save_directory, config_directory;

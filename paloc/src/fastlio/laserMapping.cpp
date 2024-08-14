@@ -55,7 +55,6 @@
 #include <fstream>
 #include <mutex>
 #include <thread>
-//#include <livox_ros_driver/CustomMsg.h>
 
 #include "IMU_Processing.hpp"
 #include "preprocess.h"
@@ -137,8 +136,8 @@ V3D euler_cur;
 V3D position_last(Zero3d);
 V3D Lidar_T_wrt_IMU(Zero3d);
 M3D Lidar_R_wrt_IMU(Eye3d);
-V3D B_ACC_COV_N(Zero3d);
-V3D B_GYRO_COV_N(Zero3d);
+//V3D B_ACC_COV_N(Zero3d);
+//V3D B_GYRO_COV_N(Zero3d);
 /*** EKF inputs and output ***/
 MeasureGroup Measures;
 esekfom::esekf<state_ikfom, 12, input_ikfom> kf;  // current state
@@ -1023,26 +1022,14 @@ int main(int argc, char **argv) {
     // lidar-> imu
     Lidar_T_wrt_IMU << VEC_FROM_ARRAY(extrinT);
     Lidar_R_wrt_IMU << MAT_FROM_ARRAY(extrinR);
-    B_GYRO_COV_N << VEC_FROM_ARRAY(b_gyr_cov_n);
-    B_ACC_COV_N << VEC_FROM_ARRAY(b_acc_cov_n);
 
     // set extrinsics
     p_imu->set_extrinsic(Lidar_T_wrt_IMU, Lidar_R_wrt_IMU);
     // set acc and gyro noise
     p_imu->set_gyr_cov(V3D(gyr_cov, gyr_cov, gyr_cov));
     p_imu->set_acc_cov(V3D(acc_cov, acc_cov, acc_cov));
-
-    // set random walk noise bias
-    if (p_pre->lidar_type == 4) {
-        ROS_WARN("USE HESAI LIDAR");
-        // p_imu->set_gyr_cov(B_GYRO_COV_N);
-        // p_imu->set_acc_cov(B_ACC_COV_N);
-//        p_imu->set_gyr_bias_cov(B_GYRO_COV_N);
-//        p_imu->set_acc_bias_cov(B_ACC_COV_N);
-    } else {
-        p_imu->set_gyr_bias_cov(V3D(b_gyr_cov, b_gyr_cov, b_gyr_cov));
-        p_imu->set_acc_bias_cov(V3D(b_acc_cov, b_acc_cov, b_acc_cov));
-    }
+    p_imu->set_gyr_bias_cov(V3D(b_gyr_cov, b_gyr_cov, b_gyr_cov));
+    p_imu->set_acc_bias_cov(V3D(b_acc_cov, b_acc_cov, b_acc_cov));
 
     double epsi[23] = {0.001};
     fill(epsi, epsi + 23, 0.001);
