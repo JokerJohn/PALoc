@@ -81,7 +81,7 @@ Below is our sensor kit setup.
 
 | Sequence                                                     | [GT Map](http://gofile.me/4jm56/C1OOhgG65) | GT Trajectory                                                |
 | ------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------ |
-| [redbird_01](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EW-bKP6RkZpPhRHfk2DReeEBwN8MvP2Eq5cfoUIBYglwEQ?e=Rhetkr) |                                            | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
+| [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            |                                            | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
 | [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) |                                            | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
 
 </div>
@@ -94,7 +94,7 @@ Below is our sensor kit setup.
 
 - *[Open3d ( >= 0.11)](https://github.com/isl-org/Open3D)*
 - PCL
-- GTSAM
+- GTSAM 4.0.2
 
 ### Quickly Run
 
@@ -264,7 +264,7 @@ We follow the assumption of pose Independence as barfoot does(TRO 2014) as equat
 
 ![image-20240408203918682](./README/image-20240408203918682.png)
 
- Since GTSAM follow the right-hand convention on SE(3) , we need to use the adjoint representation as equation (14). 
+ Since GTSAM follow the right-hand convention on SE(3) , we need to use the adjoint representation as equation (14).  **Please note that there is an error in Equation 14. The paper has not yet been updated. The adjoint matrix of the inverse relative pose should be used, not the adjoint of the relative pose.**
 
 ![image-20240408204125990](./README/image-20240408204125990.png)
 
