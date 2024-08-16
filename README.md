@@ -78,9 +78,11 @@ Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://r
 - [Multicam Vision Lidar IMU dataset](https://ori-drs.github.io/newer-college-dataset/multi-cam) : Ouster 128 + Integrated IMU
 - [Stereo Vision Lidar IMU dataset](https://ori-drs.github.io/newer-college-dataset/stereo-cam): Ouster 64 + Integrated IMU
 
+This dataset include 2 maps: parkland and math-institute.
+
 ![image-20240816230105207](./README/image-20240816230105207.png)
 
-
+![image-20240816232236054](./README/image-20240816232236054.png)
 
 ### Self-collected Dataset
 
@@ -145,7 +147,7 @@ rosbag play 20220216_corridor_day_ref.bag
 rosbag play Parkinglot-2023-10-28-18-59-01.bag 
 
 #ouster128
-rosbag play park
+rosbag play parkland0.bag
 ```
 
  You can save data. 

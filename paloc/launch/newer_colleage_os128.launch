@@ -5,7 +5,8 @@
     <param name="save_directory" type="string" value="/home/xchu/data/paloc_result/"/>
     <param name="prior_map_directory" type="string" value="/home/xchu/data/prior_map/paloc_map_file/"/>
 
-    <arg name="sequence" default="nc"/>
+<!--    <arg name="sequence" default="nc"/>-->
+    <arg name="sequence" default="maths-institute"/>
 
     <!-- set your mapping params-->
     <rosparam file="$(find paloc)/config/yaml/nc_os128.yaml" command="load"/>
