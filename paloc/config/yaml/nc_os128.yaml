@@ -1,0 +1,73 @@
+common:
+  lid_topic: "/os_cloud_node/points"
+  imu_topic: "/os_cloud_node/imu"
+
+  acc_cov: 0.1  # acc noise and bias
+  b_acc_cov: 0.01
+  gyr_cov: 0.1   # gyro noise and bias
+  b_gyr_cov: 0.01
+
+  extrinsic_T: [ 0.014, -0.012, -0.015 ]    # from lidar to imu
+  extrinsic_R: [ 1,0,-0.0,
+                 0.0,1.0,0,
+                 0,0,1.0 ]
+
+  odom_link: "camera_init"
+  scan_filter_size: 0.1
+  map_viewer_size: 0.2
+  map_saved_size: 0.1
+
+  useImuFrame: false                        # when we use imu frame, we will get dense color cloud
+  useLoopClosure: true                      # if we enable loop closure
+
+  # save data
+  saveResultBag: false
+  saveResultBodyFrame: true
+  saveKeyFrame: false                     # include color point cloud frame and raw distorted point cloud
+
+  #parkland0
+  initial_pose: [ 0.590137, -0.806766, 0.029430 ,6.874957,
+                  0.807092 ,0.590424 ,0.001337 ,-55.680973,
+                  -0.018454, 0.022964 ,0.999566 ,0.990686,
+                  0.000000 ,0.000000, 0.000000 ,1.000000 ]
+
+lio:
+  lidar_type: 8                          # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR,
+  scan_line: 128
+  scan_rate: 10                         # only need to be set for velodyne, unit: Hz,
+  timestamp_unit: 3                     # the unit of time/t field in the PointCloud2 rostopic: 0-second, 1-milisecond, 2-microsecond, 3-nanosecond.
+  blind: 0.5                            # remove the nearest point cloud
+
+  fov_degree: 180
+  det_range: 150.0
+
+  point_filter_num: 4
+  max_iteration: 3
+  filter_size_corner: 0.1
+  filter_size_surf: 0.1
+  filter_size_map: 0.2
+  cube_side_length: 1000
+
+pgo:
+  SKIP_FRAMES: 5                                    # map visualization, every x frame we add it in the globalmap
+  useRawCloud: false
+  showDegenercy: false
+
+  useGlobalPrior: true
+  icpO3dType: 2                                    # 0: icp 1:point2plane 2:gicp
+  degeneracy_thres: 50
+  correspondence_dis: 2.0                          # stair_bob: 0.6;
+  map_radius: 40
+  map_filter_size: 0.1                             # indoor:0.1, outdoor:0.2
+
+  loopZOffset: 1.0                                 # > 1.0m, do not detect loop
+  historyKeyframeSearchRadius: 10.0
+  historyKeyframeSearchTimeDiff: 40.0
+  historyKeyframeSearchNum: 20
+  loopFitnessScoreThreshold: 0.3
+  loopClosureFrequency: 1                         # if you want to detect more loop, you can set it larger
+  filterDis: 0.5                                  #  did not add loop if the distance of consecutive node less than 10m
+  filterNodeNum: 10                               #  did not detect loop every 10 nodes for ecah loop detetcion method
+
+
+

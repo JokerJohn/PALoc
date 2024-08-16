@@ -27,6 +27,7 @@
 
 
 ## News
+- **2024/08/15**: Support  newer college dataset!
 - **2024/08/15**:  Support FusionPortable dataset and MS-dataset
 - **2024/08/14**: 🔥Release codes and data.
 - **2024/03/26**: [Early access](https://ieeexplore.ieee.org/document/10480308) by IEEE/ASME TMECH.
@@ -72,6 +73,13 @@ Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://r
 | [20220216_garden_day](https://drive.google.com/drive/folders/1epJURj3r29oOyxkTSEUAHE8__tj9vc1h) | [Smaller scenario, similar to an indoor environment.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![garden_day_gif](./README/garden_day_gif.gif)     |
 | [20220225_building_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [Three loops of indoor hallway scanning with a handheld device, taking a relatively long time.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![building-day-gif](./README/building-day-gif.gif) |
 
+### [Newer College Dataset](https://ori-drs.github.io/newer-college-dataset/)
+
+- [Multicam Vision Lidar IMU dataset](https://ori-drs.github.io/newer-college-dataset/multi-cam) : Ouster 128 + Integrated IMU
+- [Stereo Vision Lidar IMU dataset](https://ori-drs.github.io/newer-college-dataset/stereo-cam): Ouster 64 + Integrated IMU
+
+![image-20240816230105207](./README/image-20240816230105207.png)
+
 
 
 ### Self-collected Dataset
@@ -116,6 +124,9 @@ roslaunch paloc fp_os128_corridor.launch
 
 #pandar xt32
 roslaunch paloc ms_sbg_pandar32.launch
+
+#ouster128
+roslaunch paloc newer_colleage_os128.launch 
 ```
 
 then play rosbag:
@@ -132,6 +143,9 @@ rosbag play 20220216_corridor_day_ref.bag
 
 #pandar xt32
 rosbag play Parkinglot-2023-10-28-18-59-01.bag 
+
+#ouster128
+rosbag play park
 ```
 
  You can save data. 
