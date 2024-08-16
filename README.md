@@ -80,9 +80,11 @@ Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://r
 
 This dataset include 2 maps: parkland and math-institute.
 
-![image-20240816230105207](./README/image-20240816230105207.png)
+| Parkland                                                     | Math-institute                                               |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20240816230105207](./README/image-20240816230105207.png) | ![image-20240816232236054](./README/image-20240816232236054.png) |
 
-![image-20240816232236054](./README/image-20240816232236054.png)
+
 
 ### Self-collected Dataset
 
