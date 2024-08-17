@@ -27,6 +27,7 @@
 * Affiliation: The Cheng Kar Shun Robotics Institute (CKSRI), Hong Kong University of Science and Technology (HKUST)
 *
 */
+
 #include "paloc.h"
 
 int main(int argc, char **argv) {
@@ -47,7 +48,6 @@ int main(int argc, char **argv) {
     ros::MultiThreadedSpinner spinner(4);
     spinner.spin();
 
-    //阻塞主线程，等待posegraph_slam线程执行完毕
     pose_slam.join();
     viz_map.join();
 
@@ -233,6 +233,7 @@ void PALoc::InitParmeters() {
             ros::shutdown();
             return;
         }
+
         pcl::PointCloud<pcl::PointXYZI>::Ptr global_map(new pcl::PointCloud<pcl::PointXYZI>);
         pcl::copyPointCloud(*globalmap_ptr, *global_map);
         pcl::VoxelGrid<pcl::PointXYZI> sor;
@@ -321,7 +322,6 @@ void PALoc::InitSystem(Measurement &measurement) {
         return;
     }
     publishCloud(pubLocalizationmap, globalmap_ptr, ros::Time::now(), odom_link);
-
 
 
     pcl::PointCloud<PointT>::Ptr unused_result(new pcl::PointCloud<PointT>());
@@ -640,17 +640,15 @@ void PALoc::AddMapPriorFactor() {
     std::cout << "Extracted localmap cost: " << tic_toc.toc() << " ms." << std::endl;
 
     double t1 = tic_toc.toc();
-    //curr_pose_initial = Matrix2Pose6D(prevPose.matrix());
     Pose6D predict_pose6d = Matrix2Pose6D(predict_pose.matrix());
     relative_fitness = 0.0;
     relative_rmse = std::numeric_limits<double>::max();
-    bool isOptimzed = Point2PlaneICPLM(raw_cloud, local_map, predict_pose6d, correspondenceDis);
+    bool isOptimzed = Point2PlaneICPLM2(raw_cloud, local_map, predict_pose6d, correspondenceDis);
     std::cout << "ICP COV:" << icp_cov.diagonal().transpose() << std::endl;
 
     /** Important: you must make sure the icp result is correct, or the grpah will crashed */
     if (isOptimzed) {
         // update the optimized pose
-        // curr_pose_initial = predict_pose6d;
         Pose3 final_pose = Pose6dTogtsamPose3(predict_pose6d);
         keyMeasures.at(curr_node_idx).global_pose = predict_pose6d;
         keyMeasures.at(curr_node_idx).global_pose.valid = !isDegenerate;
@@ -2217,6 +2215,218 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
         }
     }
     return flag;
+}
+
+
+bool
+PALoc::Point2PlaneICPLM2(pcl::PointCloud<PointT>::Ptr measure_cloud,
+                         pcl::PointCloud<PointT>::Ptr target_cloud,
+                         Pose6D &pose_icp, double SEARCH_RADIUS) {
+    bool flag = false;
+    total_rmse = 0.0;
+    TicToc tic_toc;
+    for (int iterCount = 0; iterCount < 30; iterCount++) {
+        PrepareClouds(measure_cloud, target_cloud, pose_icp, SEARCH_RADIUS);
+        if (laserCloudEffective->size() < 100) {
+            std::cout << BOLDGREEN << "NOT ENOUGH POINTS: " << laserCloudEffective->size() << std::endl;
+            return false;
+        }
+        Eigen::Matrix<float, Eigen::Dynamic, 6> matA(laserCloudEffective->size(), 6);
+        Eigen::VectorXf matB(laserCloudEffective->size());
+        ConstructJacobianMatrix(matA, matB, pose_icp);
+        Eigen::Matrix<float, 6, 6> matAtA = matA.transpose() * matA;
+        Eigen::VectorXf matAtB = matA.transpose() * matB;
+        Eigen::VectorXf matX = matAtA.colPivHouseholderQr().solve(matAtB);
+        icp_cov = matAtA.inverse();
+        if (iterCount == 0) {
+            CheckDegeneracy(matAtA);
+        }
+        if (isDegenerate) {
+            matX = matP_eigen * matX;
+        }
+        UpdatePose(pose_icp, matX);
+        if (CheckConvergence(matX, iterCount)) {
+            flag = true;
+            std::cout << BOLDMAGENTA << "Time and converge count: " << tic_toc.toc() << " " << iterCount << std::endl;
+            break;
+        }
+    }
+    return flag;
+}
+
+void PALoc::PrepareClouds(pcl::PointCloud<PointT>::Ptr measure_cloud,
+                          pcl::PointCloud<PointT>::Ptr target_cloud,
+                          Pose6D &pose_icp, double SEARCH_RADIUS) {
+    laserCloudEffective->clear();
+    coeffSel->clear();
+    total_distance = 0.0;
+#pragma omp parallel for num_threads(8)
+    for (int i = 0; i < measure_cloud->size(); i++) {
+        PointT pointOri, pointSel, coeff;
+        std::vector<int> pointSearchInd;
+        std::vector<float> pointSearchSqDis;
+        pointOri = measure_cloud->points[i];
+        pointBodyToGlobal(pointOri, pointSel, Pose6D2Matrix(pose_icp));
+        kdtreeSurfFromMap->nearestKSearch(pointSel, 5, pointSearchInd, pointSearchSqDis);
+        if (pointSearchSqDis[4] < SEARCH_RADIUS) {
+            CalculateCoefficients(target_cloud, pointSearchInd, pointSel, coeff, pointOri, i);
+        }
+    }
+    for (int i = 0; i < measure_cloud->size(); ++i) {
+        if (laserCloudOriSurfFlag[i]) {
+            laserCloudEffective->push_back(laserCloudOriSurfVec[i]);
+            coeffSel->push_back(coeffSelSurfVec[i]);
+        }
+    }
+    final_fitness = static_cast<double>(laserCloudEffective->size()) / measure_cloud->size();
+    curr_rmse = std::sqrt(total_distance / static_cast<double>(laserCloudEffective->size()));
+    total_rmse += curr_rmse;
+    std::fill(laserCloudOriSurfFlag.begin(), laserCloudOriSurfFlag.end(), false);
+}
+
+void PALoc::CalculateCoefficients(pcl::PointCloud<PointT>::Ptr target_cloud,
+                                  const std::vector<int> &pointSearchInd,
+                                  const PointT &pointSel, PointT &coeff, PointT &pointOri, int i) {
+    Eigen::Matrix<float, 5, 3> matA0;
+    Eigen::Matrix<float, 5, 1> matB0;
+    Eigen::Vector3f matX0;
+    matA0.setZero();
+    matB0.fill(-1);
+    matX0.setZero();
+    for (int j = 0; j < 5; j++) {
+        matA0(j, 0) = target_cloud->points[pointSearchInd[j]].x;
+        matA0(j, 1) = target_cloud->points[pointSearchInd[j]].y;
+        matA0(j, 2) = target_cloud->points[pointSearchInd[j]].z;
+    }
+    matX0 = matA0.colPivHouseholderQr().solve(matB0);
+    float pa = matX0(0, 0);
+    float pb = matX0(1, 0);
+    float pc = matX0(2, 0);
+    float pd = 1;
+    float ps = std::sqrt(pa * pa + pb * pb + pc * pc);
+    pa /= ps;
+    pb /= ps;
+    pc /= ps;
+    pd /= ps;
+    bool planeValid = true;
+    for (int j = 0; j < 5; j++) {
+        if (std::fabs(pa * target_cloud->points[pointSearchInd[j]].x +
+                      pb * target_cloud->points[pointSearchInd[j]].y +
+                      pc * target_cloud->points[pointSearchInd[j]].z + pd) > 0.2) {
+            planeValid = false;
+            break;
+        }
+    }
+    if (planeValid) {
+        float pd2 = pa * pointSel.x + pb * pointSel.y + pc * pointSel.z + pd;
+        double distance = std::fabs(pd2) /
+                          std::sqrt(pointOri.x * pointOri.x + pointOri.y * pointOri.y + pointOri.z * pointOri.z);
+        float s = 1 - 0.9 * distance;
+        coeff.x = s * pa;
+        coeff.y = s * pb;
+        coeff.z = s * pc;
+        coeff.intensity = s * pd2;
+        pointOri.intensity = std::abs(pd2);
+        if (s > 0.1) {
+            laserCloudOriSurfVec[i] = pointOri;
+            coeffSelSurfVec[i] = coeff;
+            laserCloudOriSurfFlag[i] = true;
+            total_distance += distance;
+        }
+    }
+}
+
+void PALoc::ConstructJacobianMatrix(Eigen::Matrix<float, Eigen::Dynamic, 6> &matA,
+                                    Eigen::VectorXf &matB, Pose6D &pose_icp) {
+    float srx = sin(pose_icp.pitch);
+    float crx = cos(pose_icp.pitch);
+    float sry = sin(pose_icp.yaw);
+    float cry = cos(pose_icp.yaw);
+    float srz = sin(pose_icp.roll);
+    float crz = cos(pose_icp.roll);
+    for (int i = 0; i < laserCloudEffective->size(); i++) {
+        PointT pointOri = laserCloudEffective->points[i];
+        PointT coeff = coeffSel->points[i];
+        // Compute the Jacobian
+        float arx = (crx * sry * srz * pointOri.x + crx * crz * sry * pointOri.y - srx * sry * pointOri.z) * coeff.x
+                    + (-srx * srz * pointOri.x - crz * srx * pointOri.y - crx * pointOri.z) * coeff.y
+                    + (crx * cry * srz * pointOri.x + crx * cry * crz * pointOri.y - cry * srx * pointOri.z) * coeff.z;
+        float ary = ((cry * srx * srz - crz * sry) * pointOri.x + (sry * srz + cry * crz * srx) * pointOri.y +
+                     crx * cry * pointOri.z) * coeff.x
+                    + ((-cry * crz - srx * sry * srz) * pointOri.x + (cry * srz - crz * srx * sry) * pointOri.y -
+                       crx * sry * pointOri.z) * coeff.z;
+        float arz = ((crz * srx * sry - cry * srz) * pointOri.x + (-cry * crz - srx * sry * srz) * pointOri.y) * coeff.x
+                    + (crx * crz * pointOri.x - crx * srz * pointOri.y) * coeff.y
+                    +
+                    ((sry * srz + cry * crz * srx) * pointOri.x + (crz * sry - cry * srx * srz) * pointOri.y) * coeff.z;
+        matA(i, 0) = arx;
+        matA(i, 1) = ary;
+        matA(i, 2) = arz;
+        matA(i, 3) = coeff.z;
+        matA(i, 4) = coeff.x;
+        matA(i, 5) = coeff.y;
+        matB(i, 0) = -coeff.intensity;
+        residuals_vec.push_back(-coeff.intensity);
+    }
+}
+
+void PALoc::CheckDegeneracy(const Eigen::Matrix<float, 6, 6> &matAtA) {
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix<float, 6, 6>> esolver(matAtA);
+    Eigen::Matrix<float, 1, 6> matE = esolver.eigenvalues().real();
+    Eigen::Matrix<float, 6, 6> matV = esolver.eigenvectors().real();
+    double max_eigval_xyz = matE.tail<3>().maxCoeff();
+    double min_eigval_xyz = matE.tail<3>().minCoeff();
+    double condition_number_xyz = max_eigval_xyz / min_eigval_xyz;
+    double max_eigval_rpy = matE.head<3>().maxCoeff();
+    double min_eigval_rpy = matE.head<3>().minCoeff();
+    double condition_number_rpy = max_eigval_rpy / min_eigval_rpy;
+    eigen_values_ratio_xyz = matE.tail<3>().cast<double>() / min_eigval_xyz;
+    eigen_values_ratio_rpy = matE.head<3>().cast<double>() / min_eigval_rpy;
+    eigen_values = eigen_values_ratio_xyz;
+    const double MIN_EIGENVALUE_THRESHOLD = 100.0;
+    bool isDegenerate_xyz = condition_number_xyz > DEGENERACY_THRES || min_eigval_xyz < MIN_EIGENVALUE_THRESHOLD;
+    bool isDegenerate_rpy = condition_number_rpy > DEGENERACY_THRES || min_eigval_rpy < MIN_EIGENVALUE_THRESHOLD;
+    isDegenerate = isDegenerate_xyz || isDegenerate_rpy;
+    if (isDegenerate) {
+        Eigen::Matrix<float, 6, 6> matV2 = matV;
+        for (int i = 5; i >= 0; i--) {
+            matV2.row(i).setZero();
+        }
+        matP_eigen = matV2 * matV.inverse();
+    }
+
+    std::cout << "Condition number xyz and rpy: " << condition_number_xyz << " " << condition_number_rpy << std::endl;
+    std::cout << "Degeneracy status xyz and rpy: " << (isDegenerate_xyz ? "Degenerate" : "Not Degenerate")
+              << ", " << (isDegenerate_rpy ? "Degenerate" : "Not Degenerate") << std::endl;
+}
+
+void PALoc::UpdatePose(Pose6D &pose_icp, const Eigen::VectorXf &matX) {
+    pose_icp.roll += matX(0, 0);
+    pose_icp.pitch += matX(1, 0);
+    pose_icp.yaw += matX(2, 0);
+    pose_icp.x += matX(3, 0);
+    pose_icp.y += matX(4, 0);
+    pose_icp.z += matX(5, 0);
+}
+
+bool PALoc::CheckConvergence(const Eigen::VectorXf &matX, int iterCount) {
+    float deltaR = std::sqrt(std::pow(pcl::rad2deg(matX(0, 0)), 2) +
+                             std::pow(pcl::rad2deg(matX(1, 0)), 2) +
+                             std::pow(pcl::rad2deg(matX(2, 0)), 2));
+    float deltaT = std::sqrt(std::pow(matX(3, 0) * 100, 2) +
+                             std::pow(matX(4, 0) * 100, 2) +
+                             std::pow(matX(5, 0) * 100, 2));
+    relative_rmse = std::abs(curr_rmse - prev_rmse);
+    relative_fitness = std::abs(final_fitness - prev_fitness);
+    prev_rmse = curr_rmse;
+    prev_fitness = final_fitness;
+    if (deltaR < 1e-6 && deltaT < 1e-6 || relative_rmse < 1e-6) {
+        iterate_number = iterCount;
+        std::cout << BOLDMAGENTA << "RMSE and overlap: " << total_rmse << " "
+                  << final_fitness << " " << relative_rmse << " " << relative_fitness << std::endl;
+        return true;
+    }
+    return false;
 }
 
 void PALoc::SetLoopscore(float loopNoiseScore) {

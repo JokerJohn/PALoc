@@ -1,3 +1,17 @@
+/*******************************************************
+ * Copyright (C) 2022, RAM-LAB, Hong Kong University of Science and Technology
+ *
+ * This file is part of FL2SAM (https://github.com/JokerJohn/FL2SAM-GPS).
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * Licensed under the GNU General Public License v3.0;
+ * you may not use this file except in compliance with the License.
+ *
+ * Author: Xiangcheng Hu (xhubd@connect.ust.hk.com)
+ * Date: ${Date}
+ * Description:
+ *******************************************************/
 #ifndef SRC_PALOC_SRC_PALOC_H_
 #define SRC_PALOC_SRC_PALOC_H_
 
@@ -194,6 +208,26 @@ private:
 
     bool Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud, pcl::PointCloud<PointT>::Ptr target_cloud,
                           Pose6D &transform, double search_radius);
+
+    bool Point2PlaneICPLM2(pcl::PointCloud<PointT>::Ptr measure_cloud,
+                           pcl::PointCloud<PointT>::Ptr target_cloud,
+                           Pose6D &pose_icp, double SEARCH_RADIUS);
+
+    void PrepareClouds(pcl::PointCloud<PointT>::Ptr measure_cloud,
+                       pcl::PointCloud<PointT>::Ptr target_cloud,
+                       Pose6D &pose_icp, double SEARCH_RADIUS);
+
+    void CalculateCoefficients(pcl::PointCloud<PointT>::Ptr target_cloud, const std::vector<int> &pointSearchInd,
+                               const PointT &pointSel, PointT &coeff, PointT &pointOri, int i);
+
+    void ConstructJacobianMatrix(Eigen::Matrix<float, Eigen::Dynamic, 6> &matA,
+                                 Eigen::VectorXf &matB, Pose6D &pose_icp);
+
+    void CheckDegeneracy(const Eigen::Matrix<float, 6, 6> &matAtA);
+
+    void UpdatePose(Pose6D &pose_icp, const Eigen::VectorXf &matX);
+
+    bool CheckConvergence(const Eigen::VectorXf &matX, int iterCount);
 
     void SetLoopscore(float loopNoiseScore);
 
