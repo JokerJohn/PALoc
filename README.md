@@ -110,7 +110,7 @@ Below is our sensor kit setup.
 - PCL
 - [GTSAM 4.0.2](https://github.com/borglab/gtsam/tree/4.0.2)
 
-The GTSAM version should be compatible with running LIO-SAM smoothly. Additionally, there is no need to install the **[livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver)** required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.
+The GTSAM version should be compatible with running LIO-SAM smoothly. Additionally, **there is no need to install the [livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.**
 
 ### Quickly Run
 
@@ -272,10 +272,9 @@ Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S)
 
 To plot the results, you can follow this [scripts](https://github.com/JokerJohn/SLAMTools/blob/main/Run_Time_analysis/time_analysis.py).
 
-<div align="center">
-![Time Analysis 1](./README/image-20240131044902360.png)
-![Time Analysis 2](./README/image-20240131044851437.png)
-</div>
+| ![Time Analysis 1](./README/image-20240131044902360.png) |
+| -------------------------------------------------------- |
+| ![Time Analysis 2](./README/image-20240131044851437.png) |
 
 
 
