@@ -108,7 +108,7 @@ Below is our sensor kit setup.
 
 - *[Open3d ( >= 0.11)](https://github.com/isl-org/Open3D)*
 - PCL
-- [GTSAM 4.0.2](https://github.com/borglab/gtsam/tree/4.0.2)
+- [GTSAM 4.2.0](https://github.com/borglab/gtsam/tree/4.2.0)
 
 The GTSAM version should be compatible with running LIO-SAM smoothly. Additionally, **there is no need to install the [livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.**
 
