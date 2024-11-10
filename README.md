@@ -112,6 +112,32 @@ Below is our sensor kit setup.
 
 The GTSAM version should be compatible with running LIO-SAM smoothly. Additionally, **there is no need to install the [livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.**
 
+### Docker Support
+
+
+It is recommended to run the code in the container while visualize it in the host machine, e.g.:
+
+Pull the Docker image:
+```bash
+docker pull ulterzlw/paloc
+```
+
+Run the container with host network access:
+```bash
+docker run -it --network host ulterzlw/paloc bash
+```
+
+launch the application (inside the container):
+```bash
+roslaunch paloc geode_beta_os64.launch
+```
+
+Start RViz (on the host machine):
+```bash
+rviz -d ${PATH_TO_PALOC}/config/rviz/ouster_indoors.rviz
+```
+
+
 ### Quickly Run
 
 download the demo rosbag and prior map, set the file path in `geode_beta_os64.launch`.

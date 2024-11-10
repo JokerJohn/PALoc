@@ -643,7 +643,7 @@ void PALoc::AddMapPriorFactor() {
     Pose6D predict_pose6d = Matrix2Pose6D(predict_pose.matrix());
     relative_fitness = 0.0;
     relative_rmse = std::numeric_limits<double>::max();
-    bool isOptimzed = Point2PlaneICPLM2(raw_cloud, local_map, predict_pose6d, correspondenceDis);
+    bool isOptimzed = Point2PlaneICPLM(raw_cloud, local_map, predict_pose6d, correspondenceDis);
     std::cout << "ICP COV:" << icp_cov.diagonal().transpose() << std::endl;
 
     /** Important: you must make sure the icp result is correct, or the grpah will crashed */
