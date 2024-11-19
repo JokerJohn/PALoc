@@ -27,6 +27,7 @@
 
 
 ## News
+- **2024/011/15**: Docker support!
 - **2024/08/15**: Support  newer college dataset!
 - **2024/08/15**:  Support FusionPortable dataset and MS-dataset
 - **2024/08/14**: 🔥Release codes and data.
@@ -40,9 +41,9 @@
 
 ## Dataset
 
-### GEODE Dataset
+### [GEODE Dataset](https://github.com/PengYu-Team/GEODE_dataset)
 
-This data was provided by Zhiqiang Chen and [Prof.Yuhua Qi](https://ssse.sysu.edu.cn/teacher/1016) from SYSU.
+This data was provided by Zhiqiang Chen and [Prof.Yuhua Qi](https://ssse.sysu.edu.cn/teacher/1016) from SYSU and HKU.
 
 Stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to **narrow stairs** ,  you need to tune some parameters of **ICP**. The prior map and raw map can be downloaded.
 
@@ -62,7 +63,7 @@ Stairs  scenes with different  types of lidar and **glass noise**. This is very 
 
 ### [FusionPortable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
 
-Our algorithms were rigorously tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
+Our algorithms were  tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
 
 | Sequence                                                     | GT Map                                                       | Scene                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------- |
@@ -143,19 +144,19 @@ rviz -d ${PATH_TO_PALOC}/config/rviz/ouster_indoors.rviz
 download the demo rosbag and prior map, set the file path in `geode_beta_os64.launch`.
 
 ```bash
-#ouster64
+#ouster64 : GEODE dataset
 roslaunch paloc geode_beta_os64.launch
 
-#velodyne16
+#velodyne16: GEODE dataset
 roslaunch paloc geode_alpha_vlp16.launch
 
 #ouster128 fusionportable-corridor
 roslaunch paloc fp_os128_corridor.launch
 
-#pandar xt32
+#pandar xt32: MS-dataset
 roslaunch paloc ms_sbg_pandar32.launch
 
-#ouster128
+#ouster128: newer_colleage dataset
 roslaunch paloc newer_colleage_os128.launch 
 ```
 
@@ -244,9 +245,9 @@ common:
 
 ![image-20240807094808981](./README/image-20240807094808981.png)
 
-#### Evaluation with [Cloud Map Evaluation Lib](https://github.com/JokerJohn/Cloud_Map_Evaluation)
+#### Evaluation with [Cloud Map Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation)
 
-We can evaluate the map accuracy of PAloc as follows. Note that when you use the Cloud Map Evaluation library, the map of PALoc or ICP  do not need to set initial pose since they are already in the same frame. But evaluate the map from FAST-LIO2 must to set it. 
+We can evaluate the map accuracy of PAloc as follows. Note that when you use the Cloud Map Evaluation library, the map of PALoc or ICP  do not need to set initial pose since they are already in the same coordinate. But **evaluate the map from FAST-LIO2 must to set it**. 
 
 
 
@@ -345,7 +346,7 @@ The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://gi
 
 The code in this project is adapted from the following projects:
 
-- The odometry  method is adapted from [FAST-LIO2](https://github.com/hku-mars/FAST_LIO).
+- The odometry  method is adapted from [FAST-LIO2](https://github.com/hku-mars/FAST_LIO) and [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM).
 - The basic framework for pose graph optimization (PGO) is adapted from [SC-A-LOAM](https://github.com/gisbi-kim/SC-A-LOAM).
 - The Point-to-Plane registration is adapted from [LOAM](https://github.com/laboshinl/loam_velodyne).
 

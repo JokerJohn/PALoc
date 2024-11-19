@@ -22,7 +22,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* Author: Hu Xiangcheng
+* Author: Xiangcheng Hu
 * Contact: xhubd@connect.ust.hk
 * Affiliation: The Cheng Kar Shun Robotics Institute (CKSRI), Hong Kong University of Science and Technology (HKUST)
 *
@@ -285,7 +285,7 @@ void PALoc::InitParmeters() {
 
 void PALoc::InitSystem(Measurement &measurement) {
     std::cout << "PALoc: waiting for initial pose" << std::endl;
-    // estimate gravity
+    // roughly estimate gravity
     if (!isInitialized) {
         auto imu_deque = measurement.imu_deque;
         std::vector<sensor_msgs::Imu> imu_measurements;
@@ -309,7 +309,7 @@ void PALoc::InitSystem(Measurement &measurement) {
     }
     std::cout << "Init gravity ! " << init_gravity.transpose() << std::endl;
 
-    // save the first point cloud
+    // save the first point cloud for initialization with global map
     std::string init_pcd_path = saveDirectory + sequence + "/" + sequence + "_init_cloud.pcd";
     pcl::io::savePCDFileASCII(init_pcd_path, *measurement_curr.lidar);
     std::cout << "Saver init cloud: " << init_pcd_path << std::endl;
@@ -504,6 +504,8 @@ void PALoc::GraphOpt() {
     newFactors.resize(0);
     newValues.clear();
 
+    // actually we do not use any imu related state in our system, for example, gravity, bias, vel, etc.
+    // just neglect them
     currentEstimate = isam->calculateEstimate();
     prevPose = currentEstimate.at<Pose3>(X(curr_node_idx));
     prevVel = currentEstimate.at<Vector3>(V(curr_node_idx));
@@ -511,7 +513,7 @@ void PALoc::GraphOpt() {
     auto prevGravity = currentEstimate.at<gtsam::Point3>(G(curr_node_idx));
     prevState = NavState(prevPose, prevVel);
 
-    // caculate pose cov in world frame
+    // calculate pose cov in world frame
     Marginals marginals = Marginals(isam->getFactorsUnsafe(), currentEstimate, Marginals::CHOLESKY);
     bool useJointMarginal = true;
     if (useJointMarginal) {
@@ -591,7 +593,7 @@ void PALoc::AddOdomFactor() {
         rel_pose = prev_lio_pose.between(curr_lio_pose);
         predict_pose = prevPose.compose(rel_pose);
 
-        // Adjoint map at relative pose (inverse)
+        //Important!!!: Adjoint map at relative pose (inverse)
         Matrix6 Adj = rel_pose.inverse().AdjointMap();
         Matrix6 cov1 = keyLIOState2.at(prev_node_idx).cov;
         Matrix6 cov2 = pose_cov;
@@ -1247,6 +1249,7 @@ void PALoc::PubPath() {
     } else {
         // show pose uncertainty
         // 调整poseCovariance的列顺序
+        // you can also show the condition number of the covariance matrix to visualize the degration as the  demo video shows
         Eigen::MatrixXd adjustedCovariance(6, 6);
         adjustedCovariance.block<3, 3>(0, 0) = poseCovariance.block<3, 3>(3, 3); // 平移部分
         adjustedCovariance.block<3, 3>(0, 3) = poseCovariance.block<3, 3>(3, 0); // 平移与旋转之间的协方差
@@ -1903,6 +1906,9 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
         coeffSel->clear();
         total_distance = 0.0;
 
+
+// codes  segment adpated from LOAM: https://github.com/laboshinl/loam_velodyne
+// but using eigen  instead of opencv
 #pragma omp parallel for num_threads(8)
         for (int i = 0; i < measure_cloud->size(); i++) {
             PointT pointOri, pointSel, coeff;
@@ -2222,6 +2228,7 @@ bool
 PALoc::Point2PlaneICPLM2(pcl::PointCloud<PointT>::Ptr measure_cloud,
                          pcl::PointCloud<PointT>::Ptr target_cloud,
                          Pose6D &pose_icp, double SEARCH_RADIUS) {
+    // something wrong with this function, we have to check it!
     bool flag = false;
     total_rmse = 0.0;
     TicToc tic_toc;
