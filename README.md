@@ -107,7 +107,7 @@ Below is our sensor kit setup.
 
 ### Install
 
-- *[Open3d ( >= 0.11)](https://github.com/isl-org/Open3D)*
+- *[Open3d ( >= 0.17.0)](https://github.com/isl-org/Open3D)*
 - PCL
 - [GTSAM 4.2.0](https://github.com/borglab/gtsam/tree/4.2.0) (fixed by @**[WangWenda98](https://github.com/WangWenda98)**)
 
