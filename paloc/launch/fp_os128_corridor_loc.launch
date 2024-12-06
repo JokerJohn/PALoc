@@ -1,0 +1,36 @@
+<launch>
+
+    <!--suggestions for real-time map-based localization-->
+    <!--
+    1. set the paramter: map_filter_size to 0.5, set the 'useLoopClosure' to false.
+
+    2. at the InitSystem() function, set the 'globalmap_filter' as 'globalmap_filter_ptr
+    ' target_o3d =  cloud_process_.GetO3dPointCloudFromPCL(*globalmap_filter_ptr); '
+
+    3. a sliding window approach must be needed, since its may not the key mission of this work,
+    you need to modify the codes by your own.
+    -->
+
+    <!-- set your data config -->
+    <param name="/use_sim_time" value="false"/>
+    <!--all folder must be end with '/'-->
+    <param name="config_directory" type="string" value="$(find paloc)/config/"/>
+    <param name="save_directory" type="string" value="/home/xchu/data/paloc_result/"/>
+    <param name="prior_map_directory" type="string" value="/home/xchu/data/prior_map/paloc_map_file/"/>
+
+    <arg name="sequence" default="20220216_corridor_day_ref"/>
+
+    <!-- set your mapping params-->
+    <rosparam file="$(find paloc)/config/yaml/fp_os128_corridor_loc.yaml" command="load"/>
+    <rosparam param="common/sequence" subst_value="true">$(arg sequence)</rosparam>
+
+    <!--LIO-->
+    <node pkg="paloc" type="fastlio" name="fastlio" output="log" required="true"/>
+
+    <!--PGO-->
+    <node pkg="paloc" type="pgo_localization" name="pgo_localization" output="screen" required="true"/>
+
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_pgo"
+          args="-d $(find paloc)/config/rviz/ouster_indoors.rviz"/>
+
+</launch>

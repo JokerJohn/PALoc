@@ -22,9 +22,10 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* Author: Xiangcheng Hu
+* Author:  Xiangcheng Hu
 * Contact: xhubd@connect.ust.hk
-* Affiliation: The Cheng Kar Shun Robotics Institute (CKSRI), Hong Kong University of Science and Technology (HKUST)
+* Affiliation: The Cheng Kar Shun Robotics Institute (CKSRI),
+* Hong Kong University of Science and Technology (HKUST)
 *
 */
 
@@ -121,7 +122,7 @@ void PALoc::pose_slam() {
              * so it's essential to check for map noise (e.g., glass)
              * */
             TicToc tic;
-            // 0: use icp by open3d icp
+            // 0: directly use open3d gicp
             // 1: use point-to-plane icp, recommended;
             int method_prior = 1;
             if (method_prior == 0)
@@ -285,7 +286,7 @@ void PALoc::InitParmeters() {
 
 void PALoc::InitSystem(Measurement &measurement) {
     std::cout << "PALoc: waiting for initial pose" << std::endl;
-    // roughly estimate gravity
+    // estimate gravity
     if (!isInitialized) {
         auto imu_deque = measurement.imu_deque;
         std::vector<sensor_msgs::Imu> imu_measurements;
@@ -309,7 +310,7 @@ void PALoc::InitSystem(Measurement &measurement) {
     }
     std::cout << "Init gravity ! " << init_gravity.transpose() << std::endl;
 
-    // save the first point cloud for initialization with global map
+    // save the first point cloud
     std::string init_pcd_path = saveDirectory + sequence + "/" + sequence + "_init_cloud.pcd";
     pcl::io::savePCDFileASCII(init_pcd_path, *measurement_curr.lidar);
     std::cout << "Saver init cloud: " << init_pcd_path << std::endl;
@@ -323,12 +324,18 @@ void PALoc::InitSystem(Measurement &measurement) {
     }
     publishCloud(pubLocalizationmap, globalmap_ptr, ros::Time::now(), odom_link);
 
-
     pcl::PointCloud<PointT>::Ptr unused_result(new pcl::PointCloud<PointT>());
     std::shared_ptr<geometry::PointCloud> source_o3d =
             cloud_process_.GetO3dPointCloudFromPCL(*measurement_curr.lidar);
-    std::shared_ptr<geometry::PointCloud> target_o3d =
-            cloud_process_.GetO3dPointCloudFromPCL(*globalmap_ptr);
+
+    /** globalmap_filter_ptr is the filterd point cloud of the prior map
+     *  if you want to be faster, just use this cloud, but there may need to adjust the icp score
+     *  to get system initilization success
+     * */
+        std::shared_ptr<geometry::PointCloud> target_o3d =
+                cloud_process_.GetO3dPointCloudFromPCL(*globalmap_ptr);
+    //    std::shared_ptr<geometry::PointCloud> target_o3d =
+    //            cloud_process_.GetO3dPointCloudFromPCL(*globalmap_filter_ptr);
     Eigen::Matrix4d trans = Eigen::Matrix4d::Identity();
     pipelines::registration::RegistrationResult icp;
     auto criteria = pipelines::registration::ICPConvergenceCriteria(30);
@@ -373,6 +380,7 @@ void PALoc::InitSystem(Measurement &measurement) {
         publishCloud(pubInitialCloud, unused_result, ros::Time::now(), odom_link);
         ROS_INFO("Initial ICP ALIGNED POINTS: %d and %d, %f, %f",
                  measurement_curr.lidar->size(), globalmap_ptr->size(), score, overlap);
+        /**** Note: in some case, maybe you need to adjust the open3d icp score*/
         if (score > 0.7 || overlap < 0.7 || score == 0.0) {
             std::cout << "check your initial pose in the yaml file" << std::endl;
             priorPose = initialPose = Eigen::Matrix4d::Identity();
@@ -418,10 +426,9 @@ void PALoc::InitSystem(Measurement &measurement) {
         std::cout << BOLDRED << "Initial pose: " << priorPose.matrix() << std::endl;
         std::cout << BOLDRED << "Initial pose cov: " << icp_cov.diagonal().transpose() << std::endl;
         isInitialized = true;
-
         return;
     } else {
-        // get initial pose from rviz
+        // get initial pose from rviz, there may exist some bugs
         if (poseReceived) {
             switch (icpO3dType) {
                 case 0:  // point-to-point icp
@@ -504,8 +511,6 @@ void PALoc::GraphOpt() {
     newFactors.resize(0);
     newValues.clear();
 
-    // actually we do not use any imu related state in our system, for example, gravity, bias, vel, etc.
-    // just neglect them
     currentEstimate = isam->calculateEstimate();
     prevPose = currentEstimate.at<Pose3>(X(curr_node_idx));
     prevVel = currentEstimate.at<Vector3>(V(curr_node_idx));
@@ -513,7 +518,7 @@ void PALoc::GraphOpt() {
     auto prevGravity = currentEstimate.at<gtsam::Point3>(G(curr_node_idx));
     prevState = NavState(prevPose, prevVel);
 
-    // calculate pose cov in world frame
+    // caculate pose cov in world frame
     Marginals marginals = Marginals(isam->getFactorsUnsafe(), currentEstimate, Marginals::CHOLESKY);
     bool useJointMarginal = true;
     if (useJointMarginal) {
@@ -593,7 +598,7 @@ void PALoc::AddOdomFactor() {
         rel_pose = prev_lio_pose.between(curr_lio_pose);
         predict_pose = prevPose.compose(rel_pose);
 
-        //Important!!!: Adjoint map at relative pose (inverse)
+        // Adjoint map at relative pose (inverse)
         Matrix6 Adj = rel_pose.inverse().AdjointMap();
         Matrix6 cov1 = keyLIOState2.at(prev_node_idx).cov;
         Matrix6 cov2 = pose_cov;
@@ -683,10 +688,10 @@ PALoc::extractLocalMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &map,
     // Extract local map
     pcl::PointCloud<pcl::PointXYZI>::Ptr temp_map(new pcl::PointCloud<pcl::PointXYZI>);
     pcl::copyPointCloud(*map, *temp_map);
-//    pcl::VoxelGrid<pcl::PointXYZI> sor;
-//    sor.setInputCloud(temp_map);
-//    sor.setLeafSize(0.1, 0.1, 0.1);
-//    sor.filter(*temp_map);
+    //    pcl::VoxelGrid<pcl::PointXYZI> sor;
+    //    sor.setInputCloud(temp_map);
+    //    sor.setLeafSize(0.1, 0.1, 0.1);
+    //    sor.filter(*temp_map);
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr local_map(new pcl::PointCloud<pcl::PointXYZI>);
     // Convert Matrix4d to Affine3f for CropBox compatibility
@@ -1249,7 +1254,6 @@ void PALoc::PubPath() {
     } else {
         // show pose uncertainty
         // 调整poseCovariance的列顺序
-        // you can also show the condition number of the covariance matrix to visualize the degration as the  demo video shows
         Eigen::MatrixXd adjustedCovariance(6, 6);
         adjustedCovariance.block<3, 3>(0, 0) = poseCovariance.block<3, 3>(3, 3); // 平移部分
         adjustedCovariance.block<3, 3>(0, 3) = poseCovariance.block<3, 3>(3, 0); // 平移与旋转之间的协方差
@@ -1906,9 +1910,6 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
         coeffSel->clear();
         total_distance = 0.0;
 
-
-// codes  segment adpated from LOAM: https://github.com/laboshinl/loam_velodyne
-// but using eigen  instead of opencv
 #pragma omp parallel for num_threads(8)
         for (int i = 0; i < measure_cloud->size(); i++) {
             PointT pointOri, pointSel, coeff;
@@ -2228,7 +2229,6 @@ bool
 PALoc::Point2PlaneICPLM2(pcl::PointCloud<PointT>::Ptr measure_cloud,
                          pcl::PointCloud<PointT>::Ptr target_cloud,
                          Pose6D &pose_icp, double SEARCH_RADIUS) {
-    // something wrong with this function, we have to check it!
     bool flag = false;
     total_rmse = 0.0;
     TicToc tic_toc;

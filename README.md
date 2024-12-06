@@ -27,7 +27,8 @@
 
 
 ## News
-- **2024/011/15**: Docker support!
+- **2024/12/6**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch]()  and [instructions](Tutorial/loc.md).
+- **2024/11/15**: Docker support!
 - **2024/08/15**: Support  newer college dataset!
 - **2024/08/15**:  Support FusionPortable dataset and MS-dataset
 - **2024/08/14**: 🔥Release codes and data.
