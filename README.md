@@ -27,11 +27,11 @@
 
 
 ## News
-- **2024/12/6**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch]()  and [instructions](Tutorial/loc.md).
+- **2024/12/6**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
 - **2024/11/15**: Docker support!
 - **2024/08/15**: Support  newer college dataset!
 - **2024/08/15**:  Support FusionPortable dataset and MS-dataset
-- **2024/08/14**: 🔥Release codes and data.
+- **2024/08/14**: Release codes and data.
 - **2024/03/26**: [Early access](https://ieeexplore.ieee.org/document/10480308) by IEEE/ASME TMECH.
 - **2024/02/01**: Preparing codes for release.
 - **2024/01/29**: Accepted by 2024 IEEE/ASME TMECH.
@@ -263,10 +263,10 @@ Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S)
 ### TODO
 
 - [ ] clean codes
-- [ ] tutorial and parameters tuning
+- [x] tutorial and parameters tuning
 - [ ] support for LIO-SAM
 - [ ] gravity factor
-- [ ] adapt for more dataset and lidar 
+- [x] adapt for more dataset and lidar 
 
 
 
