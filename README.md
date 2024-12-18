@@ -327,11 +327,10 @@ For referencing our work in PALoc, please use:
   journal={IEEE/ASME Transactions on Mechatronics}, 
   title={PALoc: Advancing SLAM Benchmarking With Prior-Assisted 6-DoF Trajectory Generation and Uncertainty Estimation}, 
   year={2024},
-  volume={},
-  number={},
-  pages={1-12},
-  doi={10.1109/TMECH.2024.3362902}
-  }
+  volume={29},
+  number={6},
+  pages={4297-4308},
+  doi={10.1109/TMECH.2024.3362902}}
 ```
 The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
 ```bibtex
