@@ -334,12 +334,15 @@ For referencing our work in PALoc, please use:
 ```
 The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
 ```bibtex
-@article{jiao2024fp,
-  author    = {Jianhao Jiao and Hexiang Wei and Tianshuai Hu and Xiangcheng Hu and Yilong Zhu and Zhijian He and Jin Wu and Jingwen Yu and Xupeng Xie and Huaiyang Huang and Ruoyu Geng and Lujia Wang and Ming Liu},
-  title     = {FusionPortable: A Multi-Sensor Campus-Scene Dataset for Evaluation of Localization and Mapping Accuracy on Diverse Platforms},
-  booktitle = {2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
-  year      = {2022}
-}
+@article{weifp2024,
+author = {Hexiang Wei and Jianhao Jiao and Xiangcheng Hu and Jingwen Yu and Xupeng Xie and Jin Wu and Yilong Zhu and Yuxuan Liu and Lujia Wang and Ming Liu},
+title ={FusionPortableV2: A unified multi-sensor dataset for generalized SLAM across diverse platforms and scalable environments},
+journal = {The International Journal of Robotics Research},
+volume = {0},
+number = {0},
+pages = {02783649241303525},
+year = {0},
+doi = {10.1177/02783649241303525}
 ```
 
 ## Acknowledgment
