@@ -27,6 +27,7 @@
 
 
 ## News
+- **2024/12/26**: Formally Published by  IEEE/ASME TMECH.
 - **2024/12/6**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
 - **2024/11/15**: Docker support!
 - **2024/08/15**: Support  newer college dataset!
@@ -334,15 +335,15 @@ For referencing our work in PALoc, please use:
 ```
 The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
 ```bibtex
-@article{weifp2024,
-author = {Hexiang Wei and Jianhao Jiao and Xiangcheng Hu and Jingwen Yu and Xupeng Xie and Jin Wu and Yilong Zhu and Yuxuan Liu and Lujia Wang and Ming Liu},
-title ={FusionPortableV2: A unified multi-sensor dataset for generalized SLAM across diverse platforms and scalable environments},
-journal = {The International Journal of Robotics Research},
-volume = {0},
-number = {0},
-pages = {02783649241303525},
-year = {0},
-doi = {10.1177/02783649241303525}
+@misc{hu2024mapeval,
+      title={MapEval: Towards Unified, Robust and Efficient SLAM Map Evaluation Framework}, 
+      author={Xiangcheng Hu and Jin Wu and Mingkai Jia and Hongyu Yan and Yi Jiang and Binqian Jiang and Wei Zhang and Wei He and Ping Tan},
+      year={2024},
+      eprint={2411.17928},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2411.17928}, 
+}
 ```
 
 ## Acknowledgment
