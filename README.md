@@ -113,7 +113,15 @@ Below is our sensor kit setup.
 - PCL
 - [GTSAM 4.2.0](https://github.com/borglab/gtsam/tree/4.2.0) (fixed by @**[WangWenda98](https://github.com/WangWenda98)**)
 
-The GTSAM version should be compatible with running LIO-SAM smoothly. Additionally, **there is no need to install the [livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.**
+The GTSAM version should be compatible with running LIO-SAM smoothly.
+
+ Recommend to use system eigen when install GTSAM.
+
+```
+cmake -DGTSAM_USE_SYSTEM_EIGEN=ON -DGTSAM_BUILD_UNSTABLE:OPTION=ON -DCMAKE_BUILD_TYPE=Release ..
+```
+
+Additionally, **there is no need to install the [livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.**
 
 ### Docker Support
 
