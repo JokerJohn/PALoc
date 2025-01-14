@@ -28,7 +28,7 @@
 
 ## News
 - **2024/12/26**: Formally Published by  IEEE/ASME TMECH.
-- **2024/12/6**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
+- **2024/12/06**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
 - **2024/11/15**: Docker support!
 - **2024/08/15**: Support  newer college dataset!
 - **2024/08/15**:  Support FusionPortable dataset and MS-dataset
