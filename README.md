@@ -61,8 +61,6 @@ Stairs  scenes with different  types of lidar and **glass noise**. This is very 
 | ![image-20240813195354720](./README/image-20240813195354720.png) | ![image-20240812181454491](./README/image-20240812181454491.png) |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 
-
-
 ### [FusionPortable Dataset](https://fusionportable.github.io/dataset/fusionportable/)
 
 Our algorithms were  tested on the [Fusion Portable Dataset](https://ram-lab.com/file/site/fusionportable/dataset/fusionportable/). 
@@ -81,7 +79,7 @@ Our algorithms were  tested on the [Fusion Portable Dataset](https://ram-lab.com
 - [Multicam Vision Lidar IMU dataset](https://ori-drs.github.io/newer-college-dataset/multi-cam) : Ouster 128 + Integrated IMU
 - [Stereo Vision Lidar IMU dataset](https://ori-drs.github.io/newer-college-dataset/stereo-cam): Ouster 64 + Integrated IMU
 
-This dataset include 2 maps: parkland and math-institute.
+This dataset include 2 different maps: parkland and math-institute.
 
 | Parkland                                                     | Math-institute                                               |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -96,10 +94,10 @@ Below is our sensor kit setup.
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
 
-| Sequence                                                     | Scenes                                   | [GT](http://gofile.me/4jm56/C1OOhgG65)                       |
-| ------------------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------ |
-| [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            | ![image (17)](./README/image%20(17).png) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
-| [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) |                                          | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
+| Sequence                                                     | Scenes                                                       | [GT](http://gofile.me/4jm56/C1OOhgG65)                       |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            | ![image (17)](./README/image%20(17).png)                     | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
+| [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) | ![image-20250116000038243](./README/image-20250116000038243.png) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
 
 </div>
 
@@ -113,7 +111,7 @@ Below is our sensor kit setup.
 - PCL
 - [GTSAM 4.2.0](https://github.com/borglab/gtsam/tree/4.2.0) (fixed by @**[WangWenda98](https://github.com/WangWenda98)**)
 
-The GTSAM version should be compatible with running LIO-SAM smoothly. Recommend to use system eigen when install GTSAM.
+**Recommend to use system eigen when install GTSAM**.
 
 ```
 cmake -DGTSAM_USE_SYSTEM_EIGEN=ON -DGTSAM_BUILD_UNSTABLE:OPTION=ON -DCMAKE_BUILD_TYPE=Release ..
