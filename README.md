@@ -25,8 +25,8 @@
 ![Pipeline](./README/image-20240131044249967.png)
 </div>
 
-
 ## News
+
 - **2024/12/26**: Formally Published by  IEEE/ASME TMECH.
 - **2024/12/06**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
 - **2024/11/15**: Docker support!
@@ -105,8 +105,38 @@ Below is our sensor kit setup.
 
 ## Getting Started
 
+### Docker Support
+
+
+It is recommended to run the code in the container while visualize it in the host machine, e.g.:
+
+Pull the Docker image:
+
+```bash
+docker pull ulterzlw/paloc
+```
+
+Run the container with host network access:
+
+```bash
+docker run -it --network host ulterzlw/paloc bash
+```
+
+launch the application (inside the container):
+
+```bash
+roslaunch paloc geode_beta_os64.launch
+```
+
+Start RViz (on the host machine):
+
+```bash
+rviz -d ${PATH_TO_PALOC}/config/rviz/ouster_indoors.rviz
+```
+
 ### Install
 
+- Ubuntu 20.04 / ROS Noetic
 - *[Open3d ( >= 0.17.0)](https://github.com/isl-org/Open3D)* (fixed by @**[ljy-zju](https://github.com/ljy-zju)**)
 - PCL
 - [GTSAM 4.2.0](https://github.com/borglab/gtsam/tree/4.2.0) (fixed by @**[WangWenda98](https://github.com/WangWenda98)**)
@@ -118,31 +148,6 @@ cmake -DGTSAM_USE_SYSTEM_EIGEN=ON -DGTSAM_BUILD_UNSTABLE:OPTION=ON -DCMAKE_BUILD
 ```
 
 Additionally, **there is no need to install the [livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.**
-
-### Docker Support
-
-
-It is recommended to run the code in the container while visualize it in the host machine, e.g.:
-
-Pull the Docker image:
-```bash
-docker pull ulterzlw/paloc
-```
-
-Run the container with host network access:
-```bash
-docker run -it --network host ulterzlw/paloc bash
-```
-
-launch the application (inside the container):
-```bash
-roslaunch paloc geode_beta_os64.launch
-```
-
-Start RViz (on the host machine):
-```bash
-rviz -d ${PATH_TO_PALOC}/config/rviz/ouster_indoors.rviz
-```
 
 
 ### Quickly Run
