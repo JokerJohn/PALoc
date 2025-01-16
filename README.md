@@ -27,6 +27,7 @@
 
 ## News
 
+- **2025/01/16**: A real-time map-based localization system with new features is on the way, see this repo [LTLoc](https://github.com/JokerJohn/LTLoc)! 
 - **2024/12/26**: Formally Published by  IEEE/ASME TMECH.
 - **2024/12/06**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
 - **2024/11/15**: Docker support!
@@ -94,14 +95,12 @@ Below is our sensor kit setup.
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
 
-| Sequence                                                     | Scenes                                                       | [GT](http://gofile.me/4jm56/C1OOhgG65)                       |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            | ![image (17)](./README/image%20(17).png)                     | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) |
-| [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) | ![image-20250116000038243](./README/image-20250116000038243.png) | [GT](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
+| Sequence                                             | [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            | [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) |
+| ---------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Scenes                                               | ![image (17)](./README/image%20(17).png)                     | ![image-20250116000038243](./README/image-20250116000038243.png) |
+| [Ground Truth Map](http://gofile.me/4jm56/C1OOhgG65) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
 
 </div>
-
-
 
 ## Getting Started
 
@@ -240,7 +239,7 @@ lio:
 
 ```
 
-#### Initial pose
+#### Get Initial pose
 
 then set the initial pose.  When you run the launch command, the first point cloud will be saved in `save_directory`,  you can align it with the prior map using [CloudCompare](https://www.danielgm.net/cc/) to get the initial pose.
 
@@ -260,15 +259,11 @@ common:
 
 We can evaluate the map accuracy of PAloc as follows. Note that when you use the Cloud Map Evaluation library, the map of PALoc or ICP  do not need to set initial pose since they are already in the same coordinate. But **evaluate the map from FAST-LIO2 must to set it**. 
 
-
-
 | Raw Error Map                                                | Entropy Map                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![image-20240813190359418](./README/image-20240813190359418.png) | ![image-20240813190440224](./README/image-20240813190440224.png) |
 
 Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S) here.
-
- 
 
 ### TODO
 
@@ -327,6 +322,10 @@ We follow the assumption of pose Independence as barfoot does(TRO 2014) as equat
  Since GTSAM follow the right-hand convention on SE(3) , we need to use the adjoint representation as equation (14).  **Please note that there is an error in Equation 14. The paper has not yet been updated. The adjoint matrix of the inverse relative pose should be used, not the adjoint of the relative pose.**
 
 ![image-20240408204125990](./README/image-20240408204125990.png)
+
+## Related Package
+
+- [MapEval](https://github.com/JokerJohn/Cloud_Map_Evaluation): Towards Unified, Robust and Efficient SLAM Map Evaluation Framework.
 
 ## Citations
 
