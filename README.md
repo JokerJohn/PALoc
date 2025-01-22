@@ -13,6 +13,8 @@
 
 </div>
 
+[TOC]
+
 ## Introduction
 
 **PALoc** presents a novel approach for generating high-fidelity, dense 6-DoF ground truth (GT) trajectories, enhancing the evaluation of Simultaneous Localization and Mapping (SLAM) under diverse environmental conditions. This framework leverages prior maps to improve the accuracy of indoor and outdoor SLAM datasets. Key features include:
@@ -240,7 +242,7 @@ lio:
 
 ```
 
-#### Get Initial pose
+#### Get Initial pose using CloudCompare
 
 then set the initial pose.  When you run the launch command, the first point cloud will be saved in `save_directory`,  you can align it with the prior map using [CloudCompare](https://www.danielgm.net/cc/) to get the initial pose.
 
