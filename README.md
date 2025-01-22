@@ -27,7 +27,7 @@
 
 ## News
 
-- **2025/01/22**: add new data bag`redbird_03` in MS-Dataset.
+- **2025/01/22**: add new data bag `redbird_03` in MS-Dataset.
 - **2025/01/16**: A real-time map-based localization system with new features is on the way, see this repo [LTLoc](https://github.com/JokerJohn/LTLoc)! 
 - **2024/12/26**: Formally Published by  IEEE/ASME TMECH.
 - **2024/12/06**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
@@ -49,7 +49,7 @@
 
 This data was provided by Zhiqiang Chen and [Prof.Yuhua Qi](https://ssse.sysu.edu.cn/teacher/1016) from SYSU and HKU.
 
-Stairs  scenes with different  types of lidar and **glass noise**. This is very challenging due to **narrow stairs** ,  you need to tune some parameters of **ICP**. The prior map and raw map can be downloaded.
+`Stairs`  scenes with different  types of lidar and **glass noise**. This is very challenging due to **narrow stairs** ,  you need to tune some parameters of **ICP**. The prior map and raw map can be downloaded.
 
 | [Prior map without glass noise](http://gofile.me/4jm56/SfohLpthw) | [Raw prior map](http://gofile.me/4jm56/pK0A9zTJn) |
 | ------------------------------------------------------------ | ------------------------------------------------- |
@@ -69,19 +69,19 @@ Our algorithms were  tested on the [Fusion Portable Dataset](https://ram-lab.com
 
 | Sequence                                                     | GT Map                                                       | Scene                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------- |
-| [20220216_corridor_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [corridor](http://gofile.me/4jm56/mRT2hkB25) with x degeneracy. | ![corridor_day_gif](./README/corridor_day_gif.gif) |
-| [20220216_canteen_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [The prior map only covers a portion of the scene.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![canteen_day_gif](./README/canteen_day_gif.gif)   |
-| [20220219_MCR_normal_01](https://drive.google.com/drive/folders/1SvAanjEgiHufMXybupCKZjbIXhMptoj4) | [Performance on a quadruped robot platform.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![normal-01-gif](./README/normal-01-gif.gif)       |
-| [20220216_escalator_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [Performance in an open stairwell scenario.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![escaltor_day_gif](./README/escaltor_day_gif.gif) |
-| [20220216_garden_day](https://drive.google.com/drive/folders/1epJURj3r29oOyxkTSEUAHE8__tj9vc1h) | [Smaller scenario, similar to an indoor environment.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![garden_day_gif](./README/garden_day_gif.gif)     |
-| [20220225_building_day](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [Three loops of indoor hallway scanning with a handheld device, taking a relatively long time.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![building-day-gif](./README/building-day-gif.gif) |
+| [`20220216_corridor_day`](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [corridor](http://gofile.me/4jm56/mRT2hkB25) with x degeneracy. | ![corridor_day_gif](./README/corridor_day_gif.gif) |
+| [`20220216_canteen_day`](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [The prior map only covers a portion of the scene.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![canteen_day_gif](./README/canteen_day_gif.gif)   |
+| [`20220219_MCR_normal_01`](https://drive.google.com/drive/folders/1SvAanjEgiHufMXybupCKZjbIXhMptoj4) | [Performance on a quadruped robot platform.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![normal-01-gif](./README/normal-01-gif.gif)       |
+| [`20220216_escalator_day`](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [Performance in an open stairwell scenario.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![escaltor_day_gif](./README/escaltor_day_gif.gif) |
+| [`20220216_garden_day`](https://drive.google.com/drive/folders/1epJURj3r29oOyxkTSEUAHE8__tj9vc1h) | [Smaller scenario, similar to an indoor environment.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![garden_day_gif](./README/garden_day_gif.gif)     |
+| [`20220225_building_day`](https://drive.google.com/drive/folders/1Xc6m3WZrbjdhq9OjfWKDepb9cLKJpety) | [Three loops of indoor hallway scanning with a handheld device, taking a relatively long time.](https://drive.google.com/drive/folders/18b88mLGvx5H84tVBR0ZaaCCKjEY5c8jT) | ![building-day-gif](./README/building-day-gif.gif) |
 
 ### [Newer College Dataset](https://ori-drs.github.io/newer-college-dataset/)
 
 - [Multicam Vision Lidar IMU dataset](https://ori-drs.github.io/newer-college-dataset/multi-cam) : Ouster 128 + Integrated IMU
 - [Stereo Vision Lidar IMU dataset](https://ori-drs.github.io/newer-college-dataset/stereo-cam): Ouster 64 + Integrated IMU
 
-This dataset include 2 different maps: parkland and math-institute.
+This dataset include 2 different maps: `parkland` and `math-institute`.
 
 | Parkland                                                     | Math-institute                                               |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -96,7 +96,7 @@ Below is our sensor kit setup.
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
 
-| Sequence                                             | [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            | [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) | [redbird_03](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EWW-xzhbmKNDs-Knv23ceB4BeTfVHmVSuI-eQk251StLmA?e=rANaRZ) |
+| Sequence                                             | [`parkinglot_01`](http://gofile.me/4jm56/t9SM1iPZr)          | [`redbird_02`](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) | [`redbird_03`](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EWW-xzhbmKNDs-Knv23ceB4BeTfVHmVSuI-eQk251StLmA?e=rANaRZ) |
 | ---------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Scenes                                               | ![image (17)](./README/image%20(17).png)                     | ![image-20250116000038243](./README/image-20250116000038243.png) | ![image-20250122200925827](./README/image-20250122200925827.png) |
 | [Ground Truth Map](http://gofile.me/4jm56/C1OOhgG65) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/Ec-u3ZQVaX9BnMQeBxpag0QBfV6cxlsUljfRaf0nQV12mA?e=qcMGri) |
