@@ -27,6 +27,7 @@
 
 ## News
 
+- **2025/01/22**: add new data bag`redbird_03` in MS-Dataset.
 - **2025/01/16**: A real-time map-based localization system with new features is on the way, see this repo [LTLoc](https://github.com/JokerJohn/LTLoc)! 
 - **2024/12/26**: Formally Published by  IEEE/ASME TMECH.
 - **2024/12/06**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
@@ -95,10 +96,10 @@ Below is our sensor kit setup.
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
 
-| Sequence                                             | [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            | [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) |
-| ---------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Scenes                                               | ![image (17)](./README/image%20(17).png)                     | ![image-20250116000038243](./README/image-20250116000038243.png) |
-| [Ground Truth Map](http://gofile.me/4jm56/C1OOhgG65) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) |
+| Sequence                                             | [parkinglot_01](http://gofile.me/4jm56/t9SM1iPZr)            | [redbird_02](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EXGbd3lDtLNAr6Q_0QPKiH4B1zDYpA2Qr-RTLcKj36KgYw?e=NJ3XxG) | [redbird_03](https://hkustconnect-my.sharepoint.com/:u:/g/personal/xhubd_connect_ust_hk/EWW-xzhbmKNDs-Knv23ceB4BeTfVHmVSuI-eQk251StLmA?e=rANaRZ) |
+| ---------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Scenes                                               | ![image (17)](./README/image%20(17).png)                     | ![image-20250116000038243](./README/image-20250116000038243.png) | ![image-20250122200925827](./README/image-20250122200925827.png) |
+| [Ground Truth Map](http://gofile.me/4jm56/C1OOhgG65) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EYoWWAdX8FZBph3LJZ6lck8BuMj43lcEcab9C0fi4Tmqbg?e=GqPs1D) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/EXziPmChz3xGuIwd6_bla0IBbYV5NvCZ92Xff_X17dy9Wg?e=8KoiWr) | [Ground Truth Trajectory](https://hkustconnect-my.sharepoint.com/:t:/g/personal/xhubd_connect_ust_hk/Ec-u3ZQVaX9BnMQeBxpag0QBfV6cxlsUljfRaf0nQV12mA?e=qcMGri) |
 
 </div>
 
