@@ -27,7 +27,7 @@
 
 ## News
 
-- **2025/01/22**: add new data bag `redbird_03` in MS-Dataset.
+- **2025/01/22**: Add new data bag `redbird_03` in MS-Dataset.
 - **2025/01/16**: A real-time map-based localization system with new features is on the way, see this repo [LTLoc](https://github.com/JokerJohn/LTLoc)! 
 - **2024/12/26**: Formally Published by  IEEE/ASME TMECH.
 - **2024/12/06**: Adapt for real-time map-based localization, see [fp_os128_corridor_loc.launch](paloc/launch/fp_os128_corridor_loc.launch)  and [instructions](Tutorial/loc.md).
