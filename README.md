@@ -91,7 +91,6 @@ This dataset include 2 different maps: `parkland` and `math-institute`.
 
 ### Self-collected Dataset
 
-Below is our sensor kit setup.
 <div align="center">
 
 ![image-20240323140835087](./README/image-20240323140835087.png)
@@ -272,7 +271,6 @@ Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S)
 - [x] tutorial and parameters tuning
 - [ ] support for LIO-SAM
 - [ ] gravity factor
-- [x] adapt for more dataset and lidar 
 
 
 
@@ -320,7 +318,7 @@ We follow the assumption of pose Independence as barfoot does(TRO 2014) as equat
 
 ![image-20240408203918682](./README/image-20240408203918682.png)
 
- Since GTSAM follow the right-hand convention on SE(3) , we need to use the adjoint representation as equation (14).  **Please note that there is an error in Equation 14. The paper has not yet been updated. The adjoint matrix of the inverse relative pose should be used, not the adjoint of the relative pose.**
+ Since GTSAM follow the **right-hand convention on SE(3)** , we need to use the adjoint representation as equation (14).  **Please note that there is an error in Equation 14. The paper has not yet been updated. The adjoint matrix of the inverse relative pose should be used, not the adjoint of the relative pose.**
 
 ![image-20240408204125990](./README/image-20240408204125990.png)
 
