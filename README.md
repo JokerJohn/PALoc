@@ -268,7 +268,7 @@ Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S)
 ### TODO
 
 - [ ] clean codes
-- [x] tutorial and parameters tuning
+- [ ] The cov of map factor should be described on SE3, not SO3 * R3
 - [ ] support for LIO-SAM
 - [ ] gravity factor
 
