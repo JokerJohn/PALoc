@@ -146,8 +146,29 @@ rviz -d ${PATH_TO_PALOC}/config/rviz/ouster_indoors.rviz
 cmake -DGTSAM_USE_SYSTEM_EIGEN=ON -DGTSAM_BUILD_UNSTABLE:OPTION=ON -DCMAKE_BUILD_TYPE=Release ..
 ```
 
-Additionally, **there is no need to install the [livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.**
+if you have already installed other version of GTSAM
 
+```bash
+# install this version of GTSAM to a fixed path 
+cmake -DGTSAM_USE_SYSTEM_EIGEN=ON -DGTSAM_BUILD_UNSTABLE:OPTION=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/xchu/cmake_project ..
+
+make install
+
+# modity your cmakelist.txt to search for the specific version
+find_package(GTSAM 4.0.3 REQUIRED PATHS /home/xchu/cmake_project NO_DEFAULT_PATH)
+include_directories(
+  /home/xchu/cmake_project/include  # 确保优先使用自定义路径
+)
+link_directories(/home/xchu/cmake_project/lib)
+target_link_libraries(xx_node
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+  yaml-cpp
+  /home/xchu/cmake_project/lib/libgtsam.so  # 直接指定库文件
+)
+```
+
+Additionally, **there is no need to install the [livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) required by [FAST-LIO](https://github.com/hku-mars/FAST_LIO)2, as we have directly integrated the necessary message headers into the code.**
 
 ### Quickly Run
 
