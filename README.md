@@ -366,11 +366,11 @@ The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://gi
 @misc{hu2024mapeval,
       title={MapEval: Towards Unified, Robust and Efficient SLAM Map Evaluation Framework}, 
       author={Xiangcheng Hu and Jin Wu and Mingkai Jia and Hongyu Yan and Yi Jiang and Binqian Jiang and Wei Zhang and Wei He and Ping Tan},
-      year={2024},
-      eprint={2411.17928},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2411.17928}, 
+      year={2025},
+      volume={10},
+      number={5},
+      pages={4228-4235},
+  	  doi={10.1109/LRA.2025.3548441}
 }
 ```
 
