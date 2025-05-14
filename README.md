@@ -288,26 +288,21 @@ Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S)
 
 ### TODO
 
-- [ ] clean codes
-- [ ] The cov of map factor should be described on SE3, not SO3 * R3
+- [ ] **The covariance of map factor should be described on SE3, not SO3 * R3**
 - [ ] support for LIO-SAM
 - [ ] gravity factor
-
-
 
 ## Results
 
 ### Trajectory Evaluation
 
 <div align="center">
-
 ![Trajectory Evaluation](./README/image-20240131044609655.png)
 </div>
 
 ### Map Evaluation
 
 <div align="center">
-
 ![Map Evaluation 1](./README/image-20240131044537891.png)
 ![image-20240323141038974](./README/image-20240323141038974.png)
 </div>
@@ -333,7 +328,7 @@ To plot the results, you can follow this [scripts](https://github.com/JokerJohn/
 
 ## Important Issue
 
-### How do we calculate cov of odom factor in GTSAM?
+### How do we calculate covariance of odom factor in GTSAM?
 
 We follow the assumption of pose Independence as barfoot does(TRO 2014) as equation (13), there is no correlated cov between this two poses. Left-hand convention means a small increments on **world frame**.
 
@@ -342,10 +337,6 @@ We follow the assumption of pose Independence as barfoot does(TRO 2014) as equat
  Since GTSAM follow the **right-hand convention on SE(3)** , we need to use the adjoint representation as equation (14).  **Please note that there is an error in Equation 14. The paper has not yet been updated. The adjoint matrix of the inverse relative pose should be used, not the adjoint of the relative pose.**
 
 ![image-20240408204125990](./README/image-20240408204125990.png)
-
-## Related Package
-
-- [MapEval](https://github.com/JokerJohn/Cloud_Map_Evaluation): Towards Unified, Robust and Efficient SLAM Map Evaluation Framework.
 
 ## Citations
 
@@ -361,7 +352,7 @@ For referencing our work in PALoc, please use:
   pages={4297-4308},
   doi={10.1109/TMECH.2024.3362902}}
 ```
-The map evaluation metrics of this work follow [Cloud_Map_Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
+The map evaluation metrics of this work follow [MapEval](https://github.com/JokerJohn/Cloud_Map_Evaluation). Please cite:
 ```bibtex
 @misc{hu2024mapeval,
       title={MapEval: Towards Unified, Robust and Efficient SLAM Map Evaluation Framework}, 
