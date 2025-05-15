@@ -276,7 +276,7 @@ common:
 
 ![image-20240807094808981](./README/image-20240807094808981.png)
 
-#### Evaluation with [Cloud Map Evaluation](https://github.com/JokerJohn/Cloud_Map_Evaluation)
+#### Evaluation with [MapEval](https://github.com/JokerJohn/Cloud_Map_Evaluation)
 
 We can evaluate the map accuracy of PAloc as follows. Note that when you use the Cloud Map Evaluation library, the map of PALoc or ICP  do not need to set initial pose since they are already in the same coordinate. But **evaluate the map from FAST-LIO2 must to set it**. 
 
@@ -297,12 +297,14 @@ Evaluation results example can be [downloaded](http://gofile.me/4jm56/JylhSi89S)
 ### Trajectory Evaluation
 
 <div align="center">
+
 ![Trajectory Evaluation](./README/image-20240131044609655.png)
 </div>
 
 ### Map Evaluation
 
 <div align="center">
+
 ![Map Evaluation 1](./README/image-20240131044537891.png)
 ![image-20240323141038974](./README/image-20240323141038974.png)
 </div>
