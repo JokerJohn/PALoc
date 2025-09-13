@@ -340,6 +340,12 @@ We follow the assumption of pose Independence as barfoot does(TRO 2014) as equat
 
 ![image-20240408204125990](./README/image-20240408204125990.png)
 
+### **Code Implement in degenercy detection**
+
+some people may curious about why i use the max eigenvalues as the rotation part, then caculate the condtion number of the rotation. This is not a right way, since the eigenvalues will lose its order after SVD/EVD. reader can refer to my new paper [DCReg](https://github.com/JokerJohn/DCReg) to find the reasons and real-world example.
+
+
+
 ## Citations
 
 For referencing our work in PALoc, please use:
