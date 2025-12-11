@@ -66,6 +66,14 @@ void Preprocess::set(bool feat_en, int lid_type, double bld, int pfilt_num) {
     }
 }
 
+void Preprocess::process(const fast_lio::CustomMsg::ConstPtr &msg,
+                         PointCloudXYZI::Ptr &pcl_out,
+                        PointCloudXYZI::Ptr &pcl_out_full) {
+    avia_handler(msg);
+    *pcl_out = pl_surf;
+    *pcl_out_full = pl_full;
+}
+
 // void Preprocess::process(const livox_ros_driver::CustomMsg::ConstPtr &msg,
 // PointCloudXYZI::Ptr &pcl_out) {
 void Preprocess::process(const fast_lio::CustomMsg::ConstPtr &msg,
