@@ -362,6 +362,7 @@ void livox_pcl_cbk(const fast_lio::CustomMsg::ConstPtr &msg) {
     if (msg->header.stamp.toSec() < last_timestamp_lidar) {
         ROS_ERROR("lidar loop back, clear buffer");
         lidar_buffer.clear();
+        lidar_full_buffer.clear();
     }
     last_timestamp_lidar = msg->header.stamp.toSec();
 
@@ -381,8 +382,11 @@ void livox_pcl_cbk(const fast_lio::CustomMsg::ConstPtr &msg) {
     }
 
     PointCloudXYZI::Ptr ptr(new PointCloudXYZI());
-    p_pre->process(msg, ptr);
+    PointCloudXYZI::Ptr full_ptr(new PointCloudXYZI());
+    // p_pre->process(msg, ptr);
+    p_pre->process(msg, ptr, full_ptr);
     lidar_buffer.push_back(ptr);
+    lidar_full_buffer.push_back(full_ptr);
     time_buffer.push_back(last_timestamp_lidar);
 
     s_plot11[scan_count] = omp_get_wtime() - preprocess_start_time;

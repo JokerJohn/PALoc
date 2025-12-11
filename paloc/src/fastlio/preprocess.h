@@ -307,6 +307,9 @@ public:
 //    void process(const livox_ros_driver::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out);
     void process(const fast_lio::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out);
 
+    void process(const fast_lio::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out,
+                PointCloudXYZI::Ptr &pcl_out_full);
+
     void process(const sensor_msgs::PointCloud2::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out);
 
     void process(const sensor_msgs::PointCloud2::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out,
