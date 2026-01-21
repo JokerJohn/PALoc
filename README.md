@@ -21,12 +21,12 @@
 - **Advanced Uncertainty Analysis**: Detailed covariance derivation within factor graphs, enabling precise uncertainty propagation and pose analysis.
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
 <div align="center">
-
 ![Pipeline](./README/image-20240131044249967.png)
 </div>
 
 ## News
 
+- **2026/01/20**: Add the generated gt trajectories  of FP dataset in `fp_gt` folder.
 - **2025/01/22**: Add new data bag `redbird_03` in MS-Dataset.
 - **2025/01/16**: A real-time map-based localization system with new features is on the way, see this repo [LTLoc](https://github.com/JokerJohn/LTLoc)! 
 - **2024/12/26**: Formally Published by  IEEE/ASME TMECH.
