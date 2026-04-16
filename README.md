@@ -21,8 +21,10 @@
 - **Advanced Uncertainty Analysis**: Detailed covariance derivation within factor graphs, enabling precise uncertainty propagation and pose analysis.
 - **Open-Source Toolbox**: An [open-source toolbox](https://github.com/JokerJohn/Cloud_Map_Evaluation) is provided for map evaluation, indirectly assessing trajectory precision.
 <div align="center">
+
 ![Pipeline](./README/image-20240131044249967.png)
 </div>
+
 
 ## News
 
