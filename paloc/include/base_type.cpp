@@ -260,9 +260,11 @@ bool useImuFrame;
 
 bool useRawCloud;
 bool useGlobalPrior;
+bool useFixcov;
 bool showDegenercy;
 
 int icpO3dType;
+int initialType;
 int DEGENERACY_THRES;
 double correspondenceDis;
 double mapRadius;
@@ -299,6 +301,7 @@ Eigen::Quaterniond q_body_sensor;
 Eigen::Vector3d t_body_sensor;
 Eigen::Matrix3d rot_body_sensor;
 Eigen::Matrix4d T_body_lidar;
+Eigen::Matrix4d output_transform;
 
 
 void LoadRosParams(ros::NodeHandle &nh) {
@@ -334,6 +337,17 @@ void LoadRosParams(ros::NodeHandle &nh) {
     T_body_lidar.block<3, 1>(0, 3) = t_body_sensor.matrix();
     T_body_lidar.block<3, 3>(0, 0) = rot_body_sensor.matrix();
 
+    // Output frame transform: T_body_target.
+    vector<double> output_transform_vec;
+    nh.param<vector<double>>("common/output_transform", output_transform_vec, vector<double>());
+    if (output_transform_vec.size() == 16) {
+        output_transform =
+                Eigen::Map<const Eigen::Matrix<double, 4, 4, Eigen::RowMajor>>(output_transform_vec.data());
+    } else {
+        output_transform = Eigen::Matrix4d::Identity();
+    }
+    std::cout << "output_transform:\n" << output_transform << std::endl;
+
     // save map data
     nh.param<bool>("common/saveResultBag", saveResultBag, false);
     nh.param<bool>("common/saveResultBodyFrame", saveResultBodyFrame, false);
@@ -348,8 +362,10 @@ void LoadRosParams(ros::NodeHandle &nh) {
     nh.param<int>("pgo/SKIP_FRAMES", SKIP_FRAMES, 5);
     nh.param<bool>("pgo/useRawCloud", useRawCloud, false);
     nh.param<bool>("pgo/useGlobalPrior", useGlobalPrior, true);
+    nh.param<bool>("pgo/useFixcov", useFixcov, false);
     nh.param<bool>("pgo/showDegenercy", showDegenercy, false);
     nh.param<int>("pgo/icpO3dType", icpO3dType, 2);
+    nh.param<int>("pgo/initialType", initialType, 1);
     nh.param<int>("pgo/degeneracy_thres", DEGENERACY_THRES, 50);
     nh.param<double>("pgo/correspondence_dis", correspondenceDis, 2.0);
     nh.param<double>("pgo/map_radius", mapRadius, 80.0);

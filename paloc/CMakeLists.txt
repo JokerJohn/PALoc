@@ -48,6 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
         rospy
         rosbag
         std_msgs
+        std_srvs
         tf
         message_generation
         )
@@ -70,7 +71,9 @@ if (NOT TARGET Boost::boost)
 endif ()
 ###########################################################################
 
-catkin_package()
+catkin_package(
+        CATKIN_DEPENDS geometry_msgs nav_msgs sensor_msgs roscpp rospy rosbag std_msgs std_srvs tf message_runtime
+)
 
 include_directories(
         include
@@ -97,3 +100,14 @@ add_executable(pgo_localization
         )
 target_link_libraries(pgo_localization ${catkin_LIBRARIES} ${Open3D_LIBRARIES} ${PCL_LIBRARIES} ${OpenMP_CXX_FLAGS}
         gtsam)
+target_include_directories(pgo_localization PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+catkin_install_python(PROGRAMS
+        scripts/convert_gt_tum_to_fs_frame.py
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(PROGRAMS
+        scripts/run_office_mid360_gt.sh
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

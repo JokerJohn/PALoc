@@ -117,12 +117,17 @@ public:
                                                 ros::TransportHints().tcpNoDelay());
         // TODO: adapt for LIO-SAM
         bool OdomMethod = 0;
+        std::string registered_body_topic;
+        std::string lidar_odometry_topic;
+        nh.param<std::string>("compat/registered_body_topic", registered_body_topic, "/cloud_registered_body");
+        nh.param<std::string>("compat/lidar_odometry_topic", lidar_odometry_topic, "/lidar_odometry");
         if (OdomMethod == 0) {
-            subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>("/cloud_registered_body", 10000,
+            subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>(registered_body_topic, 10000,
                                                                           &PALoc::LidarCallback, this);
             //        subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>(
             //                "/cloud_effected", 10000, &PALoc::LidarCallback, this);
-            subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/lidar_odometry", 10000, &PALoc::OdometryCallback,
+            subLaserOdometry = nh.subscribe<nav_msgs::Odometry>(lidar_odometry_topic, 10000,
+                                                                &PALoc::OdometryCallback,
                                                                 this);
         } else if (OdomMethod == 1) {
             // if you want to use liosam
@@ -133,6 +138,9 @@ public:
         }
         subInitialPose = nh.subscribe("/initialpose", 10000, &PALoc::InitialCallback, this);
         nh.param<vector<double>>("common/initial_pose", initial_pose_vector, vector<double>());
+        ROS_INFO_STREAM("PALoc input topics: cloud=" << registered_body_topic
+                        << ", odom=" << lidar_odometry_topic
+                        << ", imu=" << imu_topic);
 
         InitParmeters();
     }
@@ -427,6 +435,7 @@ private:
     noiseModel::Diagonal::shared_ptr priorBiasNoise;
     noiseModel::Diagonal::shared_ptr noiseModelBetweenBias;
     noiseModel::Diagonal::shared_ptr robustLoopNoise;
+    noiseModel::Diagonal::shared_ptr noise_loop;
 
     CloudProcess cloud_process_;
     std::unique_ptr<DataSaver> dataSaverPtr;

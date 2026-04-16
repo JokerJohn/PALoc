@@ -266,13 +266,18 @@ void PALoc::InitParmeters() {
 
     // odometry
     Vector odomNoiseVector6(6);
-    odomNoiseVector6 << 1e-4, 1e-4, 1e-4, 1e-2, 1e-2, 1e-2;
+    odomNoiseVector6 << 1e-6, 1e-6, 1e-6, 1e-4, 1e-4, 1e-4;
     noise_odom_between = noiseModel::Diagonal::Variances(odomNoiseVector6);
 
     // global map
     Vector priorMapPoseNoiseVector6(6);
-    priorMapPoseNoiseVector6 << 1e-6, 1e-6, 1e-6, 1e-4, 1e-4, 1e-4;
+    priorMapPoseNoiseVector6 << 1e-4, 1e-4, 1e-4, 1e-2, 1e-2, 1e-2;
     priorMapPoseNoise = noiseModel::Diagonal::Variances(priorMapPoseNoiseVector6);
+
+    // loop
+    Vector loopNoiseVector6(6);
+    loopNoiseVector6 << 1e-1, 1e-1, 1e-1, 1e-1, 1e-1, 1e-1;
+    noise_loop = noiseModel::Diagonal::Variances(loopNoiseVector6);
 
     // zero velocity factor
     zero_velocity_prior_noise_ =
@@ -341,117 +346,30 @@ void PALoc::InitSystem(Measurement &measurement) {
     auto criteria = pipelines::registration::ICPConvergenceCriteria(30);
 
     double max_correspondence_distance = 2.0;
-    if (initialPose != Eigen::Matrix4d::Identity()) {
-        std::cout << "received initial pose from yaml file: \n" << initialPose.matrix() << std::endl;
-        switch (icpO3dType) {
-            case 0:  // point-to-point icp
-                icp = pipelines::registration::RegistrationICP(
-                        *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
-                        pipelines::registration::TransformationEstimationPointToPoint(),
-                        criteria);
-                break;
-            case 1:  // Point-to-plane
-                target_o3d->EstimateNormals(geometry::KDTreeSearchParamHybrid(2.0, 10));
-                icp = pipelines::registration::RegistrationICP(
-                        *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
-                        pipelines::registration::TransformationEstimationPointToPlane(),
-                        criteria);
-                break;
-            case 2:
-                target_o3d->EstimateNormals(geometry::KDTreeSearchParamHybrid(2.0, 10));
-                icp = pipelines::registration::RegistrationGeneralizedICP(
-                        *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
-                        pipelines::registration::
-                        TransformationEstimationForGeneralizedICP(),
-                        criteria);
-                break;
-            default:
-                std::cout << "ICP TYPE error!!!!! " << std::endl;
-                break;
-        }
-        trans = icp.transformation_;
-        double score = icp.inlier_rmse_;
-        double overlap = icp.fitness_;
-        measurement_curr.global_pose = Matrix2Pose6D(trans);
-        measurement_curr.global_score = score;
-
-        // publish the transformed cloud
-        *unused_result = *TransformPointCloud(measurement_curr.lidar, trans);
-        publishCloud(pubInitialCloud, unused_result, ros::Time::now(), odom_link);
-        ROS_INFO("Initial ICP ALIGNED POINTS: %d and %d, %f, %f",
-                 measurement_curr.lidar->size(), globalmap_ptr->size(), score, overlap);
-        /**** Note: in some case, maybe you need to adjust the open3d icp score*/
-        if (score > 0.7 || overlap < 0.7 || score == 0.0) {
-            std::cout << "check your initial pose in the yaml file" << std::endl;
-            priorPose = initialPose = Eigen::Matrix4d::Identity();
-            priorScore = loopFitnessScoreThreshold;
-            isInitialized = false;
-            return;
-        }
-
-        // 使用 EigenMatrixToTensor 转换 Eigen 矩阵到 Open3D Tensor
-        open3d::core::Tensor transformation_tensor = open3d::core::eigen_converter::EigenMatrixToTensor(
-                icp.transformation_);
-        open3d::t::geometry::PointCloud source_o3d_new = open3d::t::geometry::PointCloud::FromLegacy(*source_o3d);
-        open3d::t::geometry::PointCloud target_o3d_new = open3d::t::geometry::PointCloud::FromLegacy(*target_o3d);
-        bool flag = false;
-        try {
-            open3d::core::Tensor information_matrix = open3d::t::pipelines::registration::GetInformationMatrix(
-                    source_o3d_new,
-                    target_o3d_new,
-                    max_correspondence_distance,
-                    transformation_tensor);
-            // 将 Tensor 转换为 Eigen 矩阵
-            Eigen::MatrixXd ifm_eigen = open3d::core::eigen_converter::TensorToEigenMatrixXd(information_matrix);
-            if (ifm_eigen.rows() == 6 && ifm_eigen.cols() == 6) {
-                icp_cov = ifm_eigen.inverse().cast<float>();
-                flag = true;
-            } else {
-                std::cerr << BOLDRED << "Information matrix is not 6x6. Cannot compute covariance matrix." << std::endl;
-            }
-        } catch (const std::runtime_error &e) {
-            std::cerr << "Runtime error: " << e.what() << std::endl;
-            std::cerr
-                    << "Check if the point clouds have sufficient correspondences and adjust the max_correspondence_distance parameter if necessary."
-                    << std::endl;
-            icp_cov = Eigen::Matrix<float, 6, 6>::Identity();
-        }
-        std::cout << BOLDGREEN << "Open3D ICP COV: " << icp_cov.diagonal().transpose() << std::endl;
-        if (!flag) return;
-
-        // System initialized successfully
-        initialPose = priorPose = trans.matrix().cast<double>();
-        priorScore = score;
-        PublishPose(ros::Time::now(), pubPoseOdomToMap, odom_link, priorPose.matrix());
-        std::cout << BOLDRED << "Initial pose: " << priorPose.matrix() << std::endl;
-        std::cout << BOLDRED << "Initial pose cov: " << icp_cov.diagonal().transpose() << std::endl;
-        isInitialized = true;
-        return;
-    } else {
-        // get initial pose from rviz, there may exist some bugs
+    if (initialType == 0) {
+        // initialize from RViz
         if (poseReceived) {
             switch (icpO3dType) {
-                case 0:  // point-to-point icp
+                case 0:
                     icp = pipelines::registration::RegistrationICP(
-                            *source_o3d, *target_o3d, 1.0, initialPose.cast<double>(),
+                            *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
                             pipelines::registration::TransformationEstimationPointToPoint(),
                             criteria);
                     break;
-                case 1:  // Point-to-plane
+                case 1:
                     target_o3d->EstimateNormals(
-                            geometry::KDTreeSearchParamHybrid(1.0, 30));
+                            geometry::KDTreeSearchParamHybrid(max_correspondence_distance, 30));
                     icp = pipelines::registration::RegistrationICP(
-                            *source_o3d, *target_o3d, 1.0, initialPose.cast<double>(),
+                            *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
                             pipelines::registration::TransformationEstimationPointToPlane(),
                             criteria);
                     break;
                 case 2:
                     target_o3d->EstimateNormals(
-                            geometry::KDTreeSearchParamHybrid(1.0, 30));
+                            geometry::KDTreeSearchParamHybrid(max_correspondence_distance, 30));
                     icp = pipelines::registration::RegistrationGeneralizedICP(
-                            *source_o3d, *target_o3d, 1.0, initialPose.cast<double>(),
-                            pipelines::registration::
-                            TransformationEstimationForGeneralizedICP(),
+                            *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
+                            pipelines::registration::TransformationEstimationForGeneralizedICP(),
                             criteria);
                     break;
                 default:
@@ -467,15 +385,13 @@ void PALoc::InitSystem(Measurement &measurement) {
             *unused_result = *TransformPointCloud(measurement_curr.lidar, trans);
             publishCloud(pubInitialCloud, unused_result, ros::Time::now(), odom_link);
             ROS_INFO("initial ICP ALIGNED POINTS: %d and %d, %f, %f",
-                     measurement_curr.lidar->size(), globalmap_ptr->size(), score,
-                     overlap);
-            if (score > 0.6 || overlap < 0.7 || score == 0.0) {
+                     measurement_curr.lidar->size(), globalmap_ptr->size(), score, overlap);
+            if (score > loopFitnessScoreThreshold || overlap < 0.7 || score == 0.0) {
                 poseReceived = false;
                 isInitialized = false;
                 return;
             }
 
-            // base_link->map
             priorPose = trans.matrix();
             PublishPose(ros::Time::now(), pubPoseOdomToMap, odom_link, priorPose.matrix());
             isInitialized = true;
@@ -485,6 +401,105 @@ void PALoc::InitSystem(Measurement &measurement) {
                       << std::endl;
             return;
         }
+    } else if (initialType == 1) {
+        // initialize from a rough yaml pose and refine with ICP
+        if (initialPose != Eigen::Matrix4d::Identity()) {
+            std::cout << "received initial pose from yaml file: \n" << initialPose.matrix() << std::endl;
+            switch (icpO3dType) {
+                case 0:
+                    icp = pipelines::registration::RegistrationICP(
+                            *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
+                            pipelines::registration::TransformationEstimationPointToPoint(),
+                            criteria);
+                    break;
+                case 1:
+                    target_o3d->EstimateNormals(geometry::KDTreeSearchParamHybrid(2.0, 10));
+                    icp = pipelines::registration::RegistrationICP(
+                            *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
+                            pipelines::registration::TransformationEstimationPointToPlane(),
+                            criteria);
+                    break;
+                case 2:
+                    target_o3d->EstimateNormals(geometry::KDTreeSearchParamHybrid(2.0, 10));
+                    icp = pipelines::registration::RegistrationGeneralizedICP(
+                            *source_o3d, *target_o3d, max_correspondence_distance, initialPose.cast<double>(),
+                            pipelines::registration::TransformationEstimationForGeneralizedICP(),
+                            criteria);
+                    break;
+                default:
+                    std::cout << "ICP TYPE error!!!!! " << std::endl;
+                    break;
+            }
+            trans = icp.transformation_;
+            double score = icp.inlier_rmse_;
+            double overlap = icp.fitness_;
+            measurement_curr.global_pose = Matrix2Pose6D(trans);
+            measurement_curr.global_score = score;
+
+            *unused_result = *TransformPointCloud(measurement_curr.lidar, trans);
+            publishCloud(pubInitialCloud, unused_result, ros::Time::now(), odom_link);
+            ROS_INFO("Initial ICP ALIGNED POINTS: %d and %d, %f, %f",
+                     measurement_curr.lidar->size(), globalmap_ptr->size(), score, overlap);
+            if (score > loopFitnessScoreThreshold || overlap < 0.7 || score == 0.0) {
+                std::cout << "check your initial pose in the yaml file" << std::endl;
+                priorPose = initialPose = Eigen::Matrix4d::Identity();
+                isInitialized = false;
+                return;
+            }
+
+            open3d::core::Tensor transformation_tensor =
+                    open3d::core::eigen_converter::EigenMatrixToTensor(icp.transformation_);
+            open3d::t::geometry::PointCloud source_o3d_new =
+                    open3d::t::geometry::PointCloud::FromLegacy(*source_o3d);
+            open3d::t::geometry::PointCloud target_o3d_new =
+                    open3d::t::geometry::PointCloud::FromLegacy(*target_o3d);
+            bool flag = false;
+            try {
+                open3d::core::Tensor information_matrix = open3d::t::pipelines::registration::GetInformationMatrix(
+                        source_o3d_new,
+                        target_o3d_new,
+                        max_correspondence_distance,
+                        transformation_tensor);
+                Eigen::MatrixXd ifm_eigen = open3d::core::eigen_converter::TensorToEigenMatrixXd(information_matrix);
+                if (ifm_eigen.rows() == 6 && ifm_eigen.cols() == 6) {
+                    icp_cov = ifm_eigen.inverse().cast<float>();
+                    flag = true;
+                } else {
+                    std::cerr << BOLDRED << "Information matrix is not 6x6. Cannot compute covariance matrix."
+                              << std::endl;
+                }
+            } catch (const std::runtime_error &e) {
+                std::cerr << "Runtime error: " << e.what() << std::endl;
+                std::cerr
+                        << "Check if the point clouds have sufficient correspondences and adjust the max_correspondence_distance parameter if necessary."
+                        << std::endl;
+                icp_cov = Eigen::Matrix<float, 6, 6>::Identity();
+            }
+            if (!flag) return;
+
+            initialPose = priorPose = trans.matrix().cast<double>();
+            priorScore = score;
+            PublishPose(ros::Time::now(), pubPoseOdomToMap, odom_link, priorPose.matrix());
+            std::cout << BOLDRED << "Initial pose: " << priorPose.matrix() << std::endl;
+            std::cout << BOLDRED << "Initial pose cov: " << icp_cov.diagonal().transpose() << std::endl;
+            isInitialized = true;
+            return;
+        }
+    } else {
+        // initialize directly from an accurate yaml pose
+        std::cout << "received initial pose from yaml file: \n" << initialPose.matrix() << std::endl;
+        measurement_curr.global_pose = Matrix2Pose6D(initialPose);
+        priorPose = trans = initialPose;
+        icp_cov.diagonal() << 1e0f, 1e0f, 1e0f, 1e-2f, 1e-2f, 1e-2f;
+
+        *unused_result = *TransformPointCloud(measurement_curr.lidar, trans);
+        publishCloud(pubInitialCloud, unused_result, ros::Time::now(), odom_link);
+        PublishPose(ros::Time::now(), pubPoseOdomToMap, odom_link, priorPose.matrix());
+        ROS_INFO("Initial ICP with accurate pose!!");
+        std::cout << BOLDRED << "Initial pose: " << priorPose.matrix() << std::endl;
+        std::cout << BOLDRED << "Initial pose cov: " << icp_cov.diagonal().transpose() << std::endl;
+        isInitialized = true;
+        return;
     }
 }
 
@@ -577,7 +592,10 @@ void PALoc::AddOdomFactor() {
         newValues.insert(B(0), imuBias::ConstantBias());
         if (useGlobalPrior) {
             Pose3 global_pose = Pose6dTogtsamPose3(Matrix2Pose6D(priorPose));
-            priorMapPoseGaussianNoise = noiseModel::Gaussian::Covariance(icp_cov.matrix().cast<double>());
+            if (useFixcov)
+                priorMapPoseGaussianNoise = priorMapPoseNoise;
+            else
+                priorMapPoseGaussianNoise = noiseModel::Gaussian::Covariance(icp_cov.matrix().cast<double>());
             PriorFactor<Pose3> map_pose_factor(X(curr_node_idx), global_pose, priorMapPoseGaussianNoise);
             std::unique_lock<std::mutex> graph_guard_1(mtxPosegraph);
             newFactors.add(map_pose_factor);
@@ -604,7 +622,11 @@ void PALoc::AddOdomFactor() {
         Matrix6 cov2 = pose_cov;
         // cov propagate, equation 14, but error exits in the paper, we have not fix yet.
         Matrix6 relative_cov = Adj * cov1 * Adj.transpose() + cov2;
-        noiseModel::Gaussian::shared_ptr gau_noise_model = noiseModel::Gaussian::Covariance(relative_cov);
+        noiseModel::Gaussian::shared_ptr gau_noise_model;
+        if (useFixcov)
+            gau_noise_model = noise_odom_between;
+        else
+            gau_noise_model = noiseModel::Gaussian::Covariance(relative_cov);
         std::unique_lock<std::mutex> graph_guard(mtxPosegraph);
         newFactors.emplace_shared<BetweenFactor<Pose3 >>(X(prev_node_idx), X(curr_node_idx), rel_pose, gau_noise_model);
         graph_guard.unlock();
@@ -623,7 +645,10 @@ void PALoc::AddMapPriorFactorO3D() {
     if (flag) {
         gtsam::Pose3 poseGlobal =
                 Pose6dTogtsamPose3(keyMeasures.at(curr_node_idx).global_pose);
-        priorMapPoseGaussianNoise = noiseModel::Gaussian::Covariance(icp_cov.matrix().cast<double>());
+        if (useFixcov)
+            priorMapPoseGaussianNoise = priorMapPoseNoise;
+        else
+            priorMapPoseGaussianNoise = noiseModel::Gaussian::Covariance(icp_cov.matrix().cast<double>());
         std::unique_lock<std::mutex> graph_guard(mtxPosegraph);
         newFactors.emplace_shared<PriorFactor<Pose3 >>(X(curr_node_idx), poseGlobal, priorMapPoseGaussianNoise);
         graph_guard.unlock();
@@ -662,7 +687,10 @@ void PALoc::AddMapPriorFactor() {
         keyMeasures.at(curr_node_idx).global_score = total_rmse;
 
         // add map factor
-        priorMapPoseGaussianNoise = noiseModel::Gaussian::Covariance(icp_cov.matrix().cast<double>());
+        if (useFixcov)
+            priorMapPoseGaussianNoise = priorMapPoseNoise;
+        else
+            priorMapPoseGaussianNoise = noiseModel::Gaussian::Covariance(icp_cov.matrix().cast<double>());
         PriorFactor<Pose3> map_pose_factor(X(curr_node_idx), final_pose, priorMapPoseGaussianNoise);
         std::unique_lock<std::mutex> graph_guard(mtxPosegraph);
         newFactors.add(map_pose_factor);
@@ -892,28 +920,9 @@ PALoc::integrateGyroscope(const Eigen::Quaterniond &q, const Eigen::Vector3d &om
 }
 
 void PALoc::AddGravityFactor() {
-    if (curr_node_idx < 10) return;
-    // Add the gravity constraint factor.
-    // Here, we assume that the measured_gravity vector has been computed from the IMU data.
-    // Vector3 measured_gravity2(0, 0, 1);
-    Eigen::Vector3d estimated_gravity = estimateGravity(1);
-    std::cout << "Estimated gravity: " << estimated_gravity.transpose() << std::endl;
-    std::cout << BOLDRED << "add gravity factor" << std::endl;
-    noiseModel::Diagonal::shared_ptr gravity_noise = noiseModel::Diagonal::Variances(
-            Vector4(1e-2, 1e-2, 1e-4, 1e-6));
-
-    // 假设传感器规格书或实验中得到了加速度计在各个轴向上的噪声标准偏差
-//    Vector3 acc_stddev; // 加速度计噪声标准偏差
-//    acc_stddev << acc_cov, acc_cov, acc_cov;
-//    // 将标准偏差转换为协方差矩阵
-//    Matrix3 acc_cov = acc_stddev.array().square().matrix().asDiagonal();
-//    noiseModel::Gaussian::shared_ptr gravity_noise = noiseModel::Gaussian::Covariance(acc_cov);
-
-    std::unique_lock<std::mutex> graph_guard(mtxPosegraph);
-    newFactors.emplace_shared<StaticGravityFactor>(X(curr_node_idx), estimated_gravity, gravity_noise);
-    //newFactors.emplace_shared<GravityFactorAuto>(X(curr_node_idx), estimated_gravity, gravity_noise);
-    //    newFactors.emplace_shared<GravityFactor2>(X(curr_node_idx), G(curr_node_idx), gravity, gravity_noise);
-    graph_guard.unlock();
+    // The upstream gravity factors still target an older GTSAM API and are not
+    // part of the office MID360 workflow, so keep this path disabled here.
+    return;
 }
 
 void PALoc::AddLoopFactor() {
@@ -1492,6 +1501,28 @@ void PALoc::SaveData() {
         dataSaverPtr->saveOptimizedVerticesTUM(global_pose_vec_traj, "icp_tum.txt");
     }
     dataSaverPtr->saveOptimizedVerticesTUM(pose_vec, "optimized_poses_tum.txt");
+
+    // Save the transformed trajectory when the caller wants a different output frame.
+    if (!output_transform.isIdentity(1e-6)) {
+        std::vector<Vector7> transformed_pose_vec;
+        transformed_pose_vec.reserve(pose_vec.size());
+        for (const auto &pose : pose_vec) {
+            Eigen::Quaterniond q(pose(6), pose(3), pose(4), pose(5));
+            Eigen::Matrix4d T_map_body = Eigen::Matrix4d::Identity();
+            T_map_body.block<3, 3>(0, 0) = q.toRotationMatrix();
+            T_map_body.block<3, 1>(0, 3) = pose.head<3>();
+
+            Eigen::Matrix4d T_map_target = T_map_body * output_transform;
+
+            Eigen::Quaterniond q_out(T_map_target.block<3, 3>(0, 0));
+            transformed_pose_vec.push_back(
+                    (Vector7() << T_map_target(0, 3), T_map_target(1, 3), T_map_target(2, 3),
+                            q_out.x(), q_out.y(), q_out.z(), q_out.w()).finished());
+        }
+        dataSaverPtr->saveOptimizedVerticesTUM(transformed_pose_vec, "optimized_poses_tum_transformed.txt");
+        std::cout << "Saved transformed TUM trajectory (" << transformed_pose_vec.size() << " poses)" << std::endl;
+    }
+
     std::unique_lock<std::mutex> graph_guard(mtxPosegraph);
     dataSaverPtr->saveGraphGtsam(newFactors, isam, currentEstimate);
     graph_guard.unlock();
@@ -1574,7 +1605,10 @@ void PALoc::PerformRSLoopClosure(void) {
             Pose3 poseFrom(gtsam::Rot3::RzRyRx(p.roll, p.pitch, p.yaw),
                            gtsam::Point3(p.x, p.y, p.z));
             //SetLoopscore(loopScore);
-            LOOPGaussianNoise = noiseModel::Gaussian::Covariance(LOOP_cov.matrix().cast<double>());
+            if (useFixcov)
+                LOOPGaussianNoise = noise_loop;
+            else
+                LOOPGaussianNoise = noiseModel::Gaussian::Covariance(LOOP_cov.matrix().cast<double>());
 
             std::unique_lock<std::mutex> loop_guard(mtxLoopContainer);
             loopIndexQueue.push_back(make_pair(loopKeyCur, loopKeyPre));
@@ -1584,7 +1618,7 @@ void PALoc::PerformRSLoopClosure(void) {
             loop_guard.unlock();
 
             loopIndexCheckedMap[loopKeyCur] = loopKeyPre;
-            std::cout << BOLDRED << "ICP Loop detected! " << loopKeyCur << " and " << loopKeyPre << ", "
+            std::cout << BOLDRED << "ICP Loop detected, score! " << loopKeyCur << " and " << loopKeyPre << ", "
                       << loopScore << std::endl;
             std::cout << BOLDRED << "ICP Loop COV! " << LOOP_cov.diagonal().transpose() << std::endl;
         }
@@ -1596,7 +1630,7 @@ bool PALoc::FilterLoopPairs(int loopKeyCur, int loopKeyPre) {
 
     // short time
     if (abs(keyMeasures.at(loopKeyCur).odom_time -
-            abs(keyMeasures.at(loopKeyPre).odom_time) <
+            keyMeasures.at(loopKeyPre).odom_time) <
             historyKeyframeSearchTimeDiff))
         return false;
 
@@ -2210,8 +2244,7 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
 
         // we must restrict the update value till converge,
         // otherwise may lead to local minimum
-        if (deltaR < 1e-6 && deltaT < 1e-6 || relative_rmse < 1e-6) {
-            //        if (deltaR < 0.05 && deltaT < 0.05 || relative_rmse < 1e-6) {
+        if (deltaR < 0.05 && deltaT < 0.05) {
             flag = true;
             iterate_number = iterCount;
             std::cout << BOLDMAGENTA << "RMSE and overlap: " << total_rmse << " "

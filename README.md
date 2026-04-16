@@ -232,6 +232,11 @@ roslaunch paloc office_mid360_fs_imu.launch
 roslaunch paloc outdoor_mid360.launch bag_path:=/path/to/your.bag prior_map_directory:=/path/to/prior_map/
 ```
 
+Helper scripts in this branch:
+
+- `paloc/scripts/run_office_mid360_gt.sh` runs the office MID360 + FS-IMU GT pipeline and exports FS-lidar trajectories.
+- `paloc/scripts/run_paloc_gt.sh` is a simple indoor/outdoor wrapper for the MID360 launch files.
+
 For outdoor sequences, edit `paloc/config/yaml/outdoor_mid360.yaml` and set the sequence-specific `initial_pose` before running.
 
  You can save data. 

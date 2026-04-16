@@ -68,7 +68,9 @@ extern bool showDegenercy;
 
 extern bool useRawCloud;
 extern bool useGlobalPrior;
+extern bool useFixcov;
 extern int icpO3dType;
+extern int initialType;
 extern double correspondenceDis;
 extern double mapRadius;
 extern double map_filter_size;
@@ -104,6 +106,7 @@ extern vector<double> extrinR;
 extern Eigen::Quaterniond q_body_sensor;
 extern Eigen::Matrix3d rot_body_sensor;
 extern Eigen::Vector3d t_body_sensor;
+extern Eigen::Matrix4d output_transform;
 
 struct Pose6D {
     double x;
