@@ -25,7 +25,6 @@
 ![Pipeline](./README/image-20240131044249967.png)
 </div>
 
-
 ## News
 
 - **2026/01/20**: Add the generated gt trajectories  of FP dataset in `fp_gt` folder.
