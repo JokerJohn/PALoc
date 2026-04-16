@@ -221,19 +221,21 @@ Compared with `main`, this branch is focused on the local MID360 workflow:
 
 ### MID360 Examples
 
-This branch also includes three MID360-oriented launch examples and the matching PALoc YAML files:
+This branch adds a compact MID360 workflow on top of `main`:
 
-- `paloc/launch/office_mid360.launch` for the office sequence with MID360 lidar and MID360 IMU.
-- `paloc/launch/office_mid360_fs_imu.launch` for the office sequence when the MID360 lidar is used with an FS IMU/body frame.
-- `paloc/launch/outdoor_mid360.launch` as an outdoor MID360 template with rosbag playback.
+- `paloc/launch/office_mid360.launch`: office sequence with MID360 lidar + MID360 IMU.
+- `paloc/launch/office_mid360_fs_imu.launch`: office sequence with MID360 lidar in the FS IMU/body frame.
+- `paloc/launch/outdoor_mid360.launch`: outdoor MID360 template with rosbag playback.
+- `paloc/scripts/run_office_mid360_gt.sh`: office GT export helper for the FS-lidar frame.
+- `paloc/scripts/run_paloc_gt.sh`: simple indoor/outdoor wrapper for the MID360 launch files.
 
-These launch files reuse external configuration from `FAST_LIO`, and the two office examples also reuse the office prior-map seed from `LTLoc`. Make sure the following resources are available in your ROS workspace before running them:
+External dependencies expected in the same ROS workspace:
 
 - `fast_lio/config/mid360_bag.yaml`
 - `fast_lio/launch/mapping_mid360_bag_fs_imu.launch`
 - `ltloc/config/yaml/fastlivo2_fs_localization.yaml`
 
-Example commands:
+Typical commands:
 
 ```bash
 roslaunch paloc office_mid360.launch
@@ -241,12 +243,7 @@ roslaunch paloc office_mid360_fs_imu.launch
 roslaunch paloc outdoor_mid360.launch bag_path:=/path/to/your.bag prior_map_directory:=/path/to/prior_map/
 ```
 
-Helper scripts in this branch:
-
-- `paloc/scripts/run_office_mid360_gt.sh` runs the office MID360 + FS-IMU GT pipeline and exports FS-lidar trajectories.
-- `paloc/scripts/run_paloc_gt.sh` is a simple indoor/outdoor wrapper for the MID360 launch files.
-
-For outdoor sequences, edit `paloc/config/yaml/outdoor_mid360.yaml` and set the sequence-specific `initial_pose` before running.
+For outdoor sequences, update `paloc/config/yaml/outdoor_mid360.yaml` with the sequence-specific `initial_pose` before running.
 
  You can save data. 
 
