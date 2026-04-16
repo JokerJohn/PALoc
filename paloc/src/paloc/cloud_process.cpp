@@ -29,6 +29,25 @@
 */
 #include "cloud_process.h"
 
+namespace {
+
+// ===== BEGIN CHANGE: loop closure debug record =====
+std::string LoopIcpTypeName(const int icp_type) {
+    switch (icp_type) {
+        case 0:
+            return "point_to_point";
+        case 1:
+            return "point_to_plane";
+        case 2:
+            return "generalized_icp";
+        default:
+            return "unknown";
+    }
+}
+// ===== END CHANGE: loop closure debug record =====
+
+}  // namespace
+
 pcl::PointCloud<pcl::PointXYZI>::Ptr CloudProcess::RemoveRangeCloud(
         pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, Eigen::Vector3i axis,
         Eigen::Vector3d threshold, std::string op) {
@@ -293,9 +312,10 @@ bool CloudProcess::DoICPVirtualRelative(std::vector<Measurement> &keyMeasures,
     trans = icp_trans * trans;
 
     if (0) {
-        ROS_INFO("LOOP ICP ALIGNED POINTS: %d and %d, %f, %f",
-                 cureKeyframeCloud->size(), targetKeyframeCloud->size(), score,
-                 overlap);
+        ROS_INFO_STREAM("LOOP ICP ALIGNED POINTS: "
+                        << cureKeyframeCloud->size() << " and "
+                        << targetKeyframeCloud->size() << ", "
+                        << score << ", " << overlap);
     }
 
     if (score > loopFitnessScoreThreshold || overlap < 0.8 || score == 0.0) {
@@ -307,9 +327,20 @@ bool CloudProcess::DoICPVirtualRelative(std::vector<Measurement> &keyMeasures,
 
 bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
                                          int loopKeyPre, int loopKeyCur,
-                                         float &score, int type,
+                                         LoopClosureDebugInfo &debug_info, int type,
                                          Eigen::Matrix4d &final_trans) {
     using namespace open3d;
+    // ===== BEGIN CHANGE: fill structured loop debug metrics =====
+    static_cast<void>(type);
+    debug_info.curr_node_idx = loopKeyCur;
+    debug_info.prev_node_idx = loopKeyPre;
+    debug_info.icp_type = LoopIcpTypeName(icpO3dType);
+    debug_info.score = -1.0;
+    debug_info.overlap = -1.0;
+    debug_info.accepted = false;
+    debug_info.reject_reason = "not_run";
+    // ===== END CHANGE: fill structured loop debug metrics =====
+
     // int historyKeyframeSearchNum = 25; // enough. ex. [-25, 25] covers submap
     // length of 50x1 = 50m if every kf gap is 1m
     pcl::PointCloud<PointT>::Ptr cureKeyframeCloud(new pcl::PointCloud<PointT>());
@@ -327,8 +358,18 @@ bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
     FindNearKeyframes(keyMeasures, targetKeyframeCloud, loopKeyPre,
                       historyKeyframeSearchNum);
 
-    if (cureKeyframeCloud->size() < 100 || targetKeyframeCloud->size() < 100)
+    // ===== BEGIN CHANGE: fill structured loop debug metrics =====
+    debug_info.source_points_raw = static_cast<int>(cureKeyframeCloud->size());
+    debug_info.target_points_raw = static_cast<int>(targetKeyframeCloud->size());
+    if (cureKeyframeCloud->size() < 100) {
+        debug_info.reject_reason = "source_too_small";
         return false;
+    }
+    if (targetKeyframeCloud->size() < 100) {
+        debug_info.reject_reason = "target_too_small";
+        return false;
+    }
+    // ===== END CHANGE: fill structured loop debug metrics =====
 
     //  publishCloud(pubLoopScanLocal, cureKeyframeCloud, ros::Time::now(),
     //               odom_link);
@@ -369,6 +410,9 @@ bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
     Eigen::Matrix4d icp_trans = Eigen::Matrix4d::Identity();
 
     double max_correspondence_distance = 2.0; // 根据需求设置
+    debug_info.max_correspondence_distance = max_correspondence_distance;
+    debug_info.source_points_icp = static_cast<int>(source_o3d->points_.size());
+    debug_info.target_points_icp = static_cast<int>(target_o3d->points_.size());
     pipelines::registration::RegistrationResult icp;
     auto criteria = pipelines::registration::ICPConvergenceCriteria(30);
     switch (icpO3dType) {
@@ -397,23 +441,26 @@ bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
             break;
     }
     icp_trans = icp.transformation_;
-    score = icp.inlier_rmse_;
+    const double score = icp.inlier_rmse_;
     double overlap = icp.fitness_;
+    debug_info.score = score;
+    debug_info.overlap = overlap;
 
     //  pcl::transformPointCloud(*cureKeyframeCloud, *unused_result,
     //                           trans.cast<float>());
     *unused_result = *TransformPointCloud(cureKeyframeCloud, icp_trans);
     final_trans = icp_trans * final_trans;
-    if (1) {
-        std::cout << BOLDBLUE << "LOOP ICP ALIGNED POINTS, score/overlap: " << cureKeyframeCloud->size() << " " << target_o3d->points_.size()
-                  << " " << score << " " << overlap << RESET << std::endl;
-    }
-    if (score > loopFitnessScoreThreshold || overlap < 0.7 || score == 0.0) {
-        // do corse to fine icp
-        std::cout << BOLDBLUE << "LOOP ICP FAILED, score/overlap: " << cureKeyframeCloud->size() << " " << target_o3d->points_.size()
-                  << " " << score << " " << overlap << RESET << std::endl;
+
+    // ===== BEGIN CHANGE: fill structured loop debug metrics =====
+    if (score == 0.0) {
+        debug_info.reject_reason = "zero_score";
         return false;
     }
+    if (score > loopFitnessScoreThreshold || overlap < 0.7) {
+        debug_info.reject_reason = "threshold_reject";
+        return false;
+    }
+    // ===== END CHANGE: fill structured loop debug metrics =====
 
     // 使用 EigenMatrixToTensor 转换 Eigen 矩阵到 Open3D Tensor
     open3d::core::Tensor transformation_tensor = open3d::core::eigen_converter::EigenMatrixToTensor(
@@ -434,7 +481,6 @@ bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
             // icp_cov = ifm_eigen.inverse() * 1e-3;
             icp_cov = ifm_eigen.inverse();
             flag = true;
-            std::cout << "O3D LOOP ICP COV: \n" << icp_cov.diagonal().transpose() << std::endl;
         } else {
             std::cerr << BOLDRED << "Information matrix is not 6x6. Cannot compute covariance matrix." << std::endl;
         }
@@ -445,9 +491,11 @@ bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
                 << std::endl;
         icp_cov = Eigen::Matrix<double, 6, 6>::Identity();
     }
-    std::cout << BOLDGREEN << "ICP COV: " << icp_cov.diagonal().transpose() << std::endl;
-    if (!flag)
+    if (!flag) {
+        debug_info.reject_reason = "covariance_failed";
         return false;
+    }
+    debug_info.reject_reason = "accepted";
 
     /*if (score == 0.0 || score > loopFitnessScoreThreshold || overlap < 0.8) {
         // icp failed
@@ -601,12 +649,6 @@ bool CloudProcess::DoICPDegeneracy(std::vector<Measurement> &keyMeasures,
     *unused_result = *TransformPointCloud(cureKeyframeCloud, icp_trans);
 
     final_trans = icp_trans * final_trans;
-    if (1) {
-        ROS_INFO("LOOP ICP ALIGNED POINTS: %d and %d, %f, %f",
-                 cureKeyframeCloud->size(), targetKeyframeCloud->size(), score,
-                 overlap);
-    }
-
     if (score > loopFitnessScoreThreshold || overlap < 0.7 || score == 0.0) {
         // do corse to fine icp
         return false;

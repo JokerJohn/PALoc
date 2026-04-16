@@ -1,0 +1,27 @@
+<launch>
+    <!-- set your data config -->
+    <param name="/use_sim_time" value="false"/>
+    <param name="config_directory" type="string" value="$(find paloc)/config/"/>
+    <param name="save_directory" type="string" value="/home/xchu/data/paloc_result/"/>
+    <param name="prior_map_directory" type="string" value="/home/xchu/data/prior_map/paloc_map_file/"/>
+
+    <!--set your data bag path-->
+    <arg name="bag_path"
+         default="/media/xchu/新加卷/GEODE/Stairs/stairs_bob.bag"/>
+    <arg name="sequence" default="stairs_bob"/>
+
+    <!-- set your mapping params-->
+    <rosparam file="$(find paloc)/config/yaml/geode_beta_os64.yaml" command="load"/>
+    <rosparam param="common/sequence" subst_value="true">$(arg sequence)</rosparam>
+
+    <!--LIO-->
+    <node pkg="paloc" type="fastlio" name="fastlio" output="log" required="true"/>
+
+    <!--PGO-->
+    <node pkg="paloc" type="pgo_localization" name="PGOLocalization" output="screen" required="true"/>
+
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_pgo"
+          args="-d $(find paloc)/config/rviz/ouster_indoors.rviz"/>
+
+
+</launch>

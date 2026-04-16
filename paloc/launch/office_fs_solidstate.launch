@@ -1,28 +1,25 @@
 <launch>
   <arg name="rviz" default="true" />
+  <arg name="fastlio_rviz" default="false" />
   <arg name="sequence" default="office" />
-  <arg name="save_directory" default="/home/xchu/fushi_ws/results/paloc_mid360_gt/" />
+  <arg name="bag_path" default="/home/xchu/data/slamData/office.bag" />
+  <arg name="play_rate" default="1.0" />
+  <arg name="bag_start_delay" default="5" />
+  <arg name="save_directory" default="/home/xchu/fushi_ws/results/paloc_fs_solidstate/" />
   <arg name="prior_map_directory" default="/home/xchu/data/slamData/gt_voxel_0p2_ltloc/" />
-  <arg name="ltloc_config" default="$(find ltloc)/config/yaml/fastlivo2_fs_localization.yaml" />
-  <arg name="paloc_config" default="$(find paloc)/config/yaml/office_mid360.yaml" />
-  <arg name="front_config_file" default="$(find fast_lio)/config/mid360_bag.yaml" />
-  <arg name="rviz_config" default="$(find paloc)/config/rviz/office_mid360_polished.rviz" />
-
-  <env name="ROSCONSOLE_COLORIZED_OUTPUT" value="1" />
-  <env name="ROSCONSOLE_STDOUT_LINE_BUFFERED" value="1" />
-  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${time}] ${message}" />
+  <arg name="paloc_config" default="$(find paloc)/config/yaml/office_fs_solidstate.yaml" />
 
   <param name="/use_sim_time" value="true" />
   <param name="config_directory" type="string" value="$(find paloc)/config/" />
   <param name="save_directory" type="string" value="$(arg save_directory)" />
   <param name="prior_map_directory" type="string" value="$(arg prior_map_directory)" />
 
-  <!-- Reuse office prior pose settings from LTLoc, then override the sensor-specific PALoc params. -->
-  <rosparam file="$(arg ltloc_config)" command="load" />
-  <rosparam file="$(arg front_config_file)" command="load" />
+  <!-- Load FAST_LIO fs_solidstate config first, then PALoc config (overrides common/*) -->
+  <rosparam file="$(find fast_lio)/config/fs_solidstate.yaml" command="load" />
   <rosparam file="$(arg paloc_config)" command="load" />
   <rosparam param="common/sequence" subst_value="true">$(arg sequence)</rosparam>
 
+  <!-- FAST_LIO tuning (match mapping_fs_solidstate.launch) -->
   <param name="publish/scan_publish_en" type="bool" value="true" />
   <param name="publish/scan_bodyframe_pub_en" type="bool" value="true" />
   <param name="feature_extract_enable" type="bool" value="false" />
@@ -33,11 +30,20 @@
   <param name="cube_side_length" type="double" value="1000" />
   <param name="runtime_pos_log_enable" type="bool" value="true" />
 
-  <node pkg="fast_lio" type="fastlio_mapping" name="paloc_fastlio" output="log" required="true" />
-  <node pkg="paloc" type="pgo_localization" name="pgo_localization" output="screen" required="true" />
+  <!-- Nodes -->
+  <node pkg="fast_lio" type="fastlio_mapping" name="paloc_fastlio"
+        output="log" required="true" />
+
+  <node pkg="paloc" type="pgo_localization" name="pgo_localization"
+        output="screen">
+    <remap from="/lidar_odometry" to="/Odometry" />
+  </node>
+
+  <node pkg="rosbag" type="play" name="bag_play"
+        args="$(arg bag_path) --clock -d $(arg bag_start_delay) -r $(arg play_rate) --topics /points /imu_raw" />
 
   <group if="$(arg rviz)">
     <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_pgo"
-          args="-d $(arg rviz_config)" />
+          args="-d $(find paloc)/config/rviz/ouster_indoors.rviz" />
   </group>
 </launch>

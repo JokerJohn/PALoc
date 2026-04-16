@@ -1,0 +1,52 @@
+<launch>
+  <!-- ========================== Arguments ========================== -->
+  <arg name="bag_path" />
+  <arg name="sequence"           default="office" />
+  <arg name="play_rate"          default="1.0" />
+  <arg name="bag_start_delay"    default="3" />
+  <arg name="save_directory"     default="/home/xchu/fushi_ws/results/paloc_mid360_gt/" />
+  <arg name="prior_map_directory" default="/home/xchu/data/slamData/gt_voxel_0p2_ltloc/" />
+  <arg name="rviz"               default="false" />
+
+  <arg name="paloc_config"  default="$(find paloc)/config/yaml/indoor_mid360.yaml" />
+  <arg name="fastlio_config" default="$(find fast_lio)/config/mid360_bag.yaml" />
+
+  <!-- ========================== Parameters ========================= -->
+  <param name="/use_sim_time" value="true" />
+  <param name="config_directory"    type="string" value="$(find paloc)/config/" />
+  <param name="save_directory"      type="string" value="$(arg save_directory)" />
+  <param name="prior_map_directory" type="string" value="$(arg prior_map_directory)" />
+
+  <!-- Load FAST_LIO config first, then PALoc config (overrides common/*) -->
+  <rosparam file="$(arg fastlio_config)" command="load" />
+  <rosparam file="$(arg paloc_config)"   command="load" />
+  <rosparam param="common/sequence" subst_value="true">$(arg sequence)</rosparam>
+
+  <!-- FAST_LIO tuning (same as mid360_bag.launch) -->
+  <param name="publish/scan_publish_en"     type="bool"   value="true" />
+  <param name="publish/scan_bodyframe_pub_en" type="bool"  value="true" />
+  <param name="feature_extract_enable"       type="bool"   value="false" />
+  <param name="point_filter_num"             type="int"    value="1" />
+  <param name="max_iteration"                type="int"    value="3" />
+  <param name="filter_size_surf"             type="double" value="0.1" />
+  <param name="filter_size_map"              type="double" value="0.2" />
+  <param name="cube_side_length"             type="double" value="1000" />
+  <param name="runtime_pos_log_enable"       type="bool"   value="true" />
+
+  <!-- ========================== Nodes ============================== -->
+  <node pkg="fast_lio" type="fastlio_mapping" name="paloc_fastlio"
+        output="screen" required="true" />
+
+  <node pkg="paloc" type="pgo_localization" name="pgo_localization"
+        output="screen" required="true">
+    <remap from="/lidar_odometry" to="/Odometry" />
+  </node>
+
+  <node pkg="rosbag" type="play" name="bag_play"
+        args="$(arg bag_path) --clock -d $(arg bag_start_delay) -r $(arg play_rate) --topics /livox/lidar /livox/imu" />
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_pgo"
+          args="-d $(find paloc)/config/rviz/ouster_indoors.rviz" />
+  </group>
+</launch>

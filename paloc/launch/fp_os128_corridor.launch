@@ -1,0 +1,24 @@
+<launch>
+    <!-- set your data config -->
+    <param name="/use_sim_time" value="false"/>
+    <!--all folder must be end with '/'-->
+    <param name="config_directory" type="string" value="$(find paloc)/config/"/>
+    <param name="save_directory" type="string" value="/home/xchu/data/paloc_result/"/>
+    <param name="prior_map_directory" type="string" value="/home/xchu/data/prior_map/paloc_map_file/"/>
+
+    <arg name="sequence" default="20220216_corridor_day_ref"/>
+
+    <!-- set your mapping params-->
+    <rosparam file="$(find paloc)/config/yaml/fp_os128_corridor.yaml" command="load"/>
+    <rosparam param="common/sequence" subst_value="true">$(arg sequence)</rosparam>
+
+    <!--LIO-->
+    <node pkg="paloc" type="fastlio" name="fastlio" output="log" required="true"/>
+
+    <!--PGO-->
+    <node pkg="paloc" type="pgo_localization" name="pgo_localization" output="screen" required="true"/>
+
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_pgo"
+          args="-d $(find paloc)/config/rviz/ouster_indoors.rviz"/>
+
+</launch>

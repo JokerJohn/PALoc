@@ -20,6 +20,24 @@
 #include "pcl/io/pcd_io.h"
 #include "../../include/base_type.hpp"
 
+// ===== BEGIN CHANGE: loop closure debug record =====
+struct LoopClosureDebugInfo {
+    double timestamp = 0.0;
+    int curr_node_idx = -1;
+    int prev_node_idx = -1;
+    int source_points_raw = 0;
+    int target_points_raw = 0;
+    int source_points_icp = 0;
+    int target_points_icp = 0;
+    double score = -1.0;
+    double overlap = -1.0;
+    double max_correspondence_distance = 0.0;
+    std::string icp_type = "unknown";
+    bool accepted = false;
+    std::string reject_reason = "not_run";
+};
+// ===== END CHANGE: loop closure debug record =====
+
 class CloudProcess {
 public:
     CloudProcess() {};
@@ -49,7 +67,7 @@ public:
 
     bool DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
                                int loopKeyPre, int loopKeyCur,
-                               float &score, int type,
+                               LoopClosureDebugInfo &debug_info, int type,
                                Eigen::Matrix4d &trans);
 
     bool DoICPDegeneracy(std::vector<Measurement> &keyMeasures,

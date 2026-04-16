@@ -58,10 +58,10 @@ pgo:
   map_radius: 50
   map_filter_size: 0.1
 
-  loopFitnessScoreThreshold: 0.45
+  loopFitnessScoreThreshold: 0.4
   historyKeyframeSearchRadius: 10.0
-  historyKeyframeSearchTimeDiff: 30.0
-  historyKeyframeSearchNum: 25
-  loopClosureFrequency: 1
-  filterDis: 0.2
-  filterNodeNum: 5
+  historyKeyframeSearchTimeDiff: 40.0
+  historyKeyframeSearchNum: 50
+  loopClosureFrequency: 10
+  filterDis: 1.0
+  filterNodeNum: 10

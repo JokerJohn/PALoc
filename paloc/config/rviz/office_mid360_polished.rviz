@@ -1,0 +1,453 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 0
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Mapping1
+        - /Trajectories1
+        - /Constraints1
+        - /State1/PGOOdom1
+        - /State1/PGOOdom1/Shape1
+        - /State1/PGOOdom1/Covariance1
+        - /State1/PGOOdom1/Covariance1/Position1
+        - /OdomToMap1
+      Splitter Ratio: 0.5199999809265137
+    Tree Height: 571
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Name: Time
+    SyncMode: 0
+    SyncSource: CurrentScan
+Preferences:
+  PromptSaveOnExit: true
+Toolbars:
+  toolButtonStyle: 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.18000000715255737
+      Cell Size: 2
+      Class: rviz/Grid
+      Color: 186; 192; 201
+      Enabled: false
+      Line Style:
+        Line Width: 0.019999999552965164
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 200
+      Reference Frame: <Fixed Frame>
+      Value: false
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 0.550000011920929
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 1
+            Min Value: 0
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 96; 140; 129
+          Color Transformer: FlatColor
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: PGOMap
+          Position Transformer: XYZ
+          Queue Size: 1
+          Selectable: false
+          Size (Pixels): 1
+          Size (m): 0.02800000086426735
+          Style: Flat Squares
+          Topic: /pgo_map
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: false
+          Value: true
+        - Alpha: 0.5
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 1
+            Min Value: 0
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 125; 141; 166
+          Color Transformer: FlatColor
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: PriorMap
+          Position Transformer: XYZ
+          Queue Size: 1
+          Selectable: false
+          Size (Pixels): 1
+          Size (m): 0.03500000014901161
+          Style: Flat Squares
+          Topic: /localization_map
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: false
+          Value: true
+        - Alpha: 0.949999988079071
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 1
+            Min Value: 0
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 247; 163; 92
+          Color Transformer: FlatColor
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: CurrentScan
+          Position Transformer: XYZ
+          Queue Size: 1
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.10000000149011612
+          Style: Flat Squares
+          Topic: /current_cloud
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: false
+          Value: true
+        - Alpha: 0.75
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 1
+            Min Value: 0
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: FlatColor
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: InitialAlignment
+          Position Transformer: XYZ
+          Queue Size: 1
+          Selectable: true
+          Size (Pixels): 2
+          Size (m): 0.017999999225139618
+          Style: Points
+          Topic: /initial_cloud
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: false
+          Value: false
+      Enabled: true
+      Name: Mapping
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 0; 170; 156
+          Enabled: true
+          Head Diameter: 0.15000000596046448
+          Head Length: 0.10000000149011612
+          Length: 0.10000000149011612
+          Line Style: Billboards
+          Line Width: 0.18000000715255737
+          Name: FusionPath
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 255; 255
+          Pose Style: None
+          Queue Size: 10
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.05000000074505806
+          Shaft Length: 0.05000000074505806
+          Topic: /fusion_path
+          Unreliable: false
+          Value: true
+        - Alpha: 0.75
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 78; 106; 196
+          Enabled: true
+          Head Diameter: 0.10000000149011612
+          Head Length: 0.10000000149011612
+          Length: 0.10000000149011612
+          Line Style: Billboards
+          Line Width: 0.07999999821186066
+          Name: LIOPath
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 255; 255
+          Pose Style: None
+          Queue Size: 10
+          Radius: 0.019999999552965164
+          Shaft Diameter: 0.05000000074505806
+          Shaft Length: 0.05000000074505806
+          Topic: /lio_path
+          Unreliable: false
+          Value: true
+        - Alpha: 0.8999999761581421
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 230; 114; 86
+          Enabled: false
+          Head Diameter: 0.10000000149011612
+          Head Length: 0.10000000149011612
+          Length: 0.10000000149011612
+          Line Style: Billboards
+          Line Width: 0.10000000149011612
+          Name: GlobalPath
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 255; 255
+          Pose Style: None
+          Queue Size: 10
+          Radius: 0.019999999552965164
+          Shaft Diameter: 0.05000000074505806
+          Shaft Length: 0.05000000074505806
+          Topic: /global_path
+          Unreliable: false
+          Value: false
+      Enabled: true
+      Name: Trajectories
+    - Class: rviz/Group
+      Displays:
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /map_constraint
+          Name: MapConstraint
+          Namespaces:
+            map_constraint_nodes: true
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /lio_loops
+          Name: Loops
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /zupt_constraint
+          Name: ZUPT
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /sc_loop
+          Name: SCLoop
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+      Enabled: true
+      Name: Constraints
+    - Class: rviz/Group
+      Displays:
+        - Angle Tolerance: 0.10000000149011612
+          Class: rviz/Odometry
+          Covariance:
+            Orientation:
+              Alpha: 0.25
+              Color: 255; 208; 114
+              Color Style: RGB
+              Frame: Local
+              Offset: 1
+              Scale: 0.5
+              Value: true
+            Position:
+              Alpha: 0.699999988079071
+              Color: 230; 114; 86
+              Scale: 1
+              Value: true
+            Value: true
+          Enabled: true
+          Keep: 1
+          Name: PGOOdom
+          Position Tolerance: 0.10000000149011612
+          Queue Size: 1
+          Shape:
+            Alpha: 0.8999999761581421
+            Axes Length: 2
+            Axes Radius: 0.30000001192092896
+            Color: 0; 170; 156
+            Head Length: 0.15000000596046448
+            Head Radius: 0.07999999821186066
+            Shaft Length: 0.30000001192092896
+            Shaft Radius: 0.03999999910593033
+            Value: Axes
+          Topic: /pgo_odom
+          Unreliable: false
+          Value: true
+        - Angle Tolerance: 0.10000000149011612
+          Class: rviz/Odometry
+          Covariance:
+            Orientation:
+              Alpha: 0.25
+              Color: 255; 208; 114
+              Color Style: RGB
+              Frame: Local
+              Offset: 1
+              Scale: 50
+              Value: false
+            Position:
+              Alpha: 0.20000000298023224
+              Color: 255; 216; 122
+              Scale: 10
+              Value: false
+            Value: false
+          Enabled: false
+          Keep: 1
+          Name: GlobalOdom
+          Position Tolerance: 0.10000000149011612
+          Queue Size: 1
+          Shape:
+            Alpha: 0.8500000238418579
+            Axes Length: 0.5
+            Axes Radius: 0.03500000014901161
+            Color: 230; 114; 86
+            Head Length: 0.15000000596046448
+            Head Radius: 0.07999999821186066
+            Shaft Length: 0.25
+            Shaft Radius: 0.03500000014901161
+            Value: Arrow
+          Topic: /global_odom
+          Unreliable: false
+          Value: false
+      Enabled: true
+      Name: State
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz/PoseWithCovariance
+      Color: 230; 114; 86
+      Covariance:
+        Orientation:
+          Alpha: 0.25
+          Color: 255; 208; 114
+          Color Style: Unique
+          Frame: Local
+          Offset: 1
+          Scale: 1
+          Value: false
+        Position:
+          Alpha: 0.15000000596046448
+          Color: 172; 105; 89
+          Scale: 1
+          Value: false
+        Value: false
+      Enabled: true
+      Head Length: 0.5
+      Head Radius: 0.25
+      Name: OdomToMap
+      Queue Size: 10
+      Shaft Length: 1
+      Shaft Radius: 0.10000000149011612
+      Shape: Arrow
+      Topic: /odom2map
+      Unreliable: false
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 243; 246; 249
+    Default Light: true
+    Fixed Frame: camera_init
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Theta std deviation: 0.2617993950843811
+      Topic: /initialpose
+      X std deviation: 0.5
+      Y std deviation: 0.5
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 49.65196228027344
+      Field of View: 0.7853981852531433
+      Focal Point:
+        X: -33.46345520019531
+        Y: -17.38007164001465
+        Z: 0.8795191645622253
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 1.5597963333129883
+      Target Frame: aft_pgo
+      Yaw: 5.421319007873535
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: true
+  Height: 1016
+  Hide Left Dock: true
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd0000000100000000000003bc0000039efc0200000005fb000000100044006900730070006c006100790073000000003d00000278000000c900fffffffb0000001200530065006c0065006300740069006f006e00000002340000005c0000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000270000000670000005c00fffffffb0000000a0056006900650077007300000002bb000000d1000000a400fffffffb0000000800540069006d00650000000392000000490000003900ffffff000007440000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: true
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: true
+  Width: 1860
+  X: 60
+  Y: 27

@@ -37,14 +37,14 @@ pgo:
   degeneracy_thres: 20
   correspondence_dis: 1.0
   map_radius: 80
-  map_filter_size: 0.1
+  map_filter_size: 0.
 
   loopZOffset: 5.0
   historyKeyframeSearchRadius: 10.0
-  historyKeyframeSearchTimeDiff: 30.0
-  historyKeyframeSearchNum: 40
+  historyKeyframeSearchTimeDiff: 10.0
+  historyKeyframeSearchNum: 25
   loopFitnessScoreThreshold: 0.4
-  loopClosureFrequency: 1
+  loopClosureFrequency: 10
 
   filterDis: 0.2
-  filterNodeNum: 5
+  filterNodeNum: 10

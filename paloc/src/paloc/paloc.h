@@ -162,7 +162,8 @@ private:
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr extractLocalMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &global_map,
                                                          const Eigen::Matrix4d &initial_pose_matrix,
-                                                         float radius);
+                                                         float radius,
+                                                         bool *crop_skipped = nullptr);
 
     void AddMapPriorFactorO3D();
 
@@ -202,12 +203,50 @@ private:
 
     void PubMap(void);
 
-    void VisualizeLoopConstrains(std::map<int, int> loopMap,
+    // ===== BEGIN CHANGE: loop closure debug logging =====
+    void InitializeLoopClosureDebugFiles();
+
+    std::string FormatLoopClosureDebugRecord(const std::string &tag,
+                                             const LoopClosureDebugInfo &record) const;
+
+    void AppendLoopClosureDebugRecord(const LoopClosureDebugInfo &record);
+
+    void AppendLoopClosureSkipRecord(double timestamp, int loopKeyCur,
+                                     int loopKeyPre,
+                                     const std::string &reason);
+
+    void EmitLoopLog(const std::string &tag, const std::string &message) const;
+
+    void LogLoopSkip(int loopKeyCur, int loopKeyPre, double timestamp,
+                     const std::string &reason);
+    // ===== END CHANGE: loop closure debug logging =====
+
+    void ResetFrameConsoleSummary();
+
+    void PrintFrameConsoleSummary() const;
+
+    void UpdateLoopConsoleSummary(const std::string &tag,
+                                  const std::string &line1,
+                                  const std::string &line2 = std::string());
+
+    // ===== BEGIN CHANGE: publish constraints without 10s visualization lag =====
+    void PublishConstraintVisualizations();
+    // ===== END CHANGE: publish constraints without 10s visualization lag =====
+
+    // ===== BEGIN CHANGE: snapshot constraint visualization =====
+    void VisualizeLoopConstrains(const std::map<int, int> &loopMap,
+                                 const std::vector<Pose6D> &updated_poses,
+                                 const std::vector<Pose6D> &global_poses,
+                                 double stamp_sec,
                                  ros::Publisher &publisher, int type);
+    // ===== END CHANGE: snapshot constraint visualization =====
 
-    bool FilterLoopPairs(int loopKeyCur, int loopKeyPre);
+    bool FilterLoopPairs(int loopKeyCur, int loopKeyPre,
+                         double min_time_gap,
+                         std::string *reject_reason = nullptr);
 
-    bool DetectLoopClosureDistance(int *loopKeyCur, int *loopKeyPre);
+    bool DetectLoopClosureDistance(int loopKeyCur, int *loopKeyPre,
+                                   std::string *reject_reason = nullptr);
 
 
     bool GetGlobalICP(Measurement &measurement_temp);
@@ -341,6 +380,42 @@ private:
     vector<gtsam::Pose3> loopPoseQueue;
     vector<gtsam::noiseModel::Diagonal::shared_ptr> loopNoiseQueue;
     vector<noiseModel::Gaussian::shared_ptr> loopGaussianNoiseQueue;
+    // ===== BEGIN CHANGE: loop closure debug logging =====
+    mutable std::mutex mtxConsoleOutput;
+    std::mutex mtxLoopDebugLog;
+    std::string loopClosureAttemptsLogPath;
+    std::string loopClosureAcceptedLogPath;
+    std::string loopClosureSkipLogPath;
+    int lastLoopSkipLogCur = -1;
+    std::string lastLoopSkipReason;
+    // ===== END CHANGE: loop closure debug logging =====
+
+    struct FrameMapConsoleSummary {
+        bool valid = false;
+        bool success = false;
+        bool crop_skipped = false;
+        bool degenerate_xyz = false;
+        bool degenerate_rpy = false;
+        int source_points = 0;
+        int local_points = 0;
+        int global_points = 0;
+        int iterations = -1;
+        double extract_ms = 0.0;
+        double solve_ms = 0.0;
+        double rmse = 0.0;
+        double overlap = 0.0;
+        double condition_xyz = 0.0;
+        double condition_rpy = 0.0;
+        Eigen::Vector3d translation_ratio = Eigen::Vector3d::Zero();
+    };
+    FrameMapConsoleSummary frameMapConsoleSummary_;
+
+    struct LoopConsoleSummary {
+        std::string tag = "IDLE";
+        std::string line1 = "waiting for loop event";
+        std::string line2;
+    };
+    LoopConsoleSummary latestLoopConsoleSummary_;
 
     int prev_node_idx = 0, curr_node_idx = 0;
     const int node_rate = 1;
@@ -391,6 +466,12 @@ private:
     pcl::PointCloud<PointT>::Ptr laserCloudMapPGO;
     pcl::PointCloud<PointT>::Ptr globalmap_ptr;
     pcl::PointCloud<PointT>::Ptr globalmap_filter_ptr;
+    float priorMapMinX = 0.0f;
+    float priorMapMaxX = 0.0f;
+    float priorMapMinY = 0.0f;
+    float priorMapMaxY = 0.0f;
+    bool priorMapBoundsReady = false;
+    bool kdtreeUsesFullPriorMap = false;
 
     // surf point holder for parallel computation
     std::vector<PointT> laserCloudOriSurfVec;

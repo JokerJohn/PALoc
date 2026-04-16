@@ -30,10 +30,153 @@
 */
 
 #include "paloc.h"
+#include <sstream>
+
+namespace {
+void InstallStructuredTerminalLogging() {
+    std::ios::sync_with_stdio(true);
+    std::cout << std::unitbuf;
+    std::cerr << std::unitbuf;
+    std::clog << std::unitbuf;
+}
+
+std::string ColorizeConsoleLine(const char *color, const std::string &message) {
+    std::ostringstream oss;
+    oss << color << message << RESET;
+    return oss.str();
+}
+
+const char *LoopLogColor(const std::string &tag) {
+    if (tag == "ATTEMPT") return BOLDCYAN;
+    if (tag == "ACCEPTED") return BOLDGREEN;
+    if (tag == "REJECTED" || tag == "FILE_ERROR") return BOLDRED;
+    if (tag == "SKIP") return BOLDYELLOW;
+    if (tag == "THREAD" || tag == "FILES") return WHITE;
+    return BOLDWHITE;
+}
+
+const char *MapDegeneracyColor(const bool degenerate_xyz,
+                               const bool degenerate_rpy) {
+    return (degenerate_xyz || degenerate_rpy) ? BOLDRED : BOLDGREEN;
+}
+
+const char *PanelHeaderBackground(const std::string &tag) {
+    if (tag == "MAP_OK" || tag == "ACCEPTED") return "\033[42m";
+    if (tag == "MAP_FAIL" || tag == "REJECTED" || tag == "FILE_ERROR") return "\033[41m";
+    if (tag == "ATTEMPT") return "\033[46m";
+    if (tag == "SKIP") return "\033[43m";
+    if (tag == "THREAD" || tag == "FILES") return "\033[44m";
+    return "\033[100m";
+}
+
+std::string DegeneracyFlag(const bool degenerate) {
+    return degenerate ? "DEG" : "OK";
+}
+
+std::string EllipsizeText(const std::string &text, const size_t width) {
+    if (width == 0) return std::string();
+    if (text.size() <= width) {
+        return text + std::string(width - text.size(), ' ');
+    }
+    if (width <= 3) {
+        return text.substr(0, width);
+    }
+    return text.substr(0, width - 3) + "...";
+}
+
+std::string MakePanelHeader(const std::string &label, const int width,
+                            const char *background) {
+    const size_t content_width = std::max(0, width - 2);
+    return std::string(background) + BOLDWHITE
+           + EllipsizeText(" " + label + " ", content_width)
+           + RESET;
+}
+
+std::string MakePanelRow(const std::string &label, const std::string &value,
+                         const int width) {
+    std::ostringstream oss;
+    oss << std::left << std::setw(8) << label
+        << EllipsizeText(value, std::max(0, width - 10));
+    return "| " + oss.str() + " |";
+}
+
+std::string MakeTimeTableRule(const int width) {
+    return "+" + std::string(std::max(0, width - 2), '-') + "+";
+}
+
+std::string MakeTimeTableRow(const std::string &label, const double total,
+                             const double odom, const double map,
+                             const double motion, const double opt,
+                             const int width) {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(3)
+        << "| " << std::left << std::setw(7) << label
+        << std::right << std::setw(10) << total
+        << std::setw(10) << odom
+        << std::setw(10) << map
+        << std::setw(10) << motion
+        << std::setw(10) << opt
+        << std::string(std::max(0, width - 59), ' ')
+        << " |";
+    return oss.str();
+}
+
+// Loads prior-map PCDs that may not contain an intensity field.
+// Falls back to PointXYZ and fills intensity with zero to keep PALoc's map type stable.
+bool LoadPriorMapCloud(const std::string &pcd_path,
+                       pcl::PointCloud<PointT> *cloud,
+                       bool *filled_zero_intensity = nullptr) {
+    if (cloud == nullptr) {
+        return false;
+    }
+    if (filled_zero_intensity != nullptr) {
+        *filled_zero_intensity = false;
+    }
+
+    pcl::PCLPointCloud2 cloud_blob;
+    if (pcl::io::loadPCDFile(pcd_path, cloud_blob) < 0) {
+        return false;
+    }
+
+    bool has_intensity = false;
+    for (const auto &field : cloud_blob.fields) {
+        if (field.name == "intensity") {
+            has_intensity = true;
+            break;
+        }
+    }
+
+    cloud->clear();
+    if (has_intensity) {
+        pcl::fromPCLPointCloud2(cloud_blob, *cloud);
+        return true;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ> xyz_cloud;
+    pcl::fromPCLPointCloud2(cloud_blob, xyz_cloud);
+    cloud->reserve(xyz_cloud.size());
+    for (const auto &point : xyz_cloud.points) {
+        PointT point_i;
+        point_i.x = point.x;
+        point_i.y = point.y;
+        point_i.z = point.z;
+        point_i.intensity = 0.0f;
+        cloud->push_back(point_i);
+    }
+    cloud->width = static_cast<uint32_t>(cloud->size());
+    cloud->height = 1;
+    cloud->is_dense = xyz_cloud.is_dense;
+    if (filled_zero_intensity != nullptr) {
+        *filled_zero_intensity = true;
+    }
+    return true;
+}
+}  // namespace
 
 int main(int argc, char **argv) {
-    ROS_INFO("\033[1;32m----> PALoc Started.\033[0m");
     ros::init(argc, argv, "PALoc", ros::init_options::NoSigintHandler);
+    InstallStructuredTerminalLogging();
+    ROS_INFO("----> PALoc Started.");
     ros::NodeHandle nh;
     std::cout << "Computer Cpu Core number: " << thread::hardware_concurrency()
               << std::endl;
@@ -67,7 +210,7 @@ void PALoc::pose_slam() {
         }
         if (!isInitialized) {
             // Get intial pose frmo global map
-            ROS_ERROR("Init System %d", measurement_curr.lidar->size());
+            ROS_ERROR_STREAM("Init System " << measurement_curr.lidar->size());
             InitSystem(measurement_curr);
 
             curr_icp_data
@@ -98,6 +241,7 @@ void PALoc::pose_slam() {
         prev_node_idx = curr_node_idx - 1;
         lioState2 = GetStateFromLIO2(curr_node_idx);
         keyLIOState2.push_back(lioState2);
+        ResetFrameConsoleSummary();
 
         /*
          * We do not recommend using the IMU factor provided by GTSAM, for the following reasons:
@@ -146,8 +290,10 @@ void PALoc::pose_slam() {
             bool zupt_flag = ZUPTDetector();
             if (zupt_flag) {
                 AddNoMotionFactor();
-                // TODO: need to fix this bug
+                // ===== BEGIN CHANGE: lock visualization containers =====
+                std::unique_lock<std::mutex> kf_guard(mKF);
                 ZUPTIndexContainer[curr_node_idx] = curr_node_idx;
+                // ===== END CHANGE: lock visualization containers =====
             }
             t3 = tic.toc();
             t3_all += t3;
@@ -165,16 +311,14 @@ void PALoc::pose_slam() {
         }
 
         PubPath();
+        // ===== BEGIN CHANGE: publish constraints without 10s visualization lag =====
+        PublishConstraintVisualizations();
+        // ===== END CHANGE: publish constraints without 10s visualization lag =====
 
         t5 = tic_all.toc();
         if (curr_node_idx % 1 == 0) {
             t5_all += t5;
-            std::cout << "----Frame: " << curr_node_idx
-                      << ", Time: " << t5 << " " << t1
-                      << " " << t2 << " " << t3 << " " << t4 << std::endl;
-            std::cout << "----Average Time: " << t5_all / curr_node_idx
-                      << " " << t1_all / curr_node_idx << " " << t2_all / curr_node_idx << " " << t3_all / curr_node_idx
-                      << " " << t4_all / curr_node_idx << std::endl;
+            PrintFrameConsoleSummary();
         }
 
         // save process log
@@ -198,6 +342,9 @@ void PALoc::InitParmeters() {
 
     // set data saved params
     dataSaverPtr = std::make_unique<DataSaver>(saveDirectory, sequence);
+    // ===== BEGIN CHANGE: loop closure debug logging =====
+    InitializeLoopClosureDebugFiles();
+    // ===== END CHANGE: loop closure debug logging =====
     dataSaverPtr->setExtrinc(useImuFrame, saveResultBodyFrame, t_body_sensor, q_body_sensor);
     dataSaverPtr->setConfigDir(configDirectory);
     dataSaverPtr->setKeyframe(saveKeyFrame);
@@ -226,13 +373,22 @@ void PALoc::InitParmeters() {
     // we need to load point cloud map
     if (useGlobalPrior) {
         TicToc ticToc;
-        pcl::io::loadPCDFile((priorMapDirectory + sequence + ".pcd").c_str(), *globalmap_ptr);
-        std::cout << BOLDGREEN << "Load map file: " << priorMapDirectory + sequence + ".pcd"
+        const std::string map_path = priorMapDirectory + sequence + ".pcd";
+        bool filled_zero_intensity = false;
+        if (!LoadPriorMapCloud(map_path, globalmap_ptr.get(), &filled_zero_intensity)) {
+            std::cout << BOLDRED << "failed to load map file: " << map_path << std::endl;
+            ros::shutdown();
+            return;
+        }
+        std::cout << BOLDGREEN << "Load map file: " << map_path
                   << ", " << globalmap_ptr->size() << std::endl;
         if (globalmap_ptr->empty()) {
             std::cout << BOLDRED << "failed to load empy map! Pls check your map file path!!" << std::endl;
             ros::shutdown();
             return;
+        }
+        if (filled_zero_intensity) {
+            ROS_INFO_STREAM("Prior map has no intensity field. Filled intensity with zeros for visualization.");
         }
 
         pcl::PointCloud<pcl::PointXYZI>::Ptr global_map(new pcl::PointCloud<pcl::PointXYZI>);
@@ -242,6 +398,19 @@ void PALoc::InitParmeters() {
         sor.setLeafSize(map_filter_size, map_filter_size, map_filter_size);
         sor.filter(*globalmap_filter_ptr);
         kdtreeSurfFromMap->setInputCloud(globalmap_filter_ptr);
+        if (!globalmap_filter_ptr->empty()) {
+            PointT min_point, max_point;
+            pcl::getMinMax3D(*globalmap_filter_ptr, min_point, max_point);
+            priorMapMinX = min_point.x;
+            priorMapMaxX = max_point.x;
+            priorMapMinY = min_point.y;
+            priorMapMaxY = max_point.y;
+            priorMapBoundsReady = true;
+            kdtreeUsesFullPriorMap = true;
+        } else {
+            priorMapBoundsReady = false;
+            kdtreeUsesFullPriorMap = false;
+        }
         std::cout << BOLDGREEN << "Load map size and time: " << globalmap_filter_ptr->size() << ", "
                   << ticToc.toc() << " ms." << std::endl;
     }
@@ -288,6 +457,245 @@ void PALoc::InitParmeters() {
     sigmas.head<3>().setConstant(noMotionPositionSigma);
     sigmas.tail<3>().setConstant(noMotionRotationSigma);
     no_motion_prior_noise_ = noiseModel::Diagonal::Sigmas(sigmas);
+}
+
+// ===== BEGIN CHANGE: loop closure debug logging =====
+void PALoc::InitializeLoopClosureDebugFiles() {
+    if (!dataSaverPtr) return;
+
+    loopClosureAttemptsLogPath = dataSaverPtr->save_directory + "loop_closure_attempts.txt";
+    loopClosureAcceptedLogPath = dataSaverPtr->save_directory + "loop_closure_accepted.txt";
+    loopClosureSkipLogPath = dataSaverPtr->save_directory + "loop_closure_skips.txt";
+    const std::string header =
+            "timestamp\tcurr_node_idx\tprev_node_idx\tsource_points_raw\ttarget_points_raw\t"
+            "source_points_icp\ttarget_points_icp\tscore\toverlap\t"
+            "max_correspondence_distance\ticp_type\taccepted\treject_reason\n";
+    const std::string skip_header =
+            "timestamp\tcurr_node_idx\tprev_node_idx\treason\n";
+
+    std::ofstream attempts_stream(loopClosureAttemptsLogPath, std::ios::out);
+    attempts_stream << header;
+    attempts_stream.close();
+
+    std::ofstream accepted_stream(loopClosureAcceptedLogPath, std::ios::out);
+    accepted_stream << header;
+    accepted_stream.close();
+
+    std::ofstream skip_stream(loopClosureSkipLogPath, std::ios::out);
+    skip_stream << skip_header;
+    skip_stream.close();
+
+    lastLoopSkipLogCur = -1;
+    lastLoopSkipReason.clear();
+
+    std::ostringstream oss;
+    oss << "[LOOP][FILES]"
+        << " attempts=" << loopClosureAttemptsLogPath
+        << " accepted=" << loopClosureAcceptedLogPath
+        << " skips=" << loopClosureSkipLogPath;
+    UpdateLoopConsoleSummary("FILES", "debug files ready",
+                             "attempts/accepted/skips initialized");
+    EmitLoopLog("FILES", oss.str());
+}
+
+std::string PALoc::FormatLoopClosureDebugRecord(
+        const std::string &tag, const LoopClosureDebugInfo &record) const {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(6)
+        << "[LOOP][" << tag << "]"
+        << " t=" << record.timestamp
+        << " pair=" << record.curr_node_idx << "<-" << record.prev_node_idx
+        << " raw=" << record.source_points_raw << "/" << record.target_points_raw
+        << " icp=" << record.source_points_icp << "/" << record.target_points_icp
+        << " score=" << record.score
+        << " overlap=" << record.overlap
+        << " solver=" << record.icp_type
+        << " reason=" << record.reject_reason;
+    return oss.str();
+}
+
+void PALoc::EmitLoopLog(const std::string &tag,
+                        const std::string &message) const {
+    const char *color = LoopLogColor(tag);
+    std::unique_lock<std::mutex> console_guard(mtxConsoleOutput);
+    std::ostream &stream =
+            (tag == "REJECTED" || tag == "FILE_ERROR") ? std::cerr : std::cout;
+    stream << ColorizeConsoleLine(color, message) << std::endl;
+}
+
+void PALoc::AppendLoopClosureDebugRecord(const LoopClosureDebugInfo &record) {
+    auto append_record = [this, &record](const std::string &path) {
+        std::ofstream stream(path, std::ios::app);
+        if (!stream.is_open()) {
+            EmitLoopLog("FILE_ERROR",
+                        "[LOOP][FILE_ERROR] failed_to_open=" + path);
+            return;
+        }
+        stream << std::fixed << std::setprecision(9)
+               << record.timestamp << '\t'
+               << record.curr_node_idx << '\t'
+               << record.prev_node_idx << '\t'
+               << record.source_points_raw << '\t'
+               << record.target_points_raw << '\t'
+               << record.source_points_icp << '\t'
+               << record.target_points_icp << '\t'
+               << record.score << '\t'
+               << record.overlap << '\t'
+               << record.max_correspondence_distance << '\t'
+               << record.icp_type << '\t'
+               << std::boolalpha << record.accepted << '\t'
+               << record.reject_reason << '\n';
+        stream.flush();
+    };
+
+    std::unique_lock<std::mutex> log_guard(mtxLoopDebugLog);
+    append_record(loopClosureAttemptsLogPath);
+    if (record.accepted) {
+        append_record(loopClosureAcceptedLogPath);
+    }
+}
+
+void PALoc::AppendLoopClosureSkipRecord(double timestamp, int loopKeyCur,
+                                        int loopKeyPre,
+                                        const std::string &reason) {
+    std::ofstream stream(loopClosureSkipLogPath, std::ios::app);
+    if (!stream.is_open()) {
+        EmitLoopLog("FILE_ERROR",
+                    "[LOOP][FILE_ERROR] failed_to_open=" + loopClosureSkipLogPath);
+        return;
+    }
+    stream << std::fixed << std::setprecision(9)
+           << timestamp << '\t'
+           << loopKeyCur << '\t'
+           << loopKeyPre << '\t'
+           << reason << '\n';
+    stream.flush();
+}
+
+void PALoc::LogLoopSkip(int loopKeyCur, int loopKeyPre, double timestamp,
+                        const std::string &reason) {
+    if (reason.empty()) return;
+
+    std::unique_lock<std::mutex> log_guard(mtxLoopDebugLog);
+    if (loopKeyCur == lastLoopSkipLogCur && reason == lastLoopSkipReason) return;
+    lastLoopSkipLogCur = loopKeyCur;
+    lastLoopSkipReason = reason;
+    AppendLoopClosureSkipRecord(timestamp, loopKeyCur, loopKeyPre, reason);
+
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(6)
+        << "[LOOP][SKIP]"
+        << " t=" << timestamp
+        << " curr=" << loopKeyCur
+        << " prev=" << loopKeyPre
+        << " reason=" << reason;
+    std::ostringstream line1;
+    line1 << "curr=" << loopKeyCur << " prev=" << loopKeyPre;
+    UpdateLoopConsoleSummary("SKIP", line1.str(), reason);
+    EmitLoopLog("SKIP", oss.str());
+}
+// ===== END CHANGE: loop closure debug logging =====
+
+void PALoc::ResetFrameConsoleSummary() {
+    frameMapConsoleSummary_ = FrameMapConsoleSummary();
+}
+
+void PALoc::UpdateLoopConsoleSummary(const std::string &tag,
+                                     const std::string &line1,
+                                     const std::string &line2) {
+    std::unique_lock<std::mutex> console_guard(mtxConsoleOutput);
+    latestLoopConsoleSummary_.tag = tag;
+    latestLoopConsoleSummary_.line1 = line1;
+    latestLoopConsoleSummary_.line2 = line2;
+}
+
+void PALoc::PrintFrameConsoleSummary() const {
+    std::unique_lock<std::mutex> console_guard(mtxConsoleOutput);
+    constexpr int kPanelWidth = 58;
+    constexpr int kTimeTableWidth = 68;
+    std::ostringstream header;
+    header << std::fixed << std::setprecision(3)
+           << "==================== [FRAME " << curr_node_idx
+           << " | t=" << measurement_curr.odom_time << "] ====================";
+    std::cout << ColorizeConsoleLine(BOLDWHITE, header.str()) << std::endl;
+
+    const std::string map_header = MakePanelHeader(
+            frameMapConsoleSummary_.success ? "MAP  SUCCESS" : "MAP  MATCH",
+            kPanelWidth,
+            PanelHeaderBackground(frameMapConsoleSummary_.success ? "MAP_OK" : "MAP_FAIL"));
+    const std::string loop_header = MakePanelHeader(
+            "LOOP  " + latestLoopConsoleSummary_.tag,
+            kPanelWidth,
+            PanelHeaderBackground(latestLoopConsoleSummary_.tag));
+    std::cout << map_header << "  " << loop_header << std::endl;
+
+    std::ostringstream map_status;
+    map_status << std::fixed << std::setprecision(4)
+               << "rmse=" << frameMapConsoleSummary_.rmse
+               << " overlap=" << frameMapConsoleSummary_.overlap
+               << " iter=" << frameMapConsoleSummary_.iterations
+               << " pts=" << frameMapConsoleSummary_.source_points;
+    std::cout << MakePanelRow("status", map_status.str(), kPanelWidth)
+              << "  "
+              << MakePanelRow("event", latestLoopConsoleSummary_.line1, kPanelWidth)
+              << std::endl;
+
+    std::ostringstream map_degen;
+    map_degen << std::fixed << std::setprecision(3)
+              << "xyz=" << DegeneracyFlag(frameMapConsoleSummary_.degenerate_xyz)
+              << " rpy=" << DegeneracyFlag(frameMapConsoleSummary_.degenerate_rpy)
+              << " cond=(" << frameMapConsoleSummary_.condition_xyz
+              << ", " << frameMapConsoleSummary_.condition_rpy << ")";
+    std::cout << MakePanelRow("degen", map_degen.str(), kPanelWidth)
+              << "  "
+              << MakePanelRow("detail", latestLoopConsoleSummary_.line2, kPanelWidth)
+              << std::endl;
+
+    std::ostringstream map_support;
+    map_support << std::fixed << std::setprecision(1)
+                << "local=" << frameMapConsoleSummary_.local_points
+                << "/" << frameMapConsoleSummary_.global_points
+                << " trans=(" << frameMapConsoleSummary_.translation_ratio.x() * 100.0
+                << "%, " << frameMapConsoleSummary_.translation_ratio.y() * 100.0
+                << "%, " << frameMapConsoleSummary_.translation_ratio.z() * 100.0
+                << "%)";
+    std::ostringstream loop_cfg;
+    loop_cfg << std::fixed << std::setprecision(1)
+             << "freq=" << loopClosureFrequency
+             << "Hz radius=" << historyKeyframeSearchRadius
+             << " dt=" << historyKeyframeSearchTimeDiff
+             << "s score_th=" << loopFitnessScoreThreshold;
+    std::cout << MakePanelRow("support", map_support.str(), kPanelWidth)
+              << "  "
+              << MakePanelRow("config", loop_cfg.str(), kPanelWidth)
+              << std::endl;
+
+    std::ostringstream map_time;
+    map_time << std::fixed << std::setprecision(3)
+             << "extract=" << frameMapConsoleSummary_.extract_ms
+             << "ms solve=" << frameMapConsoleSummary_.solve_ms << "ms";
+    std::cout << MakePanelRow("time", map_time.str(), kPanelWidth)
+              << "  "
+              << MakePanelRow("thread", "running", kPanelWidth)
+              << std::endl;
+
+    const double avg_denominator = static_cast<double>(std::max(1, curr_node_idx));
+    std::cout << MakeTimeTableRule(kTimeTableWidth) << std::endl;
+    std::cout << ColorizeConsoleLine(
+            BOLDWHITE,
+            "| [TIME]        total      odom       map    motion       opt           |")
+              << std::endl;
+    std::cout << MakeTimeTableRow("frame", t5, t1, t2, t3, t4, kTimeTableWidth)
+              << std::endl;
+    std::cout << MakeTimeTableRow("avg",
+                                  t5_all / avg_denominator,
+                                  t1_all / avg_denominator,
+                                  t2_all / avg_denominator,
+                                  t3_all / avg_denominator,
+                                  t4_all / avg_denominator,
+                                  kTimeTableWidth)
+              << std::endl;
+    std::cout << MakeTimeTableRule(kTimeTableWidth) << std::endl << std::endl;
 }
 
 void PALoc::InitSystem(Measurement &measurement) {
@@ -385,8 +793,10 @@ void PALoc::InitSystem(Measurement &measurement) {
 
             *unused_result = *TransformPointCloud(measurement_curr.lidar, trans);
             publishCloud(pubInitialCloud, unused_result, ros::Time::now(), odom_link);
-            ROS_INFO("initial ICP ALIGNED POINTS: %d and %d, %f, %f",
-                     measurement_curr.lidar->size(), globalmap_ptr->size(), score, overlap);
+            ROS_INFO_STREAM("initial ICP ALIGNED POINTS: "
+                            << measurement_curr.lidar->size() << " and "
+                            << globalmap_ptr->size() << ", "
+                            << score << ", " << overlap);
             if (score > loopFitnessScoreThreshold || overlap < 0.7 || score == 0.0) {
                 poseReceived = false;
                 isInitialized = false;
@@ -439,8 +849,10 @@ void PALoc::InitSystem(Measurement &measurement) {
 
             *unused_result = *TransformPointCloud(measurement_curr.lidar, trans);
             publishCloud(pubInitialCloud, unused_result, ros::Time::now(), odom_link);
-            ROS_INFO("Initial ICP ALIGNED POINTS: %d and %d, %f, %f",
-                     measurement_curr.lidar->size(), globalmap_ptr->size(), score, overlap);
+            ROS_INFO_STREAM("Initial ICP ALIGNED POINTS: "
+                            << measurement_curr.lidar->size() << " and "
+                            << globalmap_ptr->size() << ", "
+                            << score << ", " << overlap);
             if (score > loopFitnessScoreThreshold || overlap < 0.7 || score == 0.0) {
                 std::cout << "check your initial pose in the yaml file" << std::endl;
                 priorPose = initialPose = Eigen::Matrix4d::Identity();
@@ -544,13 +956,9 @@ void PALoc::GraphOpt() {
             // Get the covariance matrix between the current and previous pose.
             gtsam::Matrix6 covMatrix = jointCov.at(keys[0], keys[0]);
             poseCovariance = covMatrix;
-            std::cout << "PGO COV: " << poseCovariance.diagonal().transpose() << std::endl;
         } catch (const std::exception &e) {
             std::cerr << "Error computing joint marginal covariance: " << e.what() << std::endl;
         }
-    }
-    if (1) {
-        std::cout << "Graph Optimizing Time: " << toc.toc() << " ms" << std::endl;
     }
 
     std::unique_lock<std::mutex> kf_guard(mKF);
@@ -577,6 +985,11 @@ void PALoc::GraphOpt() {
         gtsam::Matrix6 covMatrix = jointCov2.at(X(i), X(i));
         p.pose_cov = covMatrix;
     }
+    // ===== BEGIN CHANGE: publish map constraints after graph optimization =====
+    if (aGlobalConstrained) {
+        mapIndexContainer[curr_node_idx] = curr_node_idx;
+    }
+    // ===== END CHANGE: publish map constraints after graph optimization =====
     kf_guard.unlock();
 
     aLoopIsClosed = false;
@@ -642,10 +1055,28 @@ void PALoc::AddOdomFactor() {
 void PALoc::AddMapPriorFactorO3D() {
     if (curr_node_idx < 1) return;
     TicToc tic_toc;
-    bool flag = GetGlobalICP(keyMeasures.at(curr_node_idx));
+    frameMapConsoleSummary_.valid = true;
+    frameMapConsoleSummary_.source_points = static_cast<int>(measurement_curr.lidar->size());
+    frameMapConsoleSummary_.iterations = -1;
+    frameMapConsoleSummary_.extract_ms = 0.0;
+    frameMapConsoleSummary_.solve_ms = 0.0;
+    frameMapConsoleSummary_.rmse = 0.0;
+    frameMapConsoleSummary_.overlap = 0.0;
+    // ===== BEGIN CHANGE: isolate map-prior writes from visualization reads =====
+    Measurement measurement_snapshot;
+    {
+        std::unique_lock<std::mutex> kf_guard(mKF);
+        measurement_snapshot = keyMeasures.at(curr_node_idx);
+    }
+    bool flag = GetGlobalICP(measurement_snapshot);
     if (flag) {
+        {
+            std::unique_lock<std::mutex> kf_guard(mKF);
+            keyMeasures.at(curr_node_idx).global_pose = measurement_snapshot.global_pose;
+            keyMeasures.at(curr_node_idx).global_score = measurement_snapshot.global_score;
+        }
         gtsam::Pose3 poseGlobal =
-                Pose6dTogtsamPose3(keyMeasures.at(curr_node_idx).global_pose);
+                Pose6dTogtsamPose3(measurement_snapshot.global_pose);
         if (useFixcov)
             priorMapPoseGaussianNoise = priorMapPoseNoise;
         else
@@ -653,39 +1084,88 @@ void PALoc::AddMapPriorFactorO3D() {
         std::unique_lock<std::mutex> graph_guard(mtxPosegraph);
         newFactors.emplace_shared<PriorFactor<Pose3 >>(X(curr_node_idx), poseGlobal, priorMapPoseGaussianNoise);
         graph_guard.unlock();
-        mapIndexContainer[curr_node_idx] = curr_node_idx;
+        aGlobalConstrained = true;
+        frameMapConsoleSummary_.success = true;
+        frameMapConsoleSummary_.rmse = measurement_snapshot.global_score;
+    } else {
+        std::unique_lock<std::mutex> kf_guard(mKF);
+        keyMeasures.at(curr_node_idx).global_pose.valid = false;
+        frameMapConsoleSummary_.success = false;
     }
-    std::cout << BOLDGREEN << "Global ICP time: " << tic_toc.toc() << " [ms]"
-              << std::endl;
+    frameMapConsoleSummary_.solve_ms = tic_toc.toc();
+    // ===== END CHANGE: isolate map-prior writes from visualization reads =====
 }
 
 void PALoc::AddMapPriorFactor() {
     if (curr_node_idx < 1) return;
 
     TicToc tic_toc;
+    frameMapConsoleSummary_.valid = true;
+    frameMapConsoleSummary_.success = false;
+    frameMapConsoleSummary_.crop_skipped = false;
+    frameMapConsoleSummary_.degenerate_xyz = false;
+    frameMapConsoleSummary_.degenerate_rpy = false;
+    frameMapConsoleSummary_.source_points = 0;
+    frameMapConsoleSummary_.local_points = 0;
+    frameMapConsoleSummary_.global_points = 0;
+    frameMapConsoleSummary_.iterations = -1;
+    frameMapConsoleSummary_.extract_ms = 0.0;
+    frameMapConsoleSummary_.solve_ms = 0.0;
+    frameMapConsoleSummary_.rmse = 0.0;
+    frameMapConsoleSummary_.overlap = 0.0;
+    frameMapConsoleSummary_.condition_xyz = 0.0;
+    frameMapConsoleSummary_.condition_rpy = 0.0;
+    frameMapConsoleSummary_.translation_ratio.setZero();
     pcl::PointCloud<PointT>::Ptr raw_cloud(new pcl::PointCloud<PointT>());
     pcl::copyPointCloud(*keyMeasures.at(curr_node_idx).lidar, *raw_cloud);
-    pcl::PointCloud<pcl::PointXYZI>::Ptr local_map = extractLocalMap(globalmap_filter_ptr, predict_pose.matrix(),
-                                                                     mapRadius);
-    kdtreeSurfFromMap->setInputCloud(local_map);
-    std::cout << "Extracted localmap points: " << local_map->size() << ", " << globalmap_filter_ptr->size()
-              << std::endl;
-    std::cout << "Extracted localmap cost: " << tic_toc.toc() << " ms." << std::endl;
+    frameMapConsoleSummary_.source_points = static_cast<int>(raw_cloud->size());
+    bool crop_skipped = false;
+    pcl::PointCloud<pcl::PointXYZI>::Ptr local_map =
+            extractLocalMap(globalmap_filter_ptr, predict_pose.matrix(),
+                            mapRadius, &crop_skipped);
+    if (crop_skipped) {
+        if (!kdtreeUsesFullPriorMap) {
+            kdtreeSurfFromMap->setInputCloud(globalmap_filter_ptr);
+            kdtreeUsesFullPriorMap = true;
+        }
+    } else {
+        kdtreeSurfFromMap->setInputCloud(local_map);
+        kdtreeUsesFullPriorMap = false;
+    }
+    const double extract_ms = tic_toc.toc();
+    const double local_ratio = globalmap_filter_ptr->empty()
+                               ? 0.0
+                               : static_cast<double>(local_map->size()) /
+                                 static_cast<double>(globalmap_filter_ptr->size());
+    static_cast<void>(local_ratio);
+    frameMapConsoleSummary_.crop_skipped = crop_skipped;
+    frameMapConsoleSummary_.local_points = static_cast<int>(local_map->size());
+    frameMapConsoleSummary_.global_points = static_cast<int>(globalmap_filter_ptr->size());
+    frameMapConsoleSummary_.extract_ms = extract_ms;
 
     double t1 = tic_toc.toc();
     Pose6D predict_pose6d = Matrix2Pose6D(predict_pose.matrix());
     relative_fitness = 0.0;
     relative_rmse = std::numeric_limits<double>::max();
     bool isOptimzed = Point2PlaneICPLM(raw_cloud, local_map, predict_pose6d, correspondenceDis);
-    std::cout << "ICP COV:" << icp_cov.diagonal().transpose() << std::endl;
+    frameMapConsoleSummary_.solve_ms = tic_toc.toc() - t1;
+    frameMapConsoleSummary_.success = isOptimzed;
+    frameMapConsoleSummary_.iterations = iterate_number;
+    frameMapConsoleSummary_.rmse = total_rmse;
+    frameMapConsoleSummary_.overlap = final_fitness;
 
     /** Important: you must make sure the icp result is correct, or the grpah will crashed */
     if (isOptimzed) {
         // update the optimized pose
         Pose3 final_pose = Pose6dTogtsamPose3(predict_pose6d);
-        keyMeasures.at(curr_node_idx).global_pose = predict_pose6d;
-        keyMeasures.at(curr_node_idx).global_pose.valid = !isDegenerate;
-        keyMeasures.at(curr_node_idx).global_score = total_rmse;
+        // ===== BEGIN CHANGE: isolate map-prior writes from visualization reads =====
+        {
+            std::unique_lock<std::mutex> kf_guard(mKF);
+            keyMeasures.at(curr_node_idx).global_pose = predict_pose6d;
+            keyMeasures.at(curr_node_idx).global_pose.valid = !isDegenerate;
+            keyMeasures.at(curr_node_idx).global_score = total_rmse;
+        }
+        // ===== END CHANGE: isolate map-prior writes from visualization reads =====
 
         // add map factor
         if (useFixcov)
@@ -698,13 +1178,11 @@ void PALoc::AddMapPriorFactor() {
         graph_guard.unlock();
 
         aGlobalConstrained = true;
-        mapIndexContainer[curr_node_idx] = curr_node_idx;
-        std::cout << BOLDGREEN << "Global ICP SUCCESS: " << total_rmse << " " << final_fitness << " "
-                  << iterate_number << std::endl;
     } else {
+        // ===== BEGIN CHANGE: isolate map-prior writes from visualization reads =====
+        std::unique_lock<std::mutex> kf_guard(mKF);
         keyMeasures.at(curr_node_idx).global_pose.valid = false;
-        std::cout << BOLDCYAN << "Global ICP failed: " << total_rmse << " " << final_fitness << " "
-                  << iterate_number << std::endl;
+        // ===== END CHANGE: isolate map-prior writes from visualization reads =====
     }
 
 }
@@ -713,14 +1191,39 @@ void PALoc::AddMapPriorFactor() {
 pcl::PointCloud<pcl::PointXYZI>::Ptr
 PALoc::extractLocalMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &map,
                        const Eigen::Matrix4d &initial_pose_matrix,
-                       float radius) {
-    // Extract local map
-    pcl::PointCloud<pcl::PointXYZI>::Ptr temp_map(new pcl::PointCloud<pcl::PointXYZI>);
-    pcl::copyPointCloud(*map, *temp_map);
-    //    pcl::VoxelGrid<pcl::PointXYZI> sor;
-    //    sor.setInputCloud(temp_map);
-    //    sor.setLeafSize(0.1, 0.1, 0.1);
-    //    sor.filter(*temp_map);
+                       float radius,
+                       bool *crop_skipped) {
+    if (crop_skipped != nullptr) {
+        *crop_skipped = false;
+    }
+    if (!map || map->empty()) {
+        return pcl::PointCloud<pcl::PointXYZI>::Ptr(
+                new pcl::PointCloud<pcl::PointXYZI>());
+    }
+
+    if (priorMapBoundsReady) {
+        const Pose6D pose = Matrix2Pose6D(initial_pose_matrix);
+        const float cos_yaw = std::cos(static_cast<float>(pose.yaw));
+        const float sin_yaw = std::sin(static_cast<float>(pose.yaw));
+        const auto corner_in_crop = [&](float corner_x, float corner_y) {
+            const float dx = corner_x - static_cast<float>(pose.x);
+            const float dy = corner_y - static_cast<float>(pose.y);
+            const float local_x = cos_yaw * dx + sin_yaw * dy;
+            const float local_y = -sin_yaw * dx + cos_yaw * dy;
+            return std::abs(local_x) <= radius && std::abs(local_y) <= radius;
+        };
+        const bool full_map_covered =
+                corner_in_crop(priorMapMinX, priorMapMinY) &&
+                corner_in_crop(priorMapMinX, priorMapMaxY) &&
+                corner_in_crop(priorMapMaxX, priorMapMinY) &&
+                corner_in_crop(priorMapMaxX, priorMapMaxY);
+        if (full_map_covered) {
+            if (crop_skipped != nullptr) {
+                *crop_skipped = true;
+            }
+            return map;
+        }
+    }
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr local_map(new pcl::PointCloud<pcl::PointXYZI>);
     // Convert Matrix4d to Affine3f for CropBox compatibility
@@ -734,7 +1237,7 @@ PALoc::extractLocalMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &map,
     Eigen::Vector4f max_pt(radius, radius, std::numeric_limits<float>::infinity(), 1.0);
     // Create the CropBox filter
     pcl::CropBox<pcl::PointXYZI> box_filter;
-    box_filter.setInputCloud(temp_map);
+    box_filter.setInputCloud(map);
     box_filter.setMin(min_pt);
     box_filter.setMax(max_pt);
     box_filter.setTranslation(initial_pose.translation());
@@ -748,7 +1251,6 @@ void PALoc::AddNoMotionFactor() {
     if (curr_node_idx < 1) return;
 
     std::unique_lock<std::mutex> graph_guard1(mtxPosegraph);
-    std::cout << BOLDRED << "add zero velocity factor" << std::endl;
     newFactors.emplace_shared<PriorFactor<Vector3 >>(
             V(curr_node_idx), Vector3::Zero(), zero_velocity_prior_noise_);
     graph_guard1.unlock();
@@ -1344,6 +1846,22 @@ void PALoc::PubMap() {
 
 void PALoc::LoopDection() {
     ros::Rate rate(loopClosureFrequency);
+    {
+        std::ostringstream oss;
+        oss << "[LOOP][THREAD]"
+            << " freq=" << loopClosureFrequency << "Hz"
+            << " radius=" << historyKeyframeSearchRadius
+            << " time_diff=" << historyKeyframeSearchTimeDiff
+            << " score_th=" << loopFitnessScoreThreshold;
+        std::ostringstream line1;
+        line1 << "freq=" << loopClosureFrequency << "Hz radius="
+              << historyKeyframeSearchRadius;
+        std::ostringstream line2;
+        line2 << "time_diff=" << historyKeyframeSearchTimeDiff
+              << "s score_th=" << loopFitnessScoreThreshold;
+        UpdateLoopConsoleSummary("THREAD", line1.str(), line2.str());
+        EmitLoopLog("THREAD", oss.str());
+    }
     while (ros::ok()) {
         ros::spinOnce();
         PerformRSLoopClosure();
@@ -1351,17 +1869,51 @@ void PALoc::LoopDection() {
     }
 }
 
+// ===== BEGIN CHANGE: publish constraints without 10s visualization lag =====
+void PALoc::PublishConstraintVisualizations() {
+    std::map<int, int> map_constraints;
+    std::map<int, int> zupt_constraints;
+    std::map<int, int> loop_constraints;
+    std::vector<Pose6D> updated_poses;
+    std::vector<Pose6D> global_poses;
+    double stamp_sec = 0.0;
+    {
+        std::unique_lock<std::mutex> kf_guard(mKF);
+        map_constraints = mapIndexContainer;
+        zupt_constraints = ZUPTIndexContainer;
+        updated_poses.reserve(keyMeasures.size());
+        global_poses.reserve(keyMeasures.size());
+        for (const auto &measure : keyMeasures) {
+            updated_poses.push_back(measure.updated_pose);
+            global_poses.push_back(measure.global_pose);
+        }
+        if (!keyMeasures.empty()) {
+            stamp_sec = keyMeasures.back().odom_time;
+        }
+    }
+    {
+        std::unique_lock<std::mutex> loop_guard(mtxLoopContainer);
+        loop_constraints = loopIndexCheckedMap;
+    }
+
+    VisualizeLoopConstrains(map_constraints, updated_poses, global_poses, stamp_sec,
+                            pubGlobalMapConstraintEdge, -2);
+    VisualizeLoopConstrains(zupt_constraints, updated_poses, global_poses, stamp_sec,
+                            pubZUPTConstraintEdge, -3);
+    if (useLoopClosure) {
+        VisualizeLoopConstrains(loop_constraints, updated_poses, global_poses, stamp_sec,
+                                pubLoopConstraintEdge, 0);
+    }
+}
+// ===== END CHANGE: publish constraints without 10s visualization lag =====
+
 void PALoc::VisaulizationThread() {
     float vizmapFrequency = 0.1;
     ros::Rate rate(vizmapFrequency);
     while (ros::ok()) {
         rate.sleep();
         PubMap();
-        VisualizeLoopConstrains(mapIndexContainer, pubGlobalMapConstraintEdge, -2);
-        VisualizeLoopConstrains(ZUPTIndexContainer, pubZUPTConstraintEdge, -3);
-        if (useLoopClosure) {
-            VisualizeLoopConstrains(loopIndexCheckedMap, pubLoopConstraintEdge, 0);
-        }
+        PublishConstraintVisualizations();
     }
 }
 
@@ -1583,29 +2135,79 @@ bool PALoc::SaveMap(std_srvs::Empty::Request &req,
 }
 
 void PALoc::PerformRSLoopClosure(void) {
-    if (keyMeasures.size() < 10) return;
-    // 当前关键帧索引，候选闭环匹配帧索引
-    int loopKeyCur = keyMeasures.size() - 1;
+    int keyframe_count = 0;
+    double loop_timestamp = 0.0;
+    {
+        std::unique_lock<std::mutex> kf_guard(mKF);
+        keyframe_count = static_cast<int>(keyMeasures.size());
+        if (keyframe_count > 0) {
+            loop_timestamp = keyMeasures.back().odom_time;
+        }
+    }
+    if (keyframe_count < 10) return;
+    int loopKeyCur = keyframe_count - 1;
     int loopKeyPre = -1;
-    if (DetectLoopClosureDistance(&loopKeyCur, &loopKeyPre)) {
-        Pose6D cur_pose = keyMeasures.at(loopKeyCur).updated_pose;
-        Pose6D pre_pose = keyMeasures.at(loopKeyPre).updated_pose;
+    std::string reject_reason;
+    if (!DetectLoopClosureDistance(loopKeyCur, &loopKeyPre, &reject_reason)) {
+        LogLoopSkip(loopKeyCur, loopKeyPre, loop_timestamp, reject_reason);
+        return;
+    }
 
-        float loopScore = std::numeric_limits<double>::max();
+    LoopClosureDebugInfo loop_debug;
+    Pose6D cur_pose;
+    Pose6D pre_pose;
+    std::vector<Measurement> key_measures_snapshot;
+    {
+        std::unique_lock<std::mutex> kf_guard(mKF);
+        if (loopKeyCur < 0 ||
+            loopKeyPre < 0 ||
+            loopKeyCur >= static_cast<int>(keyMeasures.size()) ||
+            loopKeyPre >= static_cast<int>(keyMeasures.size())) {
+            LogLoopSkip(loopKeyCur, loopKeyPre, loop_timestamp,
+                        "candidate_invalidated_by_new_keyframe");
+            return;
+        }
+        loop_debug.timestamp = keyMeasures.at(loopKeyCur).odom_time;
+        loop_debug.curr_node_idx = loopKeyCur;
+        loop_debug.prev_node_idx = loopKeyPre;
+        cur_pose = keyMeasures.at(loopKeyCur).updated_pose;
+        pre_pose = keyMeasures.at(loopKeyPre).updated_pose;
+        key_measures_snapshot = keyMeasures;
+    }
+    {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(6)
+            << "[LOOP][ATTEMPT]"
+            << " t=" << loop_debug.timestamp
+            << " curr=" << loopKeyCur
+            << " prev=" << loopKeyPre;
+        std::ostringstream line1;
+        line1 << "curr=" << loopKeyCur << " prev=" << loopKeyPre;
+        std::ostringstream line2;
+        line2 << std::fixed << std::setprecision(3)
+              << "t=" << loop_debug.timestamp;
+        UpdateLoopConsoleSummary("ATTEMPT", line1.str(), line2.str());
+        EmitLoopLog("ATTEMPT", oss.str());
+    }
+
+    {
+        {
+            std::unique_lock<std::mutex> loop_guard(mtxLoopContainer);
+            lastLoopIndex = loopKeyCur;
+        }
+
         std::unique_lock<std::mutex> icp_guard(mtxICP);
         Eigen::Matrix4d trans_cur2pre = Pose6D2Matrix(cur_pose);
         auto flag = cloud_process_.DoICPVirtualRelative2(
-                keyMeasures, loopKeyPre, loopKeyCur, loopScore, 0, trans_cur2pre);
+                key_measures_snapshot, loopKeyPre, loopKeyCur, loop_debug, 0, trans_cur2pre);
         Eigen::Matrix6d LOOP_cov = cloud_process_.icp_cov;
         icp_guard.unlock();
 
         if (flag) {
-            Pose3 poseTo =
-                    Pose6dTogtsamPose3(keyMeasures.at(loopKeyPre).updated_pose);
+            Pose3 poseTo = Pose6dTogtsamPose3(pre_pose);
             Pose6D p = Matrix2Pose6D(trans_cur2pre);
             Pose3 poseFrom(gtsam::Rot3::RzRyRx(p.roll, p.pitch, p.yaw),
                            gtsam::Point3(p.x, p.y, p.z));
-            //SetLoopscore(loopScore);
             if (useFixcov)
                 LOOPGaussianNoise = noise_loop;
             else
@@ -1614,33 +2216,108 @@ void PALoc::PerformRSLoopClosure(void) {
             std::unique_lock<std::mutex> loop_guard(mtxLoopContainer);
             loopIndexQueue.push_back(make_pair(loopKeyCur, loopKeyPre));
             loopPoseQueue.push_back(poseFrom.between(poseTo));
-            //loopNoiseQueue.push_back(robustLoopNoise);
             loopGaussianNoiseQueue.push_back(LOOPGaussianNoise);
-            loop_guard.unlock();
-
             loopIndexCheckedMap[loopKeyCur] = loopKeyPre;
-            std::cout << BOLDRED << "ICP Loop detected, score! " << loopKeyCur << " and " << loopKeyPre << ", "
-                      << loopScore << std::endl;
-            std::cout << BOLDRED << "ICP Loop COV! " << LOOP_cov.diagonal().transpose() << std::endl;
+            loop_guard.unlock();
+            loop_debug.accepted = true;
+            loop_debug.reject_reason = "accepted";
+            std::ostringstream line1;
+            line1 << std::fixed << std::setprecision(4)
+                  << "pair=" << loopKeyCur << "<-" << loopKeyPre
+                  << " score=" << loop_debug.score
+                  << " overlap=" << loop_debug.overlap;
+            std::ostringstream line2;
+            line2 << "raw=" << loop_debug.source_points_raw
+                  << "/" << loop_debug.target_points_raw
+                  << " solver=" << loop_debug.icp_type;
+            UpdateLoopConsoleSummary("ACCEPTED", line1.str(), line2.str());
+            EmitLoopLog("ACCEPTED", FormatLoopClosureDebugRecord("ACCEPTED", loop_debug));
+        } else {
+            std::ostringstream line1;
+            line1 << std::fixed << std::setprecision(4)
+                  << "pair=" << loopKeyCur << "<-" << loopKeyPre
+                  << " score=" << loop_debug.score
+                  << " overlap=" << loop_debug.overlap;
+            std::ostringstream line2;
+            line2 << "reason=" << loop_debug.reject_reason
+                  << " raw=" << loop_debug.source_points_raw
+                  << "/" << loop_debug.target_points_raw;
+            UpdateLoopConsoleSummary("REJECTED", line1.str(), line2.str());
+            EmitLoopLog("REJECTED", FormatLoopClosureDebugRecord("REJECTED", loop_debug));
         }
+        AppendLoopClosureDebugRecord(loop_debug);
     }
 }
 
-bool PALoc::FilterLoopPairs(int loopKeyCur, int loopKeyPre) {
-    if (loopKeyCur == loopKeyPre || loopKeyPre == -1) return false;
+bool PALoc::FilterLoopPairs(int loopKeyCur, int loopKeyPre,
+                            double min_time_gap,
+                            std::string *reject_reason) {
+    auto reject = [&](const std::string &reason) {
+        if (reject_reason != nullptr) {
+            *reject_reason = reason;
+        }
+        return false;
+    };
+    if (loopKeyCur == loopKeyPre) return reject("same_node");
+    if (loopKeyPre == -1) return reject("no_candidate");
+
+    const int keyframe_count = static_cast<int>(keyMeasures.size());
+    if (loopKeyCur < 0 || loopKeyPre < 0 ||
+        loopKeyCur >= keyframe_count || loopKeyPre >= keyframe_count) {
+        return reject("candidate_out_of_range");
+    }
+
+    double curr_time = 0.0;
+    double pre_time = 0.0;
+    double curr_z = 0.0;
+    double pre_z = 0.0;
+    double accumulated_distance = 0.0;
+    {
+        std::unique_lock<std::mutex> kf_guard(mKF);
+        if (loopKeyCur >= static_cast<int>(keyMeasures.size()) ||
+            loopKeyPre >= static_cast<int>(keyMeasures.size())) {
+            return reject("candidate_invalidated_by_new_keyframe");
+        }
+        curr_time = keyMeasures.at(loopKeyCur).odom_time;
+        pre_time = keyMeasures.at(loopKeyPre).odom_time;
+        curr_z = keyMeasures.at(loopKeyCur).updated_pose.z;
+        pre_z = keyMeasures.at(loopKeyPre).updated_pose.z;
+        for (int j = loopKeyPre; j < loopKeyCur; ++j) {
+            accumulated_distance += keyMeasures.at(j).distance;
+        }
+    }
 
     // short time
-    if (abs(keyMeasures.at(loopKeyCur).odom_time -
-            keyMeasures.at(loopKeyPre).odom_time) <
-            historyKeyframeSearchTimeDiff)
-        return false;
+    const double time_gap = abs(curr_time - pre_time);
+    if (time_gap < min_time_gap) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(3)
+            << "time_gap_too_small(dt=" << time_gap
+            << ", min_dt=" << min_time_gap << ")";
+        return reject(oss.str());
+    }
 
     // the loop pairs exits in the icp detect container
-    auto it = loopIndexCheckedMap.find(loopKeyCur);
-    if (it != loopIndexCheckedMap.end()) {
-        int loop_pre_candidate = it->second;
-        // too closed loop pairs are useless
-        if (abs(loop_pre_candidate - loopKeyPre) < filterNodeNum) return false;
+    {
+        std::unique_lock<std::mutex> loop_guard(mtxLoopContainer);
+        auto it = loopIndexCheckedMap.find(loopKeyCur);
+        if (it != loopIndexCheckedMap.end()) {
+            int loop_pre_candidate = it->second;
+            // too closed loop pairs are useless
+            const int index_gap = abs(loop_pre_candidate - loopKeyPre);
+            if (index_gap < filterNodeNum) {
+                std::ostringstream oss;
+                oss << "already_checked_nearby(delta_idx=" << index_gap << ")";
+                return reject(oss.str());
+            }
+        }
+
+        if (abs(lastLoopIndex - loopKeyCur) < filterNodeNum && lastLoopIndex != -1) {
+            std::ostringstream oss;
+            oss << "recent_loop_too_close(delta_idx="
+                << abs(lastLoopIndex - loopKeyCur) << ")";
+            return reject(oss.str());
+        }
     }
 //    auto it_sc = loopIndexSCcontainer.find(loopKeyCur);
 //    if (it_sc != loopIndexSCcontainer.end()) {
@@ -1661,33 +2338,36 @@ bool PALoc::FilterLoopPairs(int loopKeyCur, int loopKeyPre) {
 //        if (abs(loop_pre_candidate - loopKeyPre) < filterNodeNum) return false;
 //    }
 
-    if (abs(lastLoopIndex - loopKeyCur) < filterNodeNum && lastLoopIndex != -1) return false;
-
     // total accumuted distance bnetween 2 frame
-    if (keyMeasures.size() >= loopKeyCur) {
-        double distance = 0.0;
-        for (int j = loopKeyPre; j < loopKeyCur; ++j) {
-            distance += keyMeasures.at(j).distance;
-        }
-        // LOG(INFO) << "TOTAL DIS:" << distance;
-        if (distance < filterDis) {
-            std::cout << "CLOSE FRAME MUST FILTER OUT : " << distance << std::endl;
-            return false;
-        }
+    if (accumulated_distance < filterDis) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(3)
+            << "distance_too_small(acc_dist=" << accumulated_distance << ")";
+        return reject(oss.str());
     }
 
     // stair case, when the z_offset is largeer than a threshold, it will not consider as a loop candidate
-    double z_offset = abs(keyMeasures.at(loopKeyCur).updated_pose.z -
-                          keyMeasures.at(loopKeyPre).updated_pose.z);
-    if (z_offset > LOOP_Z_OFFSET) return false;
+    double z_offset = abs(curr_z - pre_z);
+    if (z_offset > LOOP_Z_OFFSET) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(3)
+            << "z_offset_too_large(dz=" << z_offset << ")";
+        return reject(oss.str());
+    }
 
-    lastLoopIndex = loopKeyCur;
+    if (reject_reason != nullptr) {
+        reject_reason->clear();
+    }
 
     return true;
 }
 
-bool PALoc::DetectLoopClosureDistance(int *loopKeyCur,
-                                      int *loopKeyPre) {
+bool PALoc::DetectLoopClosureDistance(int loopKeyCur,
+                                      int *loopKeyPre,
+                                      std::string *reject_reason) {
+    if (reject_reason != nullptr) {
+        reject_reason->clear();
+    }
     // 当前关键帧
     // int loopKeyCur = keyframePoses.size() - 1;
     // int loopKeyPre = -1;
@@ -1699,28 +2379,41 @@ bool PALoc::DetectLoopClosureDistance(int *loopKeyCur,
     //    if (abs(lastLoopIndex - *loopKeyCur) < 5 && lastLoopIndex != -1)
     //        return false;
 
-
-//    std::unique_lock<std::mutex> kf_guard(mKF);
-//    keyframePoses2D.clear();
-    keyframePoses3D.clear();
-    for (int i = 0; i < keyMeasures.size(); ++i) {
-        Pose6D pose6D = keyMeasures.at(i).updated_pose;
-        keyframePoses3D.push_back(pose6D);
-//        pose6D.z = 0;
-//        keyframePoses2D.push_back(pose6D);
+    std::vector<Pose6D> keyframe_poses_3d;
+    std::vector<double> keyframe_times;
+    {
+        std::unique_lock<std::mutex> kf_guard(mKF);
+        keyframe_poses_3d.reserve(keyMeasures.size());
+        keyframe_times.reserve(keyMeasures.size());
+        for (const auto &measure : keyMeasures) {
+            keyframe_poses_3d.push_back(measure.updated_pose);
+            keyframe_times.push_back(measure.odom_time);
+        }
     }
-//    kf_guard.unlock();
+    if (keyframe_poses_3d.empty()) {
+        if (reject_reason != nullptr) {
+            *reject_reason = "no_keyframes";
+        }
+        return false;
+    }
+    if (loopKeyCur < 0 ||
+        loopKeyCur >= static_cast<int>(keyframe_poses_3d.size())) {
+        if (reject_reason != nullptr) {
+            *reject_reason = "loop_cur_out_of_range";
+        }
+        return false;
+    }
 
     // 在历史关键帧中查找与当前关键帧距离最近的关键帧集合
     pcl::PointCloud<pcl::PointXYZ>::Ptr copy_cloudKeyPoses3D =
-            vector2pc(keyframePoses3D);
+            vector2pc(keyframe_poses_3d);
 //    pcl::PointCloud<pcl::PointXYZ>::Ptr copy_cloudKeyPoses2D =
 //            vector2pc(keyframePoses2D);
 
     std::vector<int> pointSearchIndLoop;
     std::vector<float> pointSearchSqDisLoop;
     kdtreeHistoryKeyPoses->setInputCloud(copy_cloudKeyPoses3D);
-    kdtreeHistoryKeyPoses->radiusSearch(copy_cloudKeyPoses3D->back(),
+    kdtreeHistoryKeyPoses->radiusSearch(copy_cloudKeyPoses3D->at(loopKeyCur),
                                         historyKeyframeSearchRadius,
                                         pointSearchIndLoop,
                                         pointSearchSqDisLoop,
@@ -1730,80 +2423,180 @@ bool PALoc::DetectLoopClosureDistance(int *loopKeyCur,
 //            copy_cloudKeyPoses2D->at(*loopKeyCur), historyKeyframeSearchRadius,
 //            pointSearchIndLoop, pointSearchSqDisLoop, 0);
 
-    // 在候选关键帧集合中，找到与当前帧时间相隔较远的帧，设为候选匹配帧
+    int time_qualified_hits = 0;
+    int filtered_hits = 0;
+    double max_time_gap = 0.0;
+    std::string first_reject_reason;
+    std::map<std::string, int> reject_stats;
+    struct RankedLoopCandidate {
+        int id = -1;
+        double xy_sq_distance = 0.0;
+        double time_gap = 0.0;
+    };
+    std::vector<RankedLoopCandidate> ranked_candidates;
+    ranked_candidates.reserve(pointSearchIndLoop.size());
+    const Pose6D &current_pose = keyframe_poses_3d.at(loopKeyCur);
     for (int i = 0; i < pointSearchIndLoop.size(); ++i) {
-        int id = pointSearchIndLoop.at(i);
-        if (abs(keyMeasures.at(id).odom_time -
-                keyMeasures.at(*loopKeyCur).odom_time) >
-            historyKeyframeSearchTimeDiff) {
-            *loopKeyPre = id;
-            break;
-        }
+        const int id = pointSearchIndLoop.at(i);
+        const Pose6D &candidate_pose = keyframe_poses_3d.at(id);
+        const double dx = candidate_pose.x - current_pose.x;
+        const double dy = candidate_pose.y - current_pose.y;
+        const double time_gap = abs(keyframe_times.at(id) -
+                                    keyframe_times.at(loopKeyCur));
+        max_time_gap = std::max(max_time_gap, time_gap);
+        RankedLoopCandidate candidate;
+        candidate.id = id;
+        candidate.xy_sq_distance = dx * dx + dy * dy;
+        candidate.time_gap = time_gap;
+        ranked_candidates.push_back(candidate);
     }
 
-    //    LOG(INFO) << "TIMES DISTANCE keyframePoses2D SIZE: " <<
-    //              keyframeTimes.size() << ", " << keyframeDistances.size() << ",
-    //              " << copy_cloudKeyPoses2D->size() << ", "
-    //              << keyframePoses2D.size();
-    if (*loopKeyPre == -1 || *loopKeyCur == *loopKeyPre) return false;
+    std::sort(ranked_candidates.begin(), ranked_candidates.end(),
+              [](const RankedLoopCandidate &lhs,
+                 const RankedLoopCandidate &rhs) {
+                  if (lhs.xy_sq_distance != rhs.xy_sq_distance) {
+                      return lhs.xy_sq_distance < rhs.xy_sq_distance;
+                  }
+                  if (lhs.time_gap != rhs.time_gap) {
+                      return lhs.time_gap > rhs.time_gap;
+                  }
+                  return lhs.id < rhs.id;
+              });
 
-    if (!FilterLoopPairs(*loopKeyCur, *loopKeyPre)) return false;
+    for (const auto &candidate : ranked_candidates) {
+        const int id = candidate.id;
+        const double time_gap = candidate.time_gap;
+        if (time_gap <= historyKeyframeSearchTimeDiff) {
+            continue;
+        }
+        ++time_qualified_hits;
 
-    return true;
+        std::string candidate_reject_reason;
+        if (FilterLoopPairs(loopKeyCur, id, historyKeyframeSearchTimeDiff,
+                            &candidate_reject_reason)) {
+            *loopKeyPre = id;
+            if (reject_reason != nullptr) {
+                reject_reason->clear();
+            }
+            return true;
+        }
+        ++filtered_hits;
+        if (first_reject_reason.empty()) {
+            first_reject_reason = candidate_reject_reason;
+        }
+        ++reject_stats[candidate_reject_reason];
+    }
+
+    if (reject_reason != nullptr) {
+        std::ostringstream oss;
+        if (time_qualified_hits == 0) {
+            oss << "no_candidate(radius_hits=" << pointSearchIndLoop.size()
+                << ", time_qualified=0"
+                << ", max_dt=" << std::fixed << std::setprecision(3) << max_time_gap
+                << ", dt_th=" << historyKeyframeSearchTimeDiff << ")";
+        } else {
+            oss << "all_candidates_filtered(radius_hits=" << pointSearchIndLoop.size()
+                << ", time_qualified=" << time_qualified_hits
+                << ", filtered=" << filtered_hits
+                << ", first_reject=" << first_reject_reason;
+            if (!reject_stats.empty()) {
+                oss << ", stats=";
+                bool first = true;
+                for (const auto &entry : reject_stats) {
+                    if (!first) {
+                        oss << ';';
+                    }
+                    oss << entry.first << ':' << entry.second;
+                    first = false;
+                }
+            }
+            oss << ')';
+        }
+        *reject_reason = oss.str();
+    }
+    return false;
 }
 
-void PALoc::VisualizeLoopConstrains(std::map<int, int> loopMap,
+void PALoc::VisualizeLoopConstrains(const std::map<int, int> &loopMap,
+                                    const std::vector<Pose6D> &updated_poses,
+                                    const std::vector<Pose6D> &global_poses,
+                                    double stamp_sec,
                                     ros::Publisher &publisher,
                                     int type) {
-    if (loopMap.empty()) return;
+    // ===== BEGIN CHANGE: draw constraints from a consistent pose snapshot =====
+    if (loopMap.empty() || updated_poses.empty()) return;
+    constexpr double kMapConstraintVizLift = 0.08;
 
     visualization_msgs::MarkerArray markerArray;
     // 闭环顶点
     visualization_msgs::Marker markerNode;
     markerNode.header.frame_id = odom_link;  // camera_init
-    markerNode.header.stamp = ros::Time().fromSec(keyMeasures.back().odom_time);
+    markerNode.header.stamp = ros::Time().fromSec(stamp_sec);
     markerNode.action = visualization_msgs::Marker::ADD;
     markerNode.type = visualization_msgs::Marker::SPHERE_LIST;
     markerNode.id = 0;
     markerNode.pose.orientation.w = 1;
-    markerNode.scale.x = 0.2;
-    markerNode.scale.y = 0.2;
-    markerNode.scale.z = 0.2;
+    markerNode.scale.x = 0.12;
+    markerNode.scale.y = 0.12;
+    markerNode.scale.z = 0.12;
 
     // 闭环边
     visualization_msgs::Marker markerEdge;
     markerEdge.header.frame_id = odom_link;
-    markerEdge.header.stamp = ros::Time().fromSec(keyMeasures.back().odom_time);
+    markerEdge.header.stamp = ros::Time().fromSec(stamp_sec);
     markerEdge.action = visualization_msgs::Marker::ADD;
     markerEdge.type = visualization_msgs::Marker::LINE_LIST;
     markerEdge.id = 1;
     markerEdge.pose.orientation.w = 1;
-    markerEdge.scale.x = 0.15;
-    markerEdge.scale.y = 0.15;
-    markerEdge.scale.z = 0.15;
+    markerEdge.scale.x = 0.05;
+    markerEdge.scale.y = 0.05;
+    markerEdge.scale.z = 0.05;
+
+    visualization_msgs::Marker markerHighlight;
+    const bool is_map_constraint = (type == -2);
+    if (is_map_constraint) {
+        markerHighlight.header.frame_id = odom_link;
+        markerHighlight.header.stamp = ros::Time().fromSec(stamp_sec);
+        markerHighlight.action = visualization_msgs::Marker::ADD;
+        markerHighlight.type = visualization_msgs::Marker::SPHERE_LIST;
+        markerHighlight.id = 2;
+        markerHighlight.pose.orientation.w = 1;
+        markerHighlight.scale.x = 0.18;
+        markerHighlight.scale.y = 0.18;
+        markerHighlight.scale.z = 0.18;
+    }
 
     switch (type) {
         case -3:
             markerNode.ns = markerEdge.ns = "gravity";
-            markerNode.color.r = markerEdge.color.r = 0.1;
-            markerNode.color.g = markerEdge.color.g = 0.7;
-            markerNode.color.b = markerEdge.color.b = 0.2;
-            markerNode.color.a = markerEdge.color.a = 1;
+            markerNode.scale.x = markerNode.scale.y = markerNode.scale.z = 0.08;
+            markerEdge.scale.x = markerEdge.scale.y = markerEdge.scale.z = 0.035;
+            markerNode.color.r = markerEdge.color.r = 0.31;
+            markerNode.color.g = markerEdge.color.g = 0.58;
+            markerNode.color.b = markerEdge.color.b = 0.45;
+            markerNode.color.a = markerEdge.color.a = 0.9;
             break;
         case -2:
             markerNode.ns = markerEdge.ns = "map_constraint_nodes";
-            markerNode.color.r = markerEdge.color.r = 0.6;
-            markerNode.color.g = markerEdge.color.g = 0.1;
-            markerNode.color.b = markerEdge.color.b = 0.2;
-            markerNode.color.a = markerEdge.color.a = 1;
+            markerHighlight.ns = "map_constraint_nodes";
+            markerNode.scale.x = markerNode.scale.y = markerNode.scale.z = 0.12;
+            markerEdge.scale.x = markerEdge.scale.y = markerEdge.scale.z = 0.045;
+            markerNode.color.r = markerEdge.color.r = 0.88;
+            markerNode.color.g = markerEdge.color.g = 0.45;
+            markerNode.color.b = markerEdge.color.b = 0.27;
+            markerNode.color.a = markerEdge.color.a = 0.95;
+            markerHighlight.color = markerNode.color;
+            markerHighlight.color.a = 1.0;
             break;
         case 0:
             // icp
             markerNode.ns = markerEdge.ns = "lidar_nodes";
-            markerNode.color.r = markerEdge.color.r = 0.9;
-            markerNode.color.g = markerEdge.color.g = 0.9;
-            markerNode.color.b = markerEdge.color.b = 0;
-            markerNode.color.a = markerEdge.color.a = 1;
+            markerNode.scale.x = markerNode.scale.y = markerNode.scale.z = 0.10;
+            markerEdge.scale.x = markerEdge.scale.y = markerEdge.scale.z = 0.04;
+            markerNode.color.r = markerEdge.color.r = 0.95;
+            markerNode.color.g = markerEdge.color.g = 0.76;
+            markerNode.color.b = markerEdge.color.b = 0.18;
+            markerNode.color.a = markerEdge.color.a = 0.9;
             break;
         default:
             std::cout << "error visulizer type!!!" << std::endl;
@@ -1812,31 +2605,50 @@ void PALoc::VisualizeLoopConstrains(std::map<int, int> loopMap,
     for (auto it = loopMap.begin(); it != loopMap.end(); ++it) {
         int key_cur = it->first;
         int key_pre = it->second;
+        const int updated_pose_count = static_cast<int>(updated_poses.size());
+        const int global_pose_count = static_cast<int>(global_poses.size());
+        if (key_cur < 0 || key_pre < 0 ||
+            key_cur >= updated_pose_count || key_pre >= updated_pose_count ||
+            key_pre >= global_pose_count) {
+            continue;
+        }
 
         geometry_msgs::Point p;
-        p.x = keyMeasures.at(key_cur).updated_pose.x;
-        p.y = keyMeasures.at(key_cur).updated_pose.y;
-        p.z = keyMeasures.at(key_cur).updated_pose.z;
+        p.x = updated_poses.at(key_cur).x;
+        p.y = updated_poses.at(key_cur).y;
+        p.z = updated_poses.at(key_cur).z;
         markerNode.points.push_back(p);
         markerEdge.points.push_back(p);
 
         if (type == -2) {
-            p.x = keyMeasures.at(key_pre).global_pose.x;
-            p.y = keyMeasures.at(key_pre).global_pose.y;
-            p.z = keyMeasures.at(key_pre).global_pose.z;
+            p.x = global_poses.at(key_pre).x;
+            p.y = global_poses.at(key_pre).y;
+            p.z = global_poses.at(key_pre).z;
         } else {
-            p.x = keyMeasures[key_pre].updated_pose.x;
-            p.y = keyMeasures[key_pre].updated_pose.y;
-            p.z = keyMeasures[key_pre].updated_pose.z;
+            p.x = updated_poses.at(key_pre).x;
+            p.y = updated_poses.at(key_pre).y;
+            p.z = updated_poses.at(key_pre).z;
         }
         markerNode.points.push_back(p);
         markerEdge.points.push_back(p);
+
+        if (is_map_constraint) {
+            geometry_msgs::Point highlighted_point;
+            highlighted_point.x = updated_poses.at(key_cur).x;
+            highlighted_point.y = updated_poses.at(key_cur).y;
+            highlighted_point.z = updated_poses.at(key_cur).z + kMapConstraintVizLift;
+            markerHighlight.points.push_back(highlighted_point);
+        }
     }
 
     markerArray.markers.push_back(markerNode);
     markerArray.markers.push_back(markerEdge);
+    if (is_map_constraint) {
+        markerArray.markers.push_back(markerHighlight);
+    }
 
     publisher.publish(markerArray);
+    // ===== END CHANGE: draw constraints from a consistent pose snapshot =====
 }
 
 bool PALoc::GetGlobalICP(Measurement &measurement_temp) {
@@ -1845,10 +2657,26 @@ bool PALoc::GetGlobalICP(Measurement &measurement_temp) {
     //    guess_matrix = (prevPose).matrix();
     //    guess_matrix = predictGlobalState.pose().matrix();
 
-    pcl::PointCloud<pcl::PointXYZI>::Ptr local_map = extractLocalMap(globalmap_filter_ptr, predict_pose.matrix(),
-                                                                     mapRadius);
-    std::cout << "Extracted localmap points : " << local_map->size() << ", " << globalmap_filter_ptr->size()
-              << std::endl;
+    TicToc extract_tic;
+    bool crop_skipped = false;
+    pcl::PointCloud<pcl::PointXYZI>::Ptr local_map =
+            extractLocalMap(globalmap_filter_ptr, predict_pose.matrix(),
+                            mapRadius, &crop_skipped);
+    const double extract_ms = extract_tic.toc();
+    const double local_ratio = globalmap_filter_ptr->empty()
+                               ? 0.0
+                               : static_cast<double>(local_map->size()) /
+                                 static_cast<double>(globalmap_filter_ptr->size());
+    {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(4)
+            << "Extracted localmap: local_points=" << local_map->size()
+            << " global_points=" << globalmap_filter_ptr->size()
+            << " ratio=" << local_ratio
+            << " crop_skipped=" << std::boolalpha << crop_skipped
+            << " extract_ms=" << extract_ms;
+        std::cout << oss.str() << std::endl;
+    }
     if (local_map->empty()) return false;
     publishCloud(pubLaserCloudCrop, local_map, ros::Time::now(), odom_link);
 
@@ -2050,7 +2878,7 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
 
         int laserCloudSelNum = laserCloudEffective->size();
         if (laserCloudSelNum < 100) {
-            std::cout << BOLDGREEN << "NO ENCOUGN ['POINTS']: " << laserCloudSelNum << std::endl;
+            frameMapConsoleSummary_.solve_ms = tic_toc.toc();
             return false;
         }
 
@@ -2156,13 +2984,10 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
             }
             matP_eigen = matV2 * matV.inverse();
 
-            // Output the condition numbers, minimum eigenvalues, and degeneracy status
-            std::cout << "Condition number xyz and  rpy: " << condition_number_xyz << " " << condition_number_rpy
-                      << std::endl;
-            std::cout << "Degeneracy status xyz and rpy: " << (isDegenerate_xyz ? "Degenerate" : "Not Degenerate")
-                      << ", " << (isDegenerate_rpy ? "Degenerate" : "Not Degenerate")
-                      << std::endl;
-            std::cout << "eigen factor xyz: " << matE.matrix() << std::endl;
+            frameMapConsoleSummary_.condition_xyz = condition_number_xyz;
+            frameMapConsoleSummary_.condition_rpy = condition_number_rpy;
+            frameMapConsoleSummary_.degenerate_xyz = isDegenerate_xyz;
+            frameMapConsoleSummary_.degenerate_rpy = isDegenerate_rpy;
 
             // 初始化计数器
             int count_translation_constraints[3] = {0, 0, 0}; // 用于统计对x, y, z贡献最大的correspondence数
@@ -2209,9 +3034,10 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
                         count_translation_constraints[i] / total_translation_constraints;
                 rotation_constraints_ratio[i] = count_rotation_constraints[i] / total_rotation_constraints;
             }
-            std::cout << "Translation constraints ratio: " << translation_constraints_ratio[0] * 100
-                      << ", " << translation_constraints_ratio[1] * 100
-                      << ", " << translation_constraints_ratio[2] * 100 << std::endl;
+            frameMapConsoleSummary_.translation_ratio <<
+                    translation_constraints_ratio[0],
+                    translation_constraints_ratio[1],
+                    translation_constraints_ratio[2];
             //            std::cout << "Rotation constraints ratio: " << rotation_constraints_ratio[0] * 100
             //                      << ", " << rotation_constraints_ratio[1] * 100
             //                      << ", " << rotation_constraints_ratio[2] * 100 << std::endl;
@@ -2246,15 +3072,15 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
         // we must restrict the update value till converge,
         // otherwise may lead to local minimum
         // if (deltaR < 1e-6 && deltaT < 1e-6 || relative_rmse < 1e-6) {
-        if (deltaR < 0.05 && deltaT < 0.05) {
+        if (deltaR < 0.01 && deltaT < 0.01) {
             flag = true;
             iterate_number = iterCount;
-            std::cout << BOLDMAGENTA << "RMSE and overlap: " << total_rmse << " "
-                      << final_fitness << " " << relative_rmse << " " << relative_fitness << std::endl;
-            std::cout << BOLDMAGENTA << "Time and converge count: " << tic_toc.toc() << " " << iterCount
-                      << std::endl;
+            frameMapConsoleSummary_.solve_ms = tic_toc.toc();
             break;
         }
+    }
+    if (!flag) {
+        frameMapConsoleSummary_.solve_ms = tic_toc.toc();
     }
     return flag;
 }
@@ -2437,9 +3263,10 @@ void PALoc::CheckDegeneracy(const Eigen::Matrix<float, 6, 6> &matAtA) {
         matP_eigen = matV2 * matV.inverse();
     }
 
-    std::cout << "Condition number xyz and rpy: " << condition_number_xyz << " " << condition_number_rpy << std::endl;
-    std::cout << "Degeneracy status xyz and rpy: " << (isDegenerate_xyz ? "Degenerate" : "Not Degenerate")
-              << ", " << (isDegenerate_rpy ? "Degenerate" : "Not Degenerate") << std::endl;
+    frameMapConsoleSummary_.condition_xyz = condition_number_xyz;
+    frameMapConsoleSummary_.condition_rpy = condition_number_rpy;
+    frameMapConsoleSummary_.degenerate_xyz = isDegenerate_xyz;
+    frameMapConsoleSummary_.degenerate_rpy = isDegenerate_rpy;
 }
 
 void PALoc::UpdatePose(Pose6D &pose_icp, const Eigen::VectorXf &matX) {
@@ -2464,8 +3291,6 @@ bool PALoc::CheckConvergence(const Eigen::VectorXf &matX, int iterCount) {
     prev_fitness = final_fitness;
     if (deltaR < 1e-6 && deltaT < 1e-6 || relative_rmse < 1e-6) {
         iterate_number = iterCount;
-        std::cout << BOLDMAGENTA << "RMSE and overlap: " << total_rmse << " "
-                  << final_fitness << " " << relative_rmse << " " << relative_fitness << std::endl;
         return true;
     }
     return false;
