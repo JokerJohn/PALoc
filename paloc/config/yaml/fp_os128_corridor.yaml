@@ -210,6 +210,7 @@ pgo:
   showDegenercy: true
 
   useGlobalPrior: true
+  useFixcov: false
   icpO3dType: 2                                    # 0: icp 1:point2plane 2:gicp
   degeneracy_thres: 50
   correspondence_dis: 1.0                          # stair_bob: 0.6;

@@ -14,10 +14,10 @@
 #ifndef SRC_POSE_SLAM_PRIOR_SRC_CLOUD_PROCESS_H_
 #define SRC_POSE_SLAM_PRIOR_SRC_CLOUD_PROCESS_H_
 
-#include "../../../../../../../usr/local/include/open3d/Open3D.h"
-#include "../../../../../../../usr/include/pcl-1.10/pcl/features/normal_3d.h"
-#include "../../../../../../../usr/include/pcl-1.10/pcl/filters/radius_outlier_removal.h"
-#include "../../../../../../../usr/include/pcl-1.10/pcl/io/pcd_io.h"
+#include "open3d/Open3D.h"
+#include "pcl/features/normal_3d.h"
+#include "pcl/filters/radius_outlier_removal.h"
+#include "pcl/io/pcd_io.h"
 #include "../../include/base_type.hpp"
 
 class CloudProcess {

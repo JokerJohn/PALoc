@@ -274,6 +274,7 @@ void PALoc::InitParmeters() {
     priorMapPoseNoiseVector6 << 1e-4, 1e-4, 1e-4, 1e-2, 1e-2, 1e-2;
     priorMapPoseNoise = noiseModel::Diagonal::Variances(priorMapPoseNoiseVector6);
 
+
     // loop
     Vector loopNoiseVector6(6);
     loopNoiseVector6 << 1e-1, 1e-1, 1e-1, 1e-1, 1e-1, 1e-1;
@@ -1502,12 +1503,12 @@ void PALoc::SaveData() {
     }
     dataSaverPtr->saveOptimizedVerticesTUM(pose_vec, "optimized_poses_tum.txt");
 
-    // Save the transformed trajectory when the caller wants a different output frame.
+    // save transformed TUM trajectory if output_transform is not identity
     if (!output_transform.isIdentity(1e-6)) {
         std::vector<Vector7> transformed_pose_vec;
         transformed_pose_vec.reserve(pose_vec.size());
         for (const auto &pose : pose_vec) {
-            Eigen::Quaterniond q(pose(6), pose(3), pose(4), pose(5));
+            Eigen::Quaterniond q(pose(6), pose(3), pose(4), pose(5)); // w, x, y, z
             Eigen::Matrix4d T_map_body = Eigen::Matrix4d::Identity();
             T_map_body.block<3, 3>(0, 0) = q.toRotationMatrix();
             T_map_body.block<3, 1>(0, 3) = pose.head<3>();
@@ -1631,7 +1632,7 @@ bool PALoc::FilterLoopPairs(int loopKeyCur, int loopKeyPre) {
     // short time
     if (abs(keyMeasures.at(loopKeyCur).odom_time -
             keyMeasures.at(loopKeyPre).odom_time) <
-            historyKeyframeSearchTimeDiff))
+            historyKeyframeSearchTimeDiff)
         return false;
 
     // the loop pairs exits in the icp detect container
@@ -2244,6 +2245,7 @@ PALoc::Point2PlaneICPLM(pcl::PointCloud<PointT>::Ptr measure_cloud,
 
         // we must restrict the update value till converge,
         // otherwise may lead to local minimum
+        // if (deltaR < 1e-6 && deltaT < 1e-6 || relative_rmse < 1e-6) {
         if (deltaR < 0.05 && deltaT < 0.05) {
             flag = true;
             iterate_number = iterCount;

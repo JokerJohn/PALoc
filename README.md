@@ -210,6 +210,15 @@ rosbag play Parkinglot-2023-10-28-18-59-01.bag
 rosbag play parkland0.bag
 ```
 
+### Branch Note
+
+Compared with `main`, this branch is focused on the local MID360 workflow:
+
+- it adds office and outdoor MID360 launch/config examples;
+- it updates PALoc topic compatibility, initialization, and trajectory export for the local dataset pipeline;
+- it includes helper scripts for GT generation and FS-lidar trajectory conversion;
+- it trims several older demo assets and launch files that are not used in this branch.
+
 ### MID360 Examples
 
 This branch also includes three MID360-oriented launch examples and the matching PALoc YAML files:

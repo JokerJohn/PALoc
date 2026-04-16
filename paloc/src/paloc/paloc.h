@@ -66,7 +66,6 @@
 #include "base_type.hpp"
 #include "cloud_process.h"
 #include "data_saver.h"
-#include "factors/gravity_factor.h"
 #include "factors/gravity_kalman_filter.h"
 #include "tic_toc.h"
 
@@ -126,8 +125,7 @@ public:
                                                                           &PALoc::LidarCallback, this);
             //        subLaserCloudFullRes = nh.subscribe<sensor_msgs::PointCloud2>(
             //                "/cloud_effected", 10000, &PALoc::LidarCallback, this);
-            subLaserOdometry = nh.subscribe<nav_msgs::Odometry>(lidar_odometry_topic, 10000,
-                                                                &PALoc::OdometryCallback,
+            subLaserOdometry = nh.subscribe<nav_msgs::Odometry>(lidar_odometry_topic, 10000, &PALoc::OdometryCallback,
                                                                 this);
         } else if (OdomMethod == 1) {
             // if you want to use liosam

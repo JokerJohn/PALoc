@@ -32,7 +32,7 @@ common:
                       0.000000,  0.000000,  1.000000,  0.001020,
                       0.000000,  0.000000,  0.000000,  1.000000]
 
-  # Initial pose - 4x4 row-major, T_priormap_mid360imu (office sequence)
+  # Initial pose — 4x4 row-major, T_priormap_mid360imu (office sequence)
   # Converted from FS IMU to MID360 IMU frame:
   # T_map_mid360imu = T_map_fsimu * T_fsimu_mid360imu
   initial_pose: [ 0.954750,  0.067091,  0.289742,  33.788460,

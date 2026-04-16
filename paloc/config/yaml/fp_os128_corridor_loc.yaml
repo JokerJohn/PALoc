@@ -53,6 +53,7 @@ pgo:
   showDegenercy: true                              # show condition number or uncertainty in rviz
 
   useGlobalPrior: true
+  useFixcov: false
   map_filter_size: 0.5                             # indoor:0.1, outdoor:0.2
   icpO3dType: 2                                    # 0: icp 1:point2plane 2:gicp
   degeneracy_thres: 50

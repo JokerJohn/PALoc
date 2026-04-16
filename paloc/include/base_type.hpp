@@ -106,6 +106,7 @@ extern vector<double> extrinR;
 extern Eigen::Quaterniond q_body_sensor;
 extern Eigen::Matrix3d rot_body_sensor;
 extern Eigen::Vector3d t_body_sensor;
+
 extern Eigen::Matrix4d output_transform;
 
 struct Pose6D {

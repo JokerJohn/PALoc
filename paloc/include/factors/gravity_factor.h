@@ -19,6 +19,7 @@
 #include <gtsam/inference/Key.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/base/numericalDerivative.h>
+#include <memory>
 
 using namespace gtsam;
 
@@ -27,16 +28,20 @@ namespace gtsam {
 
     // 重力因子
     class GravityFactor : public gtsam::NoiseModelFactor1<gtsam::Pose3> {
+        using Base = gtsam::NoiseModelFactor1<gtsam::Pose3>;
+        using This = GravityFactor;
     public:
+        using Base::evaluateError;
+
         GravityFactor(const gtsam::Key &pose_key,
                       const Eigen::Vector3d &acc_measured_gravity,
                       const gtsam::SharedNoiseModel &model)
-                : gtsam::NoiseModelFactor1<gtsam::Pose3>(model, pose_key),
+                : Base(model, pose_key),
                   acc_measured_gravity_(acc_measured_gravity) {}
 
         // 计算重力约束的误差
         gtsam::Vector
-        evaluateError(const gtsam::Pose3 &pose, boost::optional<gtsam::Matrix &> H = boost::none) const override {
+        evaluateError(const gtsam::Pose3 &pose, OptionalMatrixType H = nullptr) const override {
             Eigen::Vector3d a_measured_world = pose.rotation().matrix() * acc_measured_gravity_;
             Eigen::Vector3d a_measured_direction = a_measured_world.normalized();
 
@@ -77,8 +82,9 @@ namespace gtsam {
         }
 
 
-        virtual gtsam::NonlinearFactor::shared_ptr clone() const {
-            return boost::make_shared<GravityFactor>(*this);
+        gtsam::NonlinearFactor::shared_ptr clone() const override {
+            return std::static_pointer_cast<gtsam::NonlinearFactor>(
+                    std::make_shared<This>(*this));
         }
 
 
@@ -88,14 +94,17 @@ namespace gtsam {
 
 
     class GravityFactor2 : public NoiseModelFactor1<Pose3> {
+        using Base = NoiseModelFactor1<Pose3>;
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        using Base::evaluateError;
+
         Vector3 measured_acc_gravity_;
 
         GravityFactor2(Key poseKey, const Vector3 &measured_acc_gravity, const SharedNoiseModel &model) :
-                NoiseModelFactor1<Pose3>(model, poseKey), measured_acc_gravity_(measured_acc_gravity) {}
+                Base(model, poseKey), measured_acc_gravity_(measured_acc_gravity) {}
 
-        Vector evaluateError(const Pose3 &pose, boost::optional<Matrix &> H = boost::none) const override {
+        Vector evaluateError(const Pose3 &pose, OptionalMatrixType H = nullptr) const override {
             // World frame acceleration vector a_w
             Vector3 a_w = pose.rotation().matrix() * measured_acc_gravity_;
             Vector3 a_w_normalized = a_w.normalized();
@@ -140,16 +149,19 @@ namespace gtsam {
 
 
     class GravityFactorAuto : public NoiseModelFactor1<Pose3> {
+        using Base = NoiseModelFactor1<Pose3>;
     private:
         Vector3 measured_acc_gravity_;
     public:
-        GravityFactorAuto(Key key, const Vector3 &gravity, const SharedNoiseModel &model)
-                : NoiseModelFactor1<Pose3>(model, key), measured_acc_gravity_(gravity) {}
+        using Base::evaluateError;
 
-        Vector evaluateError(const Pose3 &pose, boost::optional<Matrix &> H = boost::none) const override {
+        GravityFactorAuto(Key key, const Vector3 &gravity, const SharedNoiseModel &model)
+                : Base(model, key), measured_acc_gravity_(gravity) {}
+
+        Vector evaluateError(const Pose3 &pose, OptionalMatrixType H = nullptr) const override {
             if (H) {
                 *H = numericalDerivative11<Vector, Pose3>(
-                        boost::bind(&GravityFactorAuto::evaluateError, this, _1, boost::none), pose, 1e-5);
+                        [this](const Pose3 &p) { return this->evaluateError(p); }, pose, 1e-5);
             }
             Vector3 a_w = pose.rotation().matrix() * measured_acc_gravity_;
             Vector3 a_w_normalized = a_w.normalized();
@@ -164,18 +176,21 @@ namespace gtsam {
 
     // 自定义重力因子
     class StaticGravityFactor : public NoiseModelFactor1<Pose3> {
+        using Base = NoiseModelFactor1<Pose3>;
     private:
         Vector3 measured_acc_gravity_; // 测量到的加速度，即重力
     public:
+        using Base::evaluateError;
+
         // 构造函数
         StaticGravityFactor(Key key, const Vector3 &measured_acc_gravity, const SharedNoiseModel &model)
-                : NoiseModelFactor1<Pose3>(model, key), measured_acc_gravity_(measured_acc_gravity) {}
+                : Base(model, key), measured_acc_gravity_(measured_acc_gravity) {}
 
         // 计算误差
-        Vector evaluateError(const Pose3 &pose, boost::optional<Matrix &> H = boost::none) const override {
+        Vector evaluateError(const Pose3 &pose, OptionalMatrixType H = nullptr) const override {
             if (H) {
                 *H = numericalDerivative11<Vector, Pose3>(
-                        boost::bind(&StaticGravityFactor::evaluateError, this, _1, boost::none), pose, 1e-5);
+                        [this](const Pose3 &p) { return this->evaluateError(p); }, pose, 1e-5);
             }
             Vector3 a_w = pose.rotation().matrix() * measured_acc_gravity_;
             Vector3 a_w_normalized = a_w.normalized();

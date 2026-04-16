@@ -1,37 +1,37 @@
 <launch>
   <!-- ========================== Arguments ========================== -->
   <arg name="bag_path" />
-  <arg name="sequence" default="dsh1-1" />
-  <arg name="play_rate" default="1.0" />
-  <arg name="bag_start_delay" default="3" />
-  <arg name="save_directory" default="/home/xchu/fushi_ws/results/paloc_mid360_gt/" />
+  <arg name="sequence"           default="dsh1-1" />
+  <arg name="play_rate"          default="1.0" />
+  <arg name="bag_start_delay"    default="3" />
+  <arg name="save_directory"     default="/home/xchu/fushi_ws/results/paloc_mid360_gt/" />
   <arg name="prior_map_directory" />
-  <arg name="rviz" default="false" />
+  <arg name="rviz"               default="false" />
 
-  <arg name="paloc_config" default="$(find paloc)/config/yaml/outdoor_mid360.yaml" />
+  <arg name="paloc_config"  default="$(find paloc)/config/yaml/outdoor_mid360.yaml" />
   <arg name="fastlio_config" default="$(find fast_lio)/config/mid360_bag.yaml" />
 
   <!-- ========================== Parameters ========================= -->
   <param name="/use_sim_time" value="true" />
-  <param name="config_directory" type="string" value="$(find paloc)/config/" />
-  <param name="save_directory" type="string" value="$(arg save_directory)" />
+  <param name="config_directory"    type="string" value="$(find paloc)/config/" />
+  <param name="save_directory"      type="string" value="$(arg save_directory)" />
   <param name="prior_map_directory" type="string" value="$(arg prior_map_directory)" />
 
   <!-- Load FAST_LIO config first, then PALoc config (overrides common/*) -->
   <rosparam file="$(arg fastlio_config)" command="load" />
-  <rosparam file="$(arg paloc_config)" command="load" />
+  <rosparam file="$(arg paloc_config)"   command="load" />
   <rosparam param="common/sequence" subst_value="true">$(arg sequence)</rosparam>
 
   <!-- FAST_LIO tuning -->
-  <param name="publish/scan_publish_en" type="bool" value="true" />
-  <param name="publish/scan_bodyframe_pub_en" type="bool" value="true" />
-  <param name="feature_extract_enable" type="bool" value="false" />
-  <param name="point_filter_num" type="int" value="1" />
-  <param name="max_iteration" type="int" value="3" />
-  <param name="filter_size_surf" type="double" value="0.1" />
-  <param name="filter_size_map" type="double" value="0.2" />
-  <param name="cube_side_length" type="double" value="1000" />
-  <param name="runtime_pos_log_enable" type="bool" value="true" />
+  <param name="publish/scan_publish_en"     type="bool"   value="true" />
+  <param name="publish/scan_bodyframe_pub_en" type="bool"  value="true" />
+  <param name="feature_extract_enable"       type="bool"   value="false" />
+  <param name="point_filter_num"             type="int"    value="1" />
+  <param name="max_iteration"                type="int"    value="3" />
+  <param name="filter_size_surf"             type="double" value="0.1" />
+  <param name="filter_size_map"              type="double" value="0.2" />
+  <param name="cube_side_length"             type="double" value="1000" />
+  <param name="runtime_pos_log_enable"       type="bool"   value="true" />
 
   <!-- ========================== Nodes ============================== -->
   <node pkg="fast_lio" type="fastlio_mapping" name="paloc_fastlio"

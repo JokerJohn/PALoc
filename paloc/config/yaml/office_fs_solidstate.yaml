@@ -1,0 +1,60 @@
+common:
+  lid_topic: "/points"
+  imu_topic: "/imu_raw"
+
+  acc_cov: 8.542347454980121e-03
+  gyr_cov: 0.010145051118493028
+  b_acc_cov: 5.681443420546884e-04
+  b_gyr_cov: 1.147625523110903e-03
+
+  # FS lidar in FS IMU/body frame (identity rotation, small translation).
+  extrinsic_T: [0.02817, -0.03434, 0.02691]
+  extrinsic_R: [1, 0, 0,
+                0, 1, 0,
+                0, 0, 1]
+
+  odom_link: "camera_init"
+  scan_filter_size: 0.1
+  map_viewer_size: 0.2
+  map_saved_size: 0.2
+
+  useImuFrame: true
+  useLoopClosure: true
+
+  saveResultBag: false
+  saveResultBodyFrame: true
+  saveKeyFrame: false
+
+  # Initial pose in FS IMU frame — T_priormap_fsimu (office sequence, from LTLoc).
+  initial_pose: [0.997810, 0.062294, 0.022242, 33.734909,
+                 -0.062196, 0.998051, -0.005112, -11.167926,
+                 -0.022517, 0.003718, 0.999740, -0.844016,
+                 0.000000, 0.000000, 0.000000, 1.000000]
+
+compat:
+  registered_body_topic: "/cloud_registered_body"
+  lidar_odometry_topic: "/Odometry"
+
+pgo:
+  initialType: 2
+  SKIP_FRAMES: 5
+  useRawCloud: false
+  showDegenercy: false
+
+  useGlobalPrior: false
+  useFixcov: false
+  icpO3dType: 1
+  degeneracy_thres: 20
+  correspondence_dis: 1.0
+  map_radius: 80
+  map_filter_size: 0.2
+
+  loopZOffset: 5.0
+  historyKeyframeSearchRadius: 5.0
+  historyKeyframeSearchTimeDiff: 40.0
+  historyKeyframeSearchNum: 50
+  loopFitnessScoreThreshold: 0.5
+  loopClosureFrequency: 10
+
+  filterDis: 0.2
+  filterNodeNum: 10

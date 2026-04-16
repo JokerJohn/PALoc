@@ -337,7 +337,7 @@ void LoadRosParams(ros::NodeHandle &nh) {
     T_body_lidar.block<3, 1>(0, 3) = t_body_sensor.matrix();
     T_body_lidar.block<3, 3>(0, 0) = rot_body_sensor.matrix();
 
-    // Output frame transform: T_body_target.
+    // output frame transform: T_body_target, applied as T_map_target = T_map_body * T_body_target
     vector<double> output_transform_vec;
     nh.param<vector<double>>("common/output_transform", output_transform_vec, vector<double>());
     if (output_transform_vec.size() == 16) {

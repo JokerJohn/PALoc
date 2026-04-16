@@ -364,7 +364,7 @@ bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
 //     source_o3d = source_o3d->VoxelDownSample(scan_filter_size);
 //    target_o3d = target_o3d->VoxelDownSample(scan_filter_size);
     //  source_o3d = source_o3d->VoxelDownSample(0.1);
-    target_o3d = target_o3d->VoxelDownSample(0.4);
+    // target_o3d = target_o3d->VoxelDownSample(0.01);
 
     Eigen::Matrix4d icp_trans = Eigen::Matrix4d::Identity();
 
@@ -405,13 +405,13 @@ bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
     *unused_result = *TransformPointCloud(cureKeyframeCloud, icp_trans);
     final_trans = icp_trans * final_trans;
     if (1) {
-        std::cout << "LOOP ICP ALIGNED POINTS: " << cureKeyframeCloud->size() << " " << target_o3d->points_.size()
-                  << " " << score << " " << overlap << std::endl;
+        std::cout << BOLDBLUE << "LOOP ICP ALIGNED POINTS, score/overlap: " << cureKeyframeCloud->size() << " " << target_o3d->points_.size()
+                  << " " << score << " " << overlap << RESET << std::endl;
     }
     if (score > loopFitnessScoreThreshold || overlap < 0.7 || score == 0.0) {
         // do corse to fine icp
-        std::cout << "LOOP ICP FAILED: " << cureKeyframeCloud->size() << " " << target_o3d->points_.size()
-                  << " " << score << " " << overlap << std::endl;
+        std::cout << BOLDBLUE << "LOOP ICP FAILED, score/overlap: " << cureKeyframeCloud->size() << " " << target_o3d->points_.size()
+                  << " " << score << " " << overlap << RESET << std::endl;
         return false;
     }
 
@@ -431,7 +431,8 @@ bool CloudProcess::DoICPVirtualRelative2(std::vector<Measurement> &keyMeasures,
         // 将 Tensor 转换为 Eigen 矩阵
         Eigen::MatrixXd ifm_eigen = open3d::core::eigen_converter::TensorToEigenMatrixXd(information_matrix);
         if (ifm_eigen.rows() == 6 && ifm_eigen.cols() == 6) {
-            icp_cov = ifm_eigen.inverse() * 1e-3;
+            // icp_cov = ifm_eigen.inverse() * 1e-3;
+            icp_cov = ifm_eigen.inverse();
             flag = true;
             std::cout << "O3D LOOP ICP COV: \n" << icp_cov.diagonal().transpose() << std::endl;
         } else {
