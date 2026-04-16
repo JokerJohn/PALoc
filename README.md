@@ -210,6 +210,30 @@ rosbag play Parkinglot-2023-10-28-18-59-01.bag
 rosbag play parkland0.bag
 ```
 
+### MID360 Examples
+
+This branch also includes three MID360-oriented launch examples and the matching PALoc YAML files:
+
+- `paloc/launch/office_mid360.launch` for the office sequence with MID360 lidar and MID360 IMU.
+- `paloc/launch/office_mid360_fs_imu.launch` for the office sequence when the MID360 lidar is used with an FS IMU/body frame.
+- `paloc/launch/outdoor_mid360.launch` as an outdoor MID360 template with rosbag playback.
+
+These launch files reuse external configuration from `FAST_LIO`, and the two office examples also reuse the office prior-map seed from `LTLoc`. Make sure the following resources are available in your ROS workspace before running them:
+
+- `fast_lio/config/mid360_bag.yaml`
+- `fast_lio/launch/mapping_mid360_bag_fs_imu.launch`
+- `ltloc/config/yaml/fastlivo2_fs_localization.yaml`
+
+Example commands:
+
+```bash
+roslaunch paloc office_mid360.launch
+roslaunch paloc office_mid360_fs_imu.launch
+roslaunch paloc outdoor_mid360.launch bag_path:=/path/to/your.bag prior_map_directory:=/path/to/prior_map/
+```
+
+For outdoor sequences, edit `paloc/config/yaml/outdoor_mid360.yaml` and set the sequence-specific `initial_pose` before running.
+
  You can save data. 
 
 ```bash

@@ -1,0 +1,88 @@
+# PALoc outdoor config - MID360 lidar + MID360 IMU
+# Usage: set initial_pose for your sequence, then roslaunch paloc outdoor_mid360.launch bag_path:=...
+#
+# initial_pose is a 4x4 row-major T_map_body matrix (body = MID360 IMU frame).
+# initialType: 1 -> yaml pose + ICP refinement (rough pose OK)
+# initialType: 2 -> use yaml pose directly (must be accurate)
+
+common:
+  lid_topic: "/livox/lidar"
+  imu_topic: "/livox/imu"
+
+  acc_cov: 0.1
+  gyr_cov: 0.1
+  b_acc_cov: 0.0001
+  b_gyr_cov: 0.0001
+
+  # MID360 lidar in MID360 IMU frame
+  extrinsic_T: [-0.011, -0.02329, 0.04412]
+  extrinsic_R: [1, 0, 0,
+                0, 1, 0,
+                0, 0, 1]
+
+  odom_link: "camera_init"
+  scan_filter_size: 0.1
+  map_viewer_size: 0.2
+  map_saved_size: 0.2
+
+  useImuFrame: true
+  useLoopClosure: true
+
+  saveResultBag: false
+  saveResultBodyFrame: true
+  saveKeyFrame: false
+
+  # Output frame transform: T_body_target (4x4 row-major, default identity)
+  # Applied as T_map_target = T_map_body * output_transform
+  # output_transform: [1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1]
+
+  # =====================================================================
+  # Initial pose - 4x4 row-major, T_priormap_mid360imu
+  # Uncomment / fill in the block for your sequence.
+  # =====================================================================
+
+  # -- dsh1-1 --
+  # initial_pose: [ 1, 0, 0, 0,
+  #                 0, 1, 0, 0,
+  #                 0, 0, 1, 0,
+  #                 0, 0, 0, 1]
+
+  # -- dsh1-2 --
+  # initial_pose: [ 1, 0, 0, 0,
+  #                 0, 1, 0, 0,
+  #                 0, 0, 1, 0,
+  #                 0, 0, 0, 1]
+
+  # -- dsh2-1 --
+  # initial_pose: [ 1, 0, 0, 0,
+  #                 0, 1, 0, 0,
+  #                 0, 0, 1, 0,
+  #                 0, 0, 0, 1]
+
+  # -- dsh3-1 --
+  initial_pose: [ 1, 0, 0, 0,
+                  0, 1, 0, 0,
+                  0, 0, 1, 0,
+                  0, 0, 0, 1]
+
+pgo:
+  initialType: 1            # 1=yaml+ICP refinement, 2=direct
+  SKIP_FRAMES: 5
+  useRawCloud: false
+  showDegenercy: false
+
+  useGlobalPrior: true
+  useFixcov: false
+  icpO3dType: 1             # 0=point2point, 1=point2plane, 2=GICP
+  degeneracy_thres: 20
+  correspondence_dis: 1.5   # outdoor: slightly more tolerance
+  map_radius: 150           # outdoor: larger search radius
+  map_filter_size: 0.2
+
+  loopFitnessScoreThreshold: 0.6
+  historyKeyframeSearchRadius: 20.0
+  historyKeyframeSearchTimeDiff: 40.0
+  historyKeyframeSearchNum: 25
+  loopClosureFrequency: 1
+  filterDis: 1.0
+  filterNodeNum: 10

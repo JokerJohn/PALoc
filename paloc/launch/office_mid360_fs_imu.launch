@@ -1,0 +1,40 @@
+<launch>
+  <arg name="rviz" default="false" />
+  <arg name="fastlio_rviz" default="false" />
+  <arg name="sequence" default="office" />
+  <arg name="bag_path" default="/home/xchu/data/slamData/office.bag" />
+  <arg name="play_rate" default="2.0" />
+  <arg name="bag_start_delay" default="5" />
+  <arg name="save_directory" default="/home/xchu/fushi_ws/results/paloc_mid360_gt/" />
+  <arg name="prior_map_directory" default="/home/xchu/data/slamData/gt_voxel_0p2_ltloc/" />
+  <arg name="ltloc_config" default="$(find ltloc)/config/yaml/fastlivo2_fs_localization.yaml" />
+  <arg name="paloc_config" default="$(find paloc)/config/yaml/office_mid360_fs_imu.yaml" />
+
+  <param name="/use_sim_time" value="true" />
+  <param name="config_directory" type="string" value="$(find paloc)/config/" />
+  <param name="save_directory" type="string" value="$(arg save_directory)" />
+  <param name="prior_map_directory" type="string" value="$(arg prior_map_directory)" />
+
+  <!-- Reuse office prior map / initial pose from LTLoc, then override PALoc sensor-specific settings. -->
+  <rosparam file="$(arg ltloc_config)" command="load" />
+  <rosparam file="$(arg paloc_config)" command="load" />
+  <rosparam param="common/sequence" subst_value="true">$(arg sequence)</rosparam>
+
+  <include file="$(find fast_lio)/launch/mapping_mid360_bag_fs_imu.launch">
+    <arg name="rviz" value="$(arg fastlio_rviz)" />
+    <arg name="auto_save_eval" value="false" />
+    <arg name="imu_topic" value="/imu_raw" />
+  </include>
+
+  <node pkg="paloc" type="pgo_localization" name="pgo_localization" output="screen">
+    <remap from="/lidar_odometry" to="/Odometry" />
+  </node>
+
+  <node pkg="rosbag" type="play" name="bag_play"
+        args="$(arg bag_path) --clock -d $(arg bag_start_delay) -r $(arg play_rate) --topics /livox/lidar /imu_raw" />
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_pgo"
+          args="-d $(find paloc)/config/rviz/ouster_indoors.rviz" />
+  </group>
+</launch>

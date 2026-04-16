@@ -1,0 +1,67 @@
+common:
+  lid_topic: "/livox/lidar"
+  imu_topic: "/livox/imu"
+
+  acc_cov: 0.1
+  gyr_cov: 0.1
+  b_acc_cov: 0.0001
+  b_gyr_cov: 0.0001
+
+  extrinsic_T: [-0.011, -0.02329, 0.04412]
+  extrinsic_R: [1, 0, 0,
+                0, 1, 0,
+                0, 0, 1]
+
+  odom_link: "camera_init"
+  scan_filter_size: 0.1
+  map_viewer_size: 0.2
+  map_saved_size: 0.2
+
+  useImuFrame: true
+  useLoopClosure: true
+
+  saveResultBag: false
+  saveResultBodyFrame: true
+  saveKeyFrame: false
+
+  # Output frame transform: T_body_target (4x4 row-major)
+  # Applied as T_map_target = T_map_body * output_transform
+  # Here: T_mid360imu_fsimu, so output is T_map_fsimu
+  output_transform: [ 0.965926, -0.258819,  0.000000, -0.036796,
+                      0.258819,  0.965926,  0.000000, -0.113945,
+                      0.000000,  0.000000,  1.000000,  0.001020,
+                      0.000000,  0.000000,  0.000000,  1.000000]
+
+  # Initial pose - 4x4 row-major, T_priormap_mid360imu (office sequence)
+  # Converted from FS IMU to MID360 IMU frame:
+  # T_map_mid360imu = T_map_fsimu * T_fsimu_mid360imu
+  initial_pose: [ 0.954750,  0.067091,  0.289742,  33.788460,
+                 -0.071329,  0.997445,  0.004073, -11.068160,
+                 -0.288728, -0.024555,  0.957097,  -0.847694,
+                  0.0,        0.0,       0.0,        1.0]
+
+compat:
+  registered_body_topic: "/cloud_registered_body"
+  lidar_odometry_topic: "/Odometry"
+
+pgo:
+  initialType: 2
+  SKIP_FRAMES: 5
+  useRawCloud: false
+  showDegenercy: false
+
+  useGlobalPrior: true
+  useFixcov: false
+  icpO3dType: 1
+  degeneracy_thres: 20
+  correspondence_dis: 1.0
+  map_radius: 50
+  map_filter_size: 0.1
+
+  loopFitnessScoreThreshold: 0.45
+  historyKeyframeSearchRadius: 10.0
+  historyKeyframeSearchTimeDiff: 30.0
+  historyKeyframeSearchNum: 25
+  loopClosureFrequency: 1
+  filterDis: 0.2
+  filterNodeNum: 5

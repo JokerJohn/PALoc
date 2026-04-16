@@ -1,0 +1,50 @@
+common:
+  imu_topic: "/imu_raw"
+
+  acc_cov: 8.542347454980121e-03
+  gyr_cov: 0.010145051118493028
+  b_acc_cov: 5.681443420546884e-04
+  b_gyr_cov: 1.147625523110903e-03
+
+  # MID360 lidar in FS IMU/body frame, reused from FAST_LIO mid360_bag_fs_imu.yaml.
+  extrinsic_T: [0.04837824, 0.08088706, 0.04309635]
+  extrinsic_R: [0.96359699, 0.00546129, 0.26730324,
+                -0.01278685, 0.99958863, 0.02567245,
+                -0.26705307, -0.02815586, 0.96327042]
+
+  odom_link: "camera_init"
+  scan_filter_size: 0.1
+  map_viewer_size: 0.1
+  map_saved_size: 0.1
+
+  useImuFrame: true
+  useLoopClosure: true
+
+  saveResultBag: false
+  saveResultBodyFrame: true
+  saveKeyFrame: false
+
+pgo:
+  # Use the accurate office seed loaded from LTLoc directly.
+  initialType: 2
+  SKIP_FRAMES: 5
+  useRawCloud: false
+  showDegenercy: false
+
+  useGlobalPrior: false
+  useFixcov: false
+  icpO3dType: 1
+  degeneracy_thres: 20
+  correspondence_dis: 1.0
+  map_radius: 80
+  map_filter_size: 0.1
+
+  loopZOffset: 5.0
+  historyKeyframeSearchRadius: 10.0
+  historyKeyframeSearchTimeDiff: 30.0
+  historyKeyframeSearchNum: 40
+  loopFitnessScoreThreshold: 0.4
+  loopClosureFrequency: 1
+
+  filterDis: 0.2
+  filterNodeNum: 5
